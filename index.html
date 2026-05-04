@@ -465,11 +465,11 @@
                 </div>
 
                 <!-- NOVO BLOCO: HISTÓRICO CONTÍNUO DE PENDÊNCIAS (A GAVETA) -->
-                <div class="bg-slate-800 dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-700 mt-6 mb-6 no-print transition-colors">
-                    <h2 class="text-lg font-bold text-slate-200 mb-2 border-b border-slate-600 pb-2 flex items-center gap-2">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mt-6 mb-6 no-print transition-colors">
+                    <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2 border-b border-slate-200 dark:border-slate-600 pb-2 flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-alyellow"></i> Histórico Contínuo (Pendências Antigas)
                     </h2>
-                    <p class="text-xs text-slate-400 mb-5">Itens reincidentes ou riscos assumidos migrados de dias anteriores. Eles não são apagados ao "Limpar Ronda".</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Itens reincidentes ou riscos assumidos migrados de dias anteriores. Eles não são apagados ao "Limpar Ronda".</p>
                     <div id="lista-historico-pendencias" class="space-y-4">
                         <!-- Preenchido dinamicamente pelo JS -->
                     </div>
@@ -1595,31 +1595,32 @@
             historicoPendencias.forEach((pend, index) => {
                 const isAssumido = pend.statusHistorico === "Risco Assumido";
                 const borderCor = isAssumido ? "border-purple-500" : "border-red-500";
-                const bgCor = isAssumido ? "bg-purple-900/20" : "bg-slate-700";
+                // As cores agora acompanham o Claro/Escuro do App
+                const bgCor = isAssumido ? "bg-purple-50 dark:bg-purple-900/20" : "bg-slate-50 dark:bg-slate-800";
                 
                 html += `
-                <div class="${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-600">
+                <div class="${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
                         <div class="flex-1">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${pend.categoria}</span>
-                            <h4 class="text-sm font-bold text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${pend.categoria}</span>
+                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
                         </div>
-                        <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider shrink-0 transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 text-white' : 'bg-slate-600 text-slate-300 hover:bg-slate-500 border border-slate-500'}">
+                        <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider shrink-0 transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
                             ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Marcar Risco Assumido'}
                         </button>
                     </div>
                     
-                    <div class="flex flex-wrap gap-4 text-xs text-slate-300 mb-3 bg-slate-800 p-2.5 rounded shadow-inner border border-slate-700">
+                    <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mb-3 bg-white dark:bg-slate-900 p-2.5 rounded shadow-inner border border-slate-200 dark:border-slate-700 transition-colors">
                         <span title="Criado em: ${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-calendar-days text-alyellow mr-1"></i> Dias em aberto: <b class="text-white text-sm">${pend.diasAberto}</b>
+                            <i class="fa-solid fa-calendar-days text-alyellow mr-1"></i> Dias em aberto: <b class="text-slate-800 dark:text-white text-sm">${pend.diasAberto}</b>
                         </span>
                         <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-bullseye text-red-400 mr-1"></i> Reincidência: <b class="text-white text-sm">${pend.contagemVezes}x</b>
+                            <i class="fa-solid fa-bullseye text-red-500 dark:text-red-400 mr-1"></i> Reincidência: <b class="text-slate-800 dark:text-white text-sm">${pend.contagemVezes}x</b>
                         </span>
                     </div>
 
-                    <label class="text-[10px] uppercase font-bold text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
-                    <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="2" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-sm text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm" placeholder="Atualize o status da cobrança ou justifique aqui...">${pend.ultimaAnotacao || ""}</textarea>
+                    <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
+                    <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="2" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Atualize o status da cobrança ou justifique aqui...">${pend.ultimaAnotacao || ""}</textarea>
                 </div>
                 `;
             });
