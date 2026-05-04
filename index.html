@@ -366,22 +366,21 @@
                     </div>
                 </div>
 
-                <!-- MODO OP - AVANÇADO (Integração IA Bi-direcional) -->
-                <div id="area-botoes-op" style="display: none !important;" class="no-print bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700/50 rounded-xl p-6 text-center text-purple-800 dark:text-purple-300 flex flex-col items-center justify-center mt-6 transition-colors">
-                    <i class="fa-solid fa-robot text-3xl mb-2 opacity-80"></i>
-                    <h3 class="font-bold text-purple-900 dark:text-purple-200">Modo OP - Avançado (Integração IA)</h3>
-                    <p class="text-xs mb-4 text-purple-700 dark:text-purple-400">Exporte os dados cruos para a IA ou importe um arquivo processado para atualizar a ronda instantaneamente.</p>
-                    
+                <!-- MODO OP - AVANÇADO (Gerenciador de Dados) -->
+                <div id="area-botoes-op" style="display: none !important;" class="no-print bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center flex flex-col items-center justify-center mt-6 transition-colors shadow-sm">
+                    <i class="fa-solid fa-database text-3xl mb-2 text-alblue dark:text-blue-400 opacity-80"></i>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-200">Gerenciador de Dados SGI (Leve)</h3>
+                    <p class="text-xs mb-4 text-slate-500 dark:text-slate-400">Exporte backups ou apenas os dados da vistoria. <b>As fotos não são exportadas</b> para manter o arquivo leve e permitir a edição no Bloco de Notas.</p>
                     <div class="flex flex-wrap gap-3 justify-center w-full">
-                        <button onclick="exportarRondaJSON()" class="bg-purple-600 dark:bg-purple-700 text-white font-bold py-2 px-5 rounded-lg hover:bg-purple-700 dark:hover:bg-purple-600 transition shadow-md flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-export"></i> Exportar Ronda
+                        <button onclick="exportarRondaJSON()" class="bg-alblue hover:bg-alblue_light dark:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition shadow flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-file-shield"></i> Backup Completo
                         </button>
-                        
-                        <!-- Input Oculto para o Arquivo -->
+                        <button onclick="exportarDadosJSON()" class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-300 dark:hover:bg-slate-600 font-bold py-2 px-4 rounded-lg transition shadow-sm flex items-center justify-center gap-2 text-sm border border-slate-300 dark:border-slate-600">
+                            <i class="fa-solid fa-file-code"></i> Apenas Dados
+                        </button>
                         <input type="file" id="input-import-json" accept=".json" class="hidden" onchange="importarRondaJSON(event)">
-                        
-                        <button onclick="document.getElementById('input-import-json').click()" class="bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-400 border border-purple-300 dark:border-purple-600 font-bold py-2 px-5 rounded-lg hover:bg-purple-200 dark:hover:bg-purple-800 transition shadow-sm flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-import"></i> Importar Ronda
+                        <button onclick="document.getElementById('input-import-json').click()" class="bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-600 font-bold py-2 px-4 rounded-lg hover:bg-green-200 dark:hover:bg-green-800 transition shadow-sm flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-upload"></i> Importar JSON
                         </button>
                     </div>
                 </div>
@@ -1649,9 +1648,22 @@
                 }
                 
                 html += `
-                <div class="${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
+                <div class="relative ${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
+                    
+                    <!-- NOVO: Botões Mágicos do Modo OP -->
+                    ${isModoOp ? `
+                    <div class="no-print absolute top-2 right-2 flex gap-1 z-10">
+                        <button title="Editar Descrição do Histórico" onclick="editarItemHistorico(${index})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 bg-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
+                            <i class="fa-solid fa-pen text-[10px]"></i>
+                        </button>
+                        <button title="Excluir Definitivamente do Banco" onclick="excluirItemHistorico(${index})" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 bg-white hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
+                            <i class="fa-solid fa-trash text-[10px]"></i>
+                        </button>
+                    </div>
+                    ` : ''}
+
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
-                        <div class="flex-1">
+                        <div class="flex-1 ${isModoOp ? 'pr-16' : ''}"> <!-- Espaço para não encavalar nos botões OP -->
                             <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">${iconStatus} ${pend.categoria}</span>
                             <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
                         </div>
@@ -1666,7 +1678,11 @@
                     </div>
                     
                     <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mb-3 bg-white dark:bg-slate-900 p-2.5 rounded shadow-inner border border-slate-200 dark:border-slate-700 transition-colors">
-                        <span title="Criado em: ${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}">
+                        <!-- NOVO: Data de Criação Visível -->
+                        <span>
+                            <i class="fa-solid fa-calendar-plus text-blue-500 mr-1"></i> Criado em: <b class="text-slate-800 dark:text-white text-sm">${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</b>
+                        </span>
+                        <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
                             <i class="fa-solid fa-calendar-days text-alyellow mr-1"></i> Dias em aberto: <b class="text-slate-800 dark:text-white text-sm">${pend.diasAberto}</b>
                         </span>
                         <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
@@ -1744,6 +1760,32 @@
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             atualizarGraficos(); // NOVO: Atualiza o gráfico de SLA em tempo real
             mostrarToast("Responsáveis / OS vinculados com sucesso!");
+        }
+
+        // =====================================================
+        // NOVO: FERRAMENTAS DO MODO OP PARA O HISTÓRICO
+        // =====================================================
+        function editarItemHistorico(index) {
+            const pend = historicoPendencias[index];
+            const novaDescricao = prompt("MODO OP - Editar Descrição do Problema:", pend.descricao);
+            
+            if (novaDescricao !== null && novaDescricao.trim() !== "") {
+                pend.descricao = novaDescricao.trim();
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                renderizarHistoricoPendencias();
+                mostrarToast("Descrição do histórico atualizada com sucesso!");
+            }
+        }
+
+        function excluirItemHistorico(index) {
+            const pend = historicoPendencias[index];
+            if (confirm(`MODO OP - ATENÇÃO EXTREMA!\nDeseja apagar PERMANENTEMENTE o item:\n"${pend.descricao}"\ndo seu Banco de Histórico Contínuo?`)) {
+                historicoPendencias.splice(index, 1);
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                atualizarGraficos();
+                renderizarHistoricoPendencias();
+                mostrarToast("Item apagado do banco de dados!");
+            }
         }
 
         // -----------------------------------------------------
@@ -2497,7 +2539,7 @@
         function desbloquearModoOP() {
             const senha = document.getElementById('senhaOp').value;
             
-            if (senha === "SESMT2026") {
+            if (senha === "WELL2103") {
                 // Esconde a área de senha e força a exibição do Painel
                 document.getElementById('area-desbloqueio-op').style.display = 'none';
                 document.getElementById('area-botoes-op').setAttribute('style', 'display: flex !important;');
@@ -2508,23 +2550,38 @@
             }
         }
 
-        // ATUALIZADO (Etapa 10.3): Super Exportador JSON (Backup Completo com Data/Hora)
+        // NOVO: Filtro para arrancar códigos Base64 pesados antes de exportar
+        function removerMidiaDoProgresso(progresso) {
+            let copia = JSON.parse(JSON.stringify(progresso)); // Cópia profunda
+            // Remove fotos das respostas
+            if (copia.respostas) {
+                Object.keys(copia.respostas).forEach(key => {
+                    if (copia.respostas[key].fotoBase64) copia.respostas[key].fotoBase64 = null;
+                });
+            }
+            // Remove o conteúdo pesado dos anexos (mas mantém o registro do nome do arquivo)
+            if (copia.anexos) {
+                copia.anexos.forEach(anexo => {
+                    if (anexo.dadosBase64) anexo.dadosBase64 = "";
+                });
+            }
+            return copia;
+        }
+
+        // ATUALIZADO: Exportador Backup Completo (Sem Fotos)
         function exportarRondaJSON() {
-            // 1. Gera as strings de Data e Hora para o arquivo
             const dataObj = new Date();
             const dataFormatada = `${("0"+dataObj.getDate()).slice(-2)}-${("0"+(dataObj.getMonth()+1)).slice(-2)}-${dataObj.getFullYear()}`;
             const horaFormatada = `${("0"+dataObj.getHours()).slice(-2)}h${("0"+dataObj.getMinutes()).slice(-2)}`;
 
-            // 2. Cria o Objeto Master englobando todo o cérebro do aplicativo
             const backupCompleto = {
                 tipoBackup: "SGI_MASTER",
                 dataGeracao: dataObj.toLocaleString('pt-BR'),
                 molde: moldeAtual,
-                progressoHoje: estadoAtualRonda,
+                progressoHoje: removerMidiaDoProgresso(estadoAtualRonda),
                 historico: historicoPendencias
             };
 
-            // 3. Exporta o JSON formatado
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupCompleto, null, 4));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
@@ -2532,11 +2589,33 @@
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
-            
-            mostrarToast("Backup Completo exportado com sucesso!");
+            mostrarToast("Backup Completo (Leve) exportado!");
         }
 
-        // ATUALIZADO (Etapa 10.3): Super Importador JSON
+        // NOVO: Exportador Apenas de Dados e Histórico (Sem Fotos)
+        function exportarDadosJSON() {
+            const dataObj = new Date();
+            const dataFormatada = `${("0"+dataObj.getDate()).slice(-2)}-${("0"+(dataObj.getMonth()+1)).slice(-2)}-${dataObj.getFullYear()}`;
+            const horaFormatada = `${("0"+dataObj.getHours()).slice(-2)}h${("0"+dataObj.getMinutes()).slice(-2)}`;
+
+            const backupDados = {
+                tipoBackup: "SGI_DATA",
+                dataGeracao: dataObj.toLocaleString('pt-BR'),
+                progressoHoje: removerMidiaDoProgresso(estadoAtualRonda),
+                historico: historicoPendencias
+            };
+
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupDados, null, 4));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            downloadAnchorNode.setAttribute("download", `Dados_SGI_${dataFormatada}_${horaFormatada}.json`);
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+            mostrarToast("Apenas Dados (Leve) exportado!");
+        }
+
+        // ATUALIZADO: Importador Universal
         function importarRondaJSON(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -2546,28 +2625,35 @@
                 try {
                     const dadosImportados = JSON.parse(e.target.result);
 
-                    // Verifica se é o Novo Formato de Backup Master
                     if (dadosImportados.tipoBackup === "SGI_MASTER") {
                         localStorage.setItem('sgi_vistoria_molde', JSON.stringify(dadosImportados.molde || []));
                         localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(dadosImportados.progressoHoje || {}));
                         localStorage.setItem('sgi_historico_pendencias', JSON.stringify(dadosImportados.historico || []));
-                        
-                        bootApp(); // Reinicia a tela inteira
-                        mostrarToast("Backup Completo restaurado com sucesso!");
+                        bootApp(); 
+                        mostrarToast("Backup Completo restaurado!");
                     } 
-                    // Suporte legado (Caso o usuário importe um backup da versão anterior)
+                    else if (dadosImportados.tipoBackup === "SGI_DATA") {
+                        localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(dadosImportados.progressoHoje || {}));
+                        localStorage.setItem('sgi_historico_pendencias', JSON.stringify(dadosImportados.historico || []));
+                        bootApp();
+                        mostrarToast("Dados e Histórico restaurados!");
+                    }
                     else if (dadosImportados && typeof dadosImportados.respostas === 'object') {
                         localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(dadosImportados));
                         bootApp();
-                        mostrarToast("Ronda legada importada com sucesso!");
+                        mostrarToast("Ronda legada importada!");
                     } else {
                         alert("O arquivo selecionado não parece ser um backup válido do SGI.");
                     }
                 } catch (error) {
-                    alert("Erro de sintaxe no arquivo JSON. Verifique a formatação da IA.");
                     console.error("Erro ao ler JSON:", error);
+                    if (error.name === 'QuotaExceededError' || (error.message && error.message.includes('quota'))) {
+                        alert("ERRO DE ARMAZENAMENTO:\nEste arquivo contém mídias pesadas que ultrapassam o limite de 5MB do navegador.");
+                    } else {
+                        alert("Erro de sintaxe. O arquivo JSON foi editado incorretamente e está corrompido.");
+                    }
                 }
-                event.target.value = ""; // Limpa o input
+                event.target.value = ""; 
             };
             reader.readAsText(file);
         }
