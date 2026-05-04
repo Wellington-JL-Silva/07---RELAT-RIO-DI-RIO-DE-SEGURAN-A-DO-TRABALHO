@@ -856,7 +856,8 @@
                         status: null, 
                         observacao: "",
                         solucao: "",
-                        fotoBase64: null 
+                        fotoBase64: null,
+                        responsavel: "" // NOVO: Campo no checklist ativo
                     };
                 });
             });
@@ -1067,7 +1068,8 @@
                     const temFoto = resposta && resposta.fotoBase64 !== null;
                     const temNota = resposta && resposta.observacao.trim() !== "";
                     const temSolucao = resposta && resposta.solucao && resposta.solucao.trim() !== "";
-                    const areaAberta = isNk || isSa || temFoto || temNota || temSolucao;
+                    const temResponsavel = resposta && resposta.responsavel && resposta.responsavel.trim() !== "";
+                    const areaAberta = isNk || isSa || temFoto || temNota || temSolucao || temResponsavel;
 
                     const bordaItem = isModoOp ? 'border-red-200 dark:border-red-800 border-dashed' : 'border-slate-200 dark:border-slate-700';
 
@@ -1132,6 +1134,13 @@
                                             <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Qual foi a solução adotada?</label>
                                             <textarea id="solucao-${item.idItem}" onchange="salvarSolucao('${item.idItem}', this.value)" rows="2" placeholder="Descreva como a situação foi resolvida no local..." class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-alblue dark:focus:ring-blue-500 text-slate-700 dark:text-slate-200 transition-all resize-none shadow-sm">${resposta && resposta.solucao ? resposta.solucao : ''}</textarea>
                                         </div>
+
+                                        <!-- NOVO CAMPO: Responsáveis e OS -->
+                                        <div id="box-responsavel-${item.idItem}" class="mt-1">
+                                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Responsáveis / OS (separe com ;)</label>
+                                            <input type="text" id="responsavel-${item.idItem}" onchange="salvarResponsavel('${item.idItem}', this.value)" value="${resposta && resposta.responsavel ? resposta.responsavel : ''}" placeholder="Ex: Manutenção; OS-1234; Compras" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-alblue dark:focus:ring-blue-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm">
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1243,7 +1252,8 @@
                 status: null, 
                 observacao: "",
                 solucao: "",
-                fotoBase64: null 
+                fotoBase64: null,
+                responsavel: "" // NOVO: Campo no checklist ativo
             };
             
             salvarEAtualizarEstrutura();
@@ -1375,6 +1385,25 @@
             const obs = estadoAtualRonda.respostas[itemId].observacao || "";
             if (btnNota) {
                 if (texto.trim() !== "" || obs.trim() !== "") {
+                    btnNota.className = "no-print flex-1 sm:flex-none px-3 py-2 rounded-md text-xs font-bold bg-alyellow text-slate-900 dark:bg-yellow-500 dark:text-slate-900 transition-colors flex items-center justify-center gap-2";
+                    btnNota.innerHTML = '<i class="fa-solid fa-book"></i> <span>Anotado</span>';
+                } else {
+                    btnNota.className = "no-print flex-1 sm:flex-none px-3 py-2 rounded-md text-xs font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2";
+                    btnNota.innerHTML = '<i class="fa-solid fa-book"></i> <span>Anotar</span>';
+                }
+            }
+        }
+
+        function salvarResponsavel(itemId, texto) {
+            estadoAtualRonda.respostas[itemId].responsavel = texto;
+            salvarProgresso();
+            
+            const btnNota = document.getElementById(`btn-nota-${itemId}`);
+            const obs = estadoAtualRonda.respostas[itemId].observacao || "";
+            const sol = estadoAtualRonda.respostas[itemId].solucao || "";
+            
+            if (btnNota) {
+                if (texto.trim() !== "" || obs.trim() !== "" || sol.trim() !== "") {
                     btnNota.className = "no-print flex-1 sm:flex-none px-3 py-2 rounded-md text-xs font-bold bg-alyellow text-slate-900 dark:bg-yellow-500 dark:text-slate-900 transition-colors flex items-center justify-center gap-2";
                     btnNota.innerHTML = '<i class="fa-solid fa-book"></i> <span>Anotado</span>';
                 } else {
@@ -2067,6 +2096,7 @@
                                 <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
                                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
                                 ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
+                                ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
                                 ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
                             </div>
                         `;
@@ -2078,6 +2108,7 @@
                                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countResolvidos}. ${item.descricao}</p>
                                 ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
                                 ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
+                                ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
                                 ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
                             </div>
                         `;
@@ -2177,6 +2208,48 @@
                 });
             }
 
+            // Estrutura Visual: Passivo de Auditoria (Histórico Contínuo NÃO Resolvido)
+            const historicoPendente = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
+            if (historicoPendente.length > 0) {
+                html += `
+                <div style="page-break-before: always; break-before: page;" class="w-full pt-8 pb-4">
+                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
+                    </h2>
+                    <div class="space-y-4">
+                `;
+                
+                historicoPendente.forEach((pend) => {
+                    const isAssumido = pend.statusHistorico === "Risco Assumido";
+                    const borderCor = isAssumido ? "border-purple-400" : "border-red-400";
+                    const bgTag = isAssumido ? "bg-purple-100 text-purple-800" : "bg-red-100 text-red-800";
+                    const iconStatus = isAssumido ? '<i class="fa-solid fa-shield-halved"></i> Risco Assumido' : '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
+
+                    html += `
+                    <div class="border border-slate-300 border-l-4 ${borderCor} p-4 rounded bg-slate-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm">
+                        <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
+                            <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${bgTag}">${iconStatus}</span>
+                        </div>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">${pend.descricao}</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-2">
+                            <p><b>Dias Aberto:</b> <span class="text-red-500 font-bold">${pend.diasAberto}</span></p>
+                            <p><b>Cobrado:</b> ${pend.contagemVezes}x</p>
+                            <p><b>Criado:</b> ${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</p>
+                            <p><b>Visto Últ:</b> ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}</p>
+                        </div>
+                        ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b>Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
+                        ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b>Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+                    </div>
+                    `;
+                });
+                
+                html += `
+                    </div>
+                </div>
+                `;
+            }
+
             // Assinatura
             html += `
                 <div class="mt-16 pt-8 text-center break-inside-avoid">
@@ -2260,6 +2333,7 @@
                                 
                                 // Preserva ou atualiza a anotação se houver uma nova
                                 if(resp.observacao) pendenciaExistente.ultimaAnotacao = resp.observacao;
+                                if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel; // NOVO: Atualiza o responsável
                                 
                             } else {
                                 // Cria uma nova pendência no fundo do aplicativo
@@ -2273,7 +2347,7 @@
                                     diasAberto: 0,
                                     ultimaAnotacao: resp.observacao || "Sem anotação",
                                     statusHistorico: "Pendente",
-                                    responsavelTratativa: "", // NOVO: Gestão de SLA
+                                    responsavelTratativa: resp.responsavel || "", // ATUALIZADO: Herda da ronda atual
                                     dataResolucao: null,      // NOVO: Gestão de SLA
                                     diasParaResolver: null    // NOVO: Gestão de SLA
                                 });
