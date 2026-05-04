@@ -1882,19 +1882,19 @@
             } else {
                 htmlFinal += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
                 
-                // Coluna: Itens Pontuados
-                htmlFinal += `<div>
-                    <h3 class="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-xmark-circle"></i> Itens Pontuados (${countPontuados})</h3>
-                    <div class="space-y-2">
-                        ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-500 dark:text-slate-400 italic">Nenhum item pendente.</p>'}
-                    </div>
-                </div>`;
-
-                // Coluna: Situações Resolvidas
+                // Coluna: Situações Resolvidas (AGORA VEM PRIMEIRO)
                 htmlFinal += `<div>
                     <h3 class="font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-check-double"></i> Situações Resolvidas (${countResolvidos})</h3>
                     <div class="space-y-2">
                         ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-500 dark:text-slate-400 italic">Nenhuma solução imediata registrada.</p>'}
+                    </div>
+                </div>`;
+
+                // Coluna: Itens Pontuados (AGORA VEM DEPOIS)
+                htmlFinal += `<div>
+                    <h3 class="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-xmark-circle"></i> Itens Pontuados (${countPontuados})</h3>
+                    <div class="space-y-2">
+                        ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-500 dark:text-slate-400 italic">Nenhum item pendente.</p>'}
                     </div>
                 </div>`;
                 
@@ -2193,7 +2193,19 @@
                 }
             });
 
-            // Estrutura Visual: Itens Pontuados
+            // Estrutura Visual: Situações Resolvidas (AGORA VEM PRIMEIRO E EM AZUL)
+            html += `
+                <div class="mb-5 break-inside-avoid page-break-inside-avoid">
+                    <h2 class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1">
+                        <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS
+                    </h2>
+                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
+                        ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma.</p>'}
+                    </div>
+                </div>
+            `;
+
+            // Estrutura Visual: Itens Pontuados (AGORA VEM DEPOIS)
             html += `
                 <div class="mb-5 break-inside-avoid page-break-inside-avoid">
                     <h2 class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1">
@@ -2201,18 +2213,6 @@
                     </h2>
                     <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
                         ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>'}
-                    </div>
-                </div>
-            `;
-
-            // Estrutura Visual: Situações Resolvidas
-            html += `
-                <div class="mb-5 break-inside-avoid page-break-inside-avoid">
-                    <h2 class="text-lg font-bold text-green-600 dark:text-green-400 border-b-2 border-green-200 dark:border-green-800 mb-3 flex items-center gap-2 pb-1">
-                        <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS
-                    </h2>
-                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                        ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma.</p>'}
                     </div>
                 </div>
             `;
@@ -2490,18 +2490,18 @@
                 }
             });
 
-            texto += `*🚨 ITENS PONTUADOS (Aguardando Ação):*\n`;
-            if (itensPontuados === "") {
-                texto += `Nenhum item pontuado nesta ronda.\n\n`;
-            } else {
-                texto += `${itensPontuados}`;
-            }
-
             texto += `*✅ SITUAÇÕES RESOLVIDAS:*\n`;
             if (itensResolvidos === "") {
                 texto += `Nenhuma.\n\n`;
             } else {
                 texto += `${itensResolvidos}`;
+            }
+
+            texto += `*🚨 ITENS PONTUADOS (Aguardando Ação):*\n`;
+            if (itensPontuados === "") {
+                texto += `Nenhum item pontuado nesta ronda.\n\n`;
+            } else {
+                texto += `${itensPontuados}`;
             }
 
             texto += `*✔️ ITENS CONFORMES / AVALIADOS (Auditoria de Área):*\n`;
