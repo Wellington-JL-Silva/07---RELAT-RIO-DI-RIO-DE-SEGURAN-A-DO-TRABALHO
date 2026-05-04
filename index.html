@@ -1788,22 +1788,21 @@
             const imgGeral = chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
             const imgSetores = chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
 
-            // Injeção de Imagens Estáticas forçadas lado a lado e blindadas contra quebra de página
+            // Injeção de Imagens Estáticas formatadas de forma fluida com Tailwind
             html += `
-                <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50" style="page-break-inside: avoid; break-inside: avoid;">
+                <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 break-inside-avoid page-break-inside-avoid">
                     <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center border-b border-slate-200 dark:border-slate-700 pb-2">
                         <i class="fa-solid fa-chart-pie mr-2 text-alblue"></i> Gráficos Analíticos
                     </h3>
                     
-                    <!-- FORÇANDO LADO A LADO SEM RESPONSIVIDADE MOBILE -->
-                    <div style="display: flex; flex-direction: row; gap: 15px; width: 100%; align-items: center; justify-content: space-between;">
-                        <div style="width: 40%; text-align: center;">
+                    <div class="flex flex-col sm:flex-row gap-4 w-full items-center justify-between">
+                        <div class="w-full sm:w-2/5 text-center">
                             <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Status Global</h3>
-                            ${imgGeral ? `<img src="${imgGeral}" style="max-height: 220px; max-width: 100%; margin: 0 auto; object-fit: contain;">` : ''}
+                            ${imgGeral ? `<img src="${imgGeral}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
                         </div>
-                        <div style="width: 60%; text-align: center;">
+                        <div class="w-full sm:w-3/5 text-center">
                             <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor</h3>
-                            ${imgSetores ? `<img src="${imgSetores}" style="max-height: 220px; max-width: 100%; margin: 0 auto; object-fit: contain;">` : ''}
+                            ${imgSetores ? `<img src="${imgSetores}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
                         </div>
                     </div>
                 </div>
@@ -1948,7 +1947,7 @@
             container.innerHTML = html;
         }
 
-        // MOTOR PROFISSIONAL DE EXPORTAÇÃO PDF (BLINDADO CONTRA CRASH E CORTE)
+        // MOTOR PROFISSIONAL DE EXPORTAÇÃO PDF (LIMPO, SEGURO E RAIZ)
         function gerarRelatorioPDF() {
             mostrarToast("A preparar PDF corporativo... Aguarde um instante.");
             
@@ -1958,43 +1957,27 @@
                 atualizarGraficos();
             }
             
-            // Renderiza a prévia gerando imagens estáticas
+            // A mágica: Renderizar a prévia AGORA gera imagens estáticas dos gráficos em Base64
             renderizarPrevia();
             const containerPrevia = document.getElementById('relatorio-print-container');
-            
-            // ANTI-GUILHOTINA: Zera o scroll, destrava o mobile e fixa a largura A4
-            window.scrollTo(0, 0);
-            document.body.classList.remove('h-screen', 'overflow-hidden');
-            document.body.classList.add('h-auto', 'overflow-visible');
-            containerPrevia.style.width = '800px';
-            containerPrevia.style.maxWidth = '800px';
-            containerPrevia.style.margin = '0 auto';
 
             const dataObj = new Date();
             const dataStr = `${("0"+dataObj.getDate()).slice(-2)}-${("0"+(dataObj.getMonth()+1)).slice(-2)}-${dataObj.getFullYear()}`;
             const insp = document.getElementById('input-inspetor').value.replace(/[^a-zA-Z0-9]/g, '_') || "SESMT";
             const nomeArquivo = `Relatorio_Vistoria_${insp}_${dataStr}.pdf`;
 
-            // Configuração Blindada (Sem margin array inválido e sem avoid-all)
+            // Configuração Limpa e Estabilizada (Sem gambiarras de DOM ou windowWidth forçado)
             const opt = {
                 margin:       10, 
                 filename:     nomeArquivo,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, windowWidth: 800, width: 800 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['css', 'legacy'] } 
+                html2canvas:  { scale: 2, useCORS: true, logging: false }, 
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             setTimeout(() => {
-                // Gera o PDF e faz a limpeza obrigatória no then()
+                // Gera o PDF nativamente confiando no layout fluido da página
                 html2pdf().set(opt).from(containerPrevia).save().then(() => {
-                    // DEVOLVE AS CONFIGURAÇÕES DO CELULAR
-                    document.body.classList.add('h-screen', 'overflow-hidden');
-                    document.body.classList.remove('h-auto', 'overflow-visible');
-                    containerPrevia.style.width = '';
-                    containerPrevia.style.maxWidth = '';
-                    containerPrevia.style.margin = '';
-
                     if (isDark) {
                         document.documentElement.classList.add('dark');
                         atualizarGraficos();
