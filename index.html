@@ -2097,11 +2097,13 @@
                     <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
                     <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
                 </div>
-                <div class="mb-6 text-sm text-slate-700 dark:text-slate-300 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
-                    <div><b>Filiais Vistoriadas:</b> ${unidadesStr}</div>
-                    <div><b>Data:</b> ${dataStr}</div>
-                    <div class="sm:col-span-2"><b>Áreas Vistoriadas:</b> ${areasStr}</div>
-                    <div class="sm:col-span-2"><b>Inspetor:</b> ${inspetor}</div>
+                
+                <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
+                <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
+                    <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
+                    <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
+                    <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
+                    <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
                 </div>
             `;
 
