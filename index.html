@@ -335,6 +335,14 @@
                             <canvas id="chartSetores"></canvas>
                         </div>
                     </div>
+                    
+                    <!-- NOVO: Gráfico 3: SLA / Ranking de Tempo de Resposta -->
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors flex flex-col items-center lg:col-span-3">
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2"><i class="fa-solid fa-stopwatch text-purple-500 mr-2"></i>SLA: Tempo Médio de Resolução por Responsável / OS</h3>
+                        <div class="relative w-full h-64 flex justify-center">
+                            <canvas id="chartSla"></canvas>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Exportador de Molde -->
@@ -534,6 +542,7 @@
         let isModoOp = false;
         let chartGeralInstance = null;
         let chartSetoresInstance = null;
+        let chartSlaInstance = null; // NOVO: Instância do Gráfico SLA
 
         function aplicarTemaSalvo() {
             if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -1594,20 +1603,37 @@
             let html = '';
             historicoPendencias.forEach((pend, index) => {
                 const isAssumido = pend.statusHistorico === "Risco Assumido";
-                const borderCor = isAssumido ? "border-purple-500" : "border-red-500";
-                // As cores agora acompanham o Claro/Escuro do App
-                const bgCor = isAssumido ? "bg-purple-50 dark:bg-purple-900/20" : "bg-slate-50 dark:bg-slate-800";
+                const isResolvido = pend.statusHistorico === "Resolvido";
+                
+                let borderCor = "border-red-500";
+                let bgCor = "bg-slate-50 dark:bg-slate-800";
+                let iconStatus = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
+                
+                if (isAssumido) {
+                    borderCor = "border-purple-500";
+                    bgCor = "bg-purple-50 dark:bg-purple-900/20";
+                    iconStatus = '<i class="fa-solid fa-shield-halved text-purple-500"></i>';
+                } else if (isResolvido) {
+                    borderCor = "border-green-500";
+                    bgCor = "bg-green-50 dark:bg-green-900/20";
+                    iconStatus = '<i class="fa-solid fa-check-double text-green-500"></i>';
+                }
                 
                 html += `
                 <div class="${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
                         <div class="flex-1">
-                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${pend.categoria}</span>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">${iconStatus} ${pend.categoria}</span>
                             <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
                         </div>
-                        <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider shrink-0 transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
-                            ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : '<i class="fa-solid fa-triangle-exclamation mr-1"></i> Marcar Risco Assumido'}
-                        </button>
+                        <div class="flex flex-wrap gap-2 shrink-0">
+                            <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
+                                ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : 'Risco Assumido'}
+                            </button>
+                            <button onclick="marcarHistoricoResolvido(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isResolvido ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 dark:hover:bg-green-900/50 border border-green-300 dark:border-green-800'}">
+                                ${isResolvido ? '<i class="fa-solid fa-check-double mr-1"></i> Resolvido' : 'Marcar Resolvido'}
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mb-3 bg-white dark:bg-slate-900 p-2.5 rounded shadow-inner border border-slate-200 dark:border-slate-700 transition-colors">
@@ -1617,10 +1643,23 @@
                         <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
                             <i class="fa-solid fa-bullseye text-red-500 dark:text-red-400 mr-1"></i> Reincidência: <b class="text-slate-800 dark:text-white text-sm">${pend.contagemVezes}x</b>
                         </span>
+                        ${isResolvido && pend.diasParaResolver !== null ? `
+                        <span title="Resolvido em: ${new Date(pend.dataResolucao).toLocaleDateString('pt-BR')}">
+                            <i class="fa-solid fa-stopwatch text-green-500 mr-1"></i> SLA (Tempo de Resposta): <b class="text-green-600 dark:text-green-400 text-sm">${pend.diasParaResolver} dia(s)</b>
+                        </span>
+                        ` : ''}
                     </div>
 
-                    <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
-                    <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="2" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Atualize o status da cobrança ou justifique aqui...">${pend.ultimaAnotacao || ""}</textarea>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Responsáveis / OS (separe com ;)</label>
+                            <input type="text" onchange="atualizarResponsaveisHistorico(${index}, this.value)" value="${pend.responsavelTratativa || ''}" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue shadow-sm transition-colors" placeholder="Ex: Manutenção; OS-1234; Compras">
+                        </div>
+                        <div>
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
+                            <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Status da cobrança...">${pend.ultimaAnotacao || ""}</textarea>
+                        </div>
+                    </div>
                 </div>
                 `;
             });
@@ -1644,6 +1683,38 @@
             historicoPendencias[index].ultimaAnotacao = texto;
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             mostrarToast("Anotação do histórico salva com sucesso!");
+        }
+
+        // NOVO: Calcula o SLA e marca a pendência crônica como resolvida
+        function marcarHistoricoResolvido(index) {
+            const pend = historicoPendencias[index];
+            if (pend.statusHistorico !== "Resolvido") {
+                if(confirm("Confirmar a resolução desta pendência?\nO tempo de resposta (SLA) será calculado e o item será finalizado no histórico.")) {
+                    pend.statusHistorico = "Resolvido";
+                    pend.dataResolucao = new Date().toISOString();
+                    
+                    // Calcula o SLA exato (Dias para Resolver)
+                    const dataPrimeiro = new Date(pend.dataPrimeiroApontamento);
+                    const dataRes = new Date(pend.dataResolucao);
+                    const diferencaTempo = Math.abs(dataRes - dataPrimeiro);
+                    pend.diasParaResolver = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
+                }
+            } else {
+                pend.statusHistorico = "Pendente";
+                pend.dataResolucao = null;
+                pend.diasParaResolver = null;
+            }
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+            atualizarGraficos(); // NOVO: Atualiza o gráfico de SLA em tempo real
+            renderizarHistoricoPendencias();
+        }
+
+        // NOVO: Salva as OS, Departamentos e Responsáveis citados
+        function atualizarResponsaveisHistorico(index, texto) {
+            historicoPendencias[index].responsavelTratativa = texto;
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+            atualizarGraficos(); // NOVO: Atualiza o gráfico de SLA em tempo real
+            mostrarToast("Responsáveis / OS vinculados com sucesso!");
         }
 
         // -----------------------------------------------------
@@ -1842,6 +1913,74 @@
                         },
                         plugins: {
                             legend: { position: 'bottom', labels: { color: corTexto, font: { size: 11 }, boxWidth: 12 } }
+                        }
+                    }
+                });
+            }
+
+            // 3. NOVO: GRÁFICO DE SLA (Ranking de Tempo de Resposta Horizontais)
+            const ctxSla = document.getElementById('chartSla');
+            if (ctxSla) {
+                if (chartSlaInstance) chartSlaInstance.destroy();
+                
+                let slaData = {}; // Estrutura: { "Manutenção": { totalDias: 10, qtd: 2 } }
+
+                // Varre apenas o histórico para encontrar quem resolveu e quando
+                historicoPendencias.forEach(pend => {
+                    if (pend.statusHistorico === "Resolvido" && pend.diasParaResolver !== null && pend.responsavelTratativa) {
+                        // Separa os nomes/OS usando o ponto e vírgula
+                        const responsaveis = pend.responsavelTratativa.split(';');
+                        responsaveis.forEach(resp => {
+                            const nomeLimpo = resp.trim().toUpperCase();
+                            if (nomeLimpo) {
+                                if (!slaData[nomeLimpo]) slaData[nomeLimpo] = { totalDias: 0, qtd: 0 };
+                                slaData[nomeLimpo].totalDias += pend.diasParaResolver;
+                                slaData[nomeLimpo].qtd += 1;
+                            }
+                        });
+                    }
+                });
+
+                let labelsSla = [];
+                let dadosMediaSla = [];
+                
+                // Calcula a média e ordena (do maior tempo de resposta para o menor)
+                const arraySla = Object.keys(slaData).map(nome => {
+                    return { nome: nome, media: Math.round(slaData[nome].totalDias / slaData[nome].qtd) };
+                }).sort((a, b) => b.media - a.media); 
+
+                arraySla.forEach(item => {
+                    labelsSla.push(item.nome);
+                    dadosMediaSla.push(item.media);
+                });
+
+                // Placeholder caso não existam dados resolvidos ainda
+                if (labelsSla.length === 0) {
+                    labelsSla = ["Aguardando Resoluções"];
+                    dadosMediaSla = [0];
+                }
+
+                chartSlaInstance = new Chart(ctxSla.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: labelsSla,
+                        datasets: [{
+                            label: 'Tempo Médio para Resolver (Em Dias)',
+                            data: dadosMediaSla,
+                            backgroundColor: '#a855f7', // Roxo Tailwind para destacar o SLA
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false, animation: false,
+                        indexAxis: 'y', // Fundamental: Barras Horizontais facilitam ler os nomes
+                        scales: {
+                            x: { beginAtZero: true, ticks: { stepSize: 1, color: corTexto }, grid: { color: corGrid } },
+                            y: { ticks: { color: corTexto, font: { size: 10, weight: 'bold' } }, grid: { display: false } }
+                        },
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: false }
                         }
                     }
                 });
@@ -2133,7 +2272,10 @@
                                     contagemVezes: 1,
                                     diasAberto: 0,
                                     ultimaAnotacao: resp.observacao || "Sem anotação",
-                                    statusHistorico: "Pendente" // Futuro suporte para Risco Assumido
+                                    statusHistorico: "Pendente",
+                                    responsavelTratativa: "", // NOVO: Gestão de SLA
+                                    dataResolucao: null,      // NOVO: Gestão de SLA
+                                    diasParaResolver: null    // NOVO: Gestão de SLA
                                 });
                             }
                         }
