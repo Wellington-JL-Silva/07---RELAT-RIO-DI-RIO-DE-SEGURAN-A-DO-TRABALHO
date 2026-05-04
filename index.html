@@ -330,7 +330,7 @@
                     
                     <!-- Gráfico 2: Desempenho por Setor (Barras) -->
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors flex flex-col items-center lg:col-span-2">
-                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor / Categoria</h3>
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Assunto / Categoria</h3>
                         <div class="relative w-full h-64 flex justify-center">
                             <canvas id="chartSetores"></canvas>
                         </div>
@@ -1397,99 +1397,113 @@
         // NOVO MÓDULO: GERENCIAMENTO DE ANEXOS GERAIS
         // =====================================================
         
-        // NOVO: Função inteligente para transformar a Capa do PDF em Imagem (Base64)
+        // NOVO: Função inteligente para transformar TODAS as páginas do PDF em Imagens (Array Base64)
         function converterPDFParaImagemBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
-                
                 reader.onload = async function(e) {
                     try {
                         const arrayBuffer = e.target.result;
                         const typedArray = new Uint8Array(arrayBuffer);
-                        
-                        // Inicializa o motor PDF.js com os bytes do arquivo
                         const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
                         
-                        // Extrai exclusivamente a Página 1 do documento
-                        const page = await pdf.getPage(1);
+                        const numPages = pdf.numPages;
+                        const imagensPaginas = []; // Array que vai guardar todas as folhas
+
+                        // Loop para ler desde a folha 1 até a última folha do PDF
+                        for (let i = 1; i <= numPages; i++) {
+                            const page = await pdf.getPage(i);
+                            const viewport = page.getViewport({ scale: 1.5 });
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+                            
+                            canvas.height = viewport.height;
+                            canvas.width = viewport.width;
+                            
+                            await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+                            imagensPaginas.push(canvas.toDataURL('image/jpeg', 0.8));
+                        }
                         
-                        // Configura um "quadro" (canvas) invisível na memória com qualidade ampliada (scale: 1.5)
-                        const viewport = page.getViewport({ scale: 1.5 });
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.height = viewport.height;
-                        canvas.width = viewport.width;
+                        // Devolve a lista completa de páginas "reveladas" como imagens
+                        resolve(imagensPaginas);
                         
-                        // Imprime (renderiza) a página do PDF neste quadro
-                        const renderContext = {
-                            canvasContext: ctx,
-                            viewport: viewport
-                        };
-                        await page.render(renderContext).promise;
-                        
-                        // Devolve a imagem "revelada" no formato JPEG com boa qualidade
-                        resolve(canvas.toDataURL('image/jpeg', 0.8));
                     } catch (error) {
                         console.error("Erro interno ao processar o PDF localmente:", error);
                         reject(error);
                     }
                 };
-                
                 reader.onerror = error => reject(error);
                 reader.readAsArrayBuffer(file);
             });
         }
 
-        // ATUALIZADO: Agora é assíncrona (async) e decide automaticamente entre Imagem ou PDF
+        // ATUALIZADO (Etapa 9.2): Salva múltiplas páginas se for PDF, ou item único se for Foto
         async function adicionarAnexo() {
             const selectCategoria = document.getElementById('categoria-anexo');
             const inputArquivo = document.getElementById('arquivo-anexo');
             
             const categoria = selectCategoria.value;
-            const file = inputArquivo.files[0];
-
+            const file = inputArquivo.files[0]; // Arquivo selecionado
+            
             if (!categoria) {
                 alert("Por favor, selecione uma Categoria para o anexo.");
                 return;
             }
-
             if (!file) {
                 alert("Por favor, selecione um arquivo (PDF ou Imagem) para anexar.");
                 return;
             }
-
+            
             mostrarToast("A processar anexo... Isto pode levar alguns segundos.");
-
+            
             try {
-                let base64Data = "";
+                let dadosConvertidos;
                 
-                // Inteligência de Roteamento: É um PDF ou uma Imagem comum?
+                // Inteligência de Roteamento: PDF vs Imagem Comum
                 if (file.type === "application/pdf" || file.type.includes("pdf")) {
-                    base64Data = await converterPDFParaImagemBase64(file);
+                    // O nosso motor agora retorna um ARRAY de imagens (uma para cada página)
+                    dadosConvertidos = await converterPDFParaImagemBase64(file);
                 } else {
-                    // Processo padrão para imagens (convertendo com Promise para manter o fluxo async)
-                    base64Data = await new Promise((resolve, reject) => {
+                    dadosConvertidos = await new Promise((resolve, reject) => {
                         const reader = new FileReader();
                         reader.onload = e => resolve(e.target.result);
                         reader.onerror = e => reject(e);
                         reader.readAsDataURL(file);
                     });
                 }
-                
-                estadoAtualRonda.anexos.push({
-                    categoria: categoria,
-                    nomeArquivo: file.name,
-                    tipo: file.type,
-                    dadosBase64: base64Data
-                });
 
+                // O SEGREDO: Salvar corretamente na memória do App
+                if (Array.isArray(dadosConvertidos)) {
+                    // Se for PDF (Array), cria um anexo independente para cada página
+                    const totalPaginas = dadosConvertidos.length;
+                    dadosConvertidos.forEach((paginaBase64, index) => {
+                        estadoAtualRonda.anexos.push({
+                            categoria: categoria,
+                            nomeArquivo: file.name, // Mantemos o nome original para referência
+                            paginaAtual: index + 1,
+                            totalPaginas: totalPaginas,
+                            tipo: "image/jpeg", // As páginas do PDF agora são imagens JPEG renderizadas
+                            dadosBase64: paginaBase64
+                        });
+                    });
+                } else {
+                    // Se for Imagem Comum (Item único)
+                    estadoAtualRonda.anexos.push({
+                        categoria: categoria,
+                        nomeArquivo: file.name,
+                        paginaAtual: 1,
+                        totalPaginas: 1,
+                        tipo: file.type,
+                        dadosBase64: dadosConvertidos
+                    });
+                }
+                
                 salvarProgresso();
                 renderizarListaAnexos();
                 
-                // Limpa os campos para o próximo
+                // Limpa os campos para o próximo upload
                 selectCategoria.value = "";
                 inputArquivo.value = "";
-                
                 mostrarToast("Anexo salvo com sucesso!");
                 
             } catch (error) {
@@ -1904,33 +1918,36 @@
                 `;
             }
 
-            // Estrutura Visual: Anexos Documentais Vinculados
+            // Estrutura Visual: Anexos Documentais Vinculados (Folha Exclusiva por Página)
             if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
-                html += `
-                    <div class="mb-8" style="page-break-before: always; break-before: page;">
-                        <h2 class="text-lg font-bold text-slate-700 dark:text-slate-300 border-b-2 border-slate-200 dark:border-slate-700 mb-4 flex items-center gap-2 pb-1 pt-4">
-                            <i class="fa-solid fa-paperclip"></i> ANEXOS DOCUMENTAIS VINCULADOS
-                        </h2>
-                        <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                `;
-                
-                estadoAtualRonda.anexos.forEach(anexo => {
+                estadoAtualRonda.anexos.forEach((anexo) => {
+                    // Variáveis de paginação salvas no Passo 2
+                    const pagAtual = anexo.paginaAtual || 1;
+                    const totalPag = anexo.totalPaginas || 1;
+                    const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
+
                     html += `
-                        <div class="mb-6 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${anexo.categoria}</p>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">Arquivo Referenciado: ${anexo.nomeArquivo}</p>
+                    <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
+                        
+                        <!-- CABEÇALHO DA FOLHA DE ANEXO -->
+                        <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
+                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+                            <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
+                        </div>
+                        
+                        <!-- ÁREA DA IMAGEM / QUADRADO FIXO DE RENDERIZAÇÃO -->
+                        <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
+                            <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
+                        </div>
+                        
+                        <!-- RODAPÉ DA FOLHA DE ANEXO -->
+                        <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
+                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+                        </div>
+                        
+                    </div>
                     `;
-                    
-                    if (anexo.tipo.includes('image')) {
-                        html += `<div class="mt-3"><img src="${anexo.dadosBase64}" class="max-w-full rounded border border-slate-300 dark:border-slate-600 shadow-sm" style="max-height: 600px; object-fit: contain;"></div>`;
-                    } else {
-                        html += `<div class="text-sm text-slate-600 dark:text-slate-400 mt-2 bg-slate-50 dark:bg-slate-900 p-3 rounded border border-slate-200 dark:border-slate-700 inline-block"><i class="fa-solid fa-file-pdf text-red-500 mr-2 text-lg"></i> Documento anexado ao dossiê físico/digital da vistoria.</div>`;
-                    }
-                    
-                    html += `</div>`;
                 });
-                
-                html += `</div></div>`;
             }
 
             // Assinatura
