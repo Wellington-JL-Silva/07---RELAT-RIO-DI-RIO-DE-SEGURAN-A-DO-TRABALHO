@@ -298,7 +298,7 @@
 
                 <!-- Estatísticas Simples -->
                 <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-chart-simple text-alblue dark:text-blue-400 mr-2"></i> Indicadores da Ronda</h2>
-                <div class="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 mb-6">
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center transition-colors">
                         <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Progresso</p>
                         <p class="text-3xl font-black text-alblue dark:text-blue-400 mt-1" id="stat-progresso">0%</p>
@@ -309,10 +309,16 @@
                         <p class="text-3xl font-black text-green-500 dark:text-green-400 mt-1" id="stat-ok">0</p>
                     </div>
 
-                    <!-- NOVO BLOCO: Situações Resolvidas (Azul) -->
+                    <!-- BLOCO ATUAL: Situações Resolvidas (Azul) -->
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center transition-colors">
                         <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Resolvidas</p>
                         <p class="text-3xl font-black text-blue-500 dark:text-blue-400 mt-1" id="stat-sa">0</p>
+                    </div>
+
+                    <!-- NOVO BLOCO: Em Andamento (Dourado) -->
+                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center transition-colors">
+                        <p class="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Em Andamento</p>
+                        <p class="text-3xl font-black text-amber-500 dark:text-amber-400 mt-1" id="stat-ea">0</p>
                     </div>
                     
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center transition-colors">
@@ -1065,24 +1071,15 @@
                     const isOk = resposta ? (resposta.status === 'ok') : false;
                     const isNk = resposta ? (resposta.status === 'pontuado') : false;
                     const isSa = resposta ? (resposta.status === 'resolvido') : false;
+                    const isEa = resposta ? (resposta.status === 'em_andamento') : false; // NOVO STATUS
                     
-                    const classBtnOk = isOk 
-                        ? "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-green-500 bg-green-50 dark:bg-green-900/40 text-xs font-bold text-green-700 dark:text-green-400 shadow-sm flex items-center justify-center gap-1" 
-                        : "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600 dark:hover:text-green-400 transition-all flex items-center justify-center gap-1";
-                    
-                    const classBtnNk = isNk 
-                        ? "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-red-500 bg-red-50 dark:bg-red-900/40 text-xs font-bold text-red-700 dark:text-red-400 shadow-sm flex items-center justify-center gap-1" 
-                        : "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-all flex items-center justify-center gap-1";
-                    
-                    const classBtnSa = isSa 
-                        ? "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/40 text-xs font-bold text-blue-700 dark:text-blue-400 shadow-sm flex items-center justify-center gap-1" 
-                        : "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center justify-center gap-1";
-
                     const temFoto = resposta && resposta.fotoBase64 !== null;
                     const temNota = resposta && resposta.observacao.trim() !== "";
                     const temSolucao = resposta && resposta.solucao && resposta.solucao.trim() !== "";
                     const temResponsavel = resposta && resposta.responsavel && resposta.responsavel.trim() !== "";
-                    const areaAberta = isNk || isSa || temFoto || temNota || temSolucao || temResponsavel;
+                    
+                    // Abre a área de texto se qualquer status de exceção estiver marcado (incluindo em andamento)
+                    const areaAberta = isNk || isSa || isEa || temFoto || temNota || temSolucao || temResponsavel;
 
                     const bordaItem = isModoOp ? 'border-red-200 dark:border-red-800 border-dashed' : 'border-slate-200 dark:border-slate-700';
 
@@ -1107,13 +1104,31 @@
                     htmlHTML += `
                                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3 pr-14">${item.descricao}</p>
                                 
-                                <div class="flex flex-wrap gap-2 items-center justify-between">
-                                    <div class="flex flex-wrap gap-2 w-full sm:w-auto">
-                                        <button id="btn-ok-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'ok')" class="${classBtnOk}"><i class="fa-solid fa-check"></i> OK</button>
-                                        <button id="btn-nk-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'pontuado')" class="${classBtnNk}"><i class="fa-solid fa-triangle-exclamation"></i> Item Pontuado</button>
-                                        <button id="btn-sa-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'resolvido')" class="${classBtnSa}"><i class="fa-solid fa-check-double"></i> Sit. Resolvida</button>
+                                <div class="flex flex-col gap-3">
+                                    <!-- Botões de Status (Agora com 4 opções) -->
+                                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-1">
+                                        <button id="btn-ok-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'ok')" class="flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all ${isOk ? 'border-green-500 bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-400 font-bold shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                                            <i class="fa-solid fa-check text-lg mb-1"></i>
+                                            <span class="text-[10px] uppercase tracking-wider">Conforme</span>
+                                        </button>
+                                        
+                                        <button id="btn-sa-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'resolvido')" class="flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all ${isSa ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                                            <i class="fa-solid fa-check-double text-lg mb-1"></i>
+                                            <span class="text-[10px] uppercase tracking-wider">Resolvido</span>
+                                        </button>
+
+                                        <!-- NOVO: BOTÃO EM ANDAMENTO -->
+                                        <button id="btn-ea-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'em_andamento')" class="flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all ${isEa ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                                            <i class="fa-solid fa-bars-progress text-lg mb-1"></i>
+                                            <span class="text-[10px] uppercase tracking-wider">Em Andamento</span>
+                                        </button>
+                                        
+                                        <button id="btn-nk-${item.idItem}" onclick="marcarStatus('${item.idItem}', 'pontuado')" class="flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all ${isNk ? 'border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-bold shadow-sm' : 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700'}">
+                                            <i class="fa-solid fa-xmark text-lg mb-1"></i>
+                                            <span class="text-[10px] uppercase tracking-wider">Pontuar</span>
+                                        </button>
                                     </div>
-                                    <div class="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                                    <div class="flex gap-2 w-full mt-1">
                                         <button id="btn-nota-${item.idItem}" onclick="toggleAreaFoto('${item.idItem}')" class="no-print flex-1 sm:flex-none px-3 py-2 rounded-md text-xs font-bold ${temNota || temSolucao ? 'bg-alyellow text-slate-900 dark:bg-yellow-500 dark:text-slate-900' : 'text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'} transition-colors flex items-center justify-center gap-2">
                                             <i class="fa-solid fa-book"></i> <span>${temNota || temSolucao ? 'Anotado' : 'Anotar'}</span>
                                         </button>
@@ -1322,49 +1337,56 @@
             // Lógica de Desclicar (Toggle): Se já for o status atual, ele reseta para null.
             const statusAtual = estadoAtualRonda.respostas[itemId].status;
             const novoStatus = (statusAtual === status) ? null : status;
-
             estadoAtualRonda.respostas[itemId].status = novoStatus;
+            
             salvarProgresso();
             
             const btnOk = document.getElementById(`btn-ok-${itemId}`);
             const btnNk = document.getElementById(`btn-nk-${itemId}`);
             const btnSa = document.getElementById(`btn-sa-${itemId}`);
+            const btnEa = document.getElementById(`btn-ea-${itemId}`); // NOVO: Captura o botão Em Andamento
+            
             const areaObs = document.getElementById(`area-foto-obs-${itemId}`);
             const lblObs = document.getElementById(`lbl-obs-${itemId}`);
             const boxSolucao = document.getElementById(`box-solucao-${itemId}`);
-
+            
             // Resetar estilos de todos os botões para o padrão (Desclicado)
-            btnOk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600 dark:hover:text-green-400 transition-all flex items-center justify-center gap-1";
-            btnNk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-all flex items-center justify-center gap-1";
+            if (btnOk) btnOk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-green-50 dark:hover:bg-green-900/30 hover:text-green-600 dark:hover:text-green-400 transition-all flex items-center justify-center gap-1";
+            if (btnNk) btnNk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-900/30 hover:text-red-600 dark:hover:text-red-400 transition-all flex items-center justify-center gap-1";
             if (btnSa) btnSa.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:text-blue-600 dark:hover:text-blue-400 transition-all flex items-center justify-center gap-1";
-
+            if (btnEa) btnEa.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border border-slate-300 dark:border-slate-600 text-xs font-bold text-slate-500 dark:text-slate-400 hover:bg-amber-50 dark:hover:bg-amber-900/30 hover:text-amber-600 dark:hover:text-amber-400 transition-all flex items-center justify-center gap-1"; // NOVO: Padrão Dourado Desclicado
+            
             // Aplicar estilo visual à nova seleção
             if (novoStatus === 'ok') {
-                btnOk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-green-500 bg-green-50 dark:bg-green-900/40 text-xs font-bold text-green-700 dark:text-green-400 shadow-sm flex items-center justify-center gap-1";
+                if (btnOk) btnOk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-green-500 bg-green-50 dark:bg-green-900/40 text-xs font-bold text-green-700 dark:text-green-400 shadow-sm flex items-center justify-center gap-1";
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
             } else if (novoStatus === 'pontuado') {
-                btnNk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-red-500 bg-red-50 dark:bg-red-900/40 text-xs font-bold text-red-700 dark:text-red-400 shadow-sm flex items-center justify-center gap-1";
+                if (btnNk) btnNk.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-red-500 bg-red-50 dark:bg-red-900/40 text-xs font-bold text-red-700 dark:text-red-400 shadow-sm flex items-center justify-center gap-1";
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
             } else if (novoStatus === 'resolvido') {
                 if (btnSa) btnSa.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-blue-500 bg-blue-50 dark:bg-blue-900/40 text-xs font-bold text-blue-700 dark:text-blue-400 shadow-sm flex items-center justify-center gap-1";
                 if (lblObs) lblObs.classList.remove('hidden');
                 if (boxSolucao) boxSolucao.classList.remove('hidden');
+            } else if (novoStatus === 'em_andamento') { // NOVO CONDICIONAL
+                if (btnEa) btnEa.className = "flex-1 sm:flex-none px-3 py-2 rounded-md border-2 border-amber-500 bg-amber-50 dark:bg-amber-900/40 text-xs font-bold text-amber-700 dark:text-amber-400 shadow-sm flex items-center justify-center gap-1";
+                if (lblObs) lblObs.classList.add('hidden');
+                if (boxSolucao) boxSolucao.classList.add('hidden');
             } else {
                 // Caso seja desclicado (novoStatus === null)
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
             }
-
+            
             // Gerenciamento inteligente da abertura da área de observação
             const resp = estadoAtualRonda.respostas[itemId];
             const temFoto = resp && resp.fotoBase64 !== null;
             const temNota = resp && resp.observacao.trim() !== "";
             const temSolucao = resp && resp.solucao && resp.solucao.trim() !== "";
             
-            // Só deixa aberto se for NC, SA, ou se o usuário ativamente escreveu uma nota / foto
-            const deveEstarAberto = (novoStatus === 'pontuado' || novoStatus === 'resolvido' || temFoto || temNota || temSolucao);
+            // NOVO: Adicionado 'em_andamento' para forçar a abertura das opções de foto e texto
+            const deveEstarAberto = (novoStatus === 'pontuado' || novoStatus === 'resolvido' || novoStatus === 'em_andamento' || temFoto || temNota || temSolucao);
             
             if (deveEstarAberto) {
                 areaObs.classList.add('open');
@@ -1642,15 +1664,23 @@
                 return;
             }
 
+            // NOVO: Ordenar a lista para que os itens "Em Andamento" fiquem sempre no topo
+            historicoPendencias.sort((a, b) => {
+                if (a.statusHistorico === "Em Andamento" && b.statusHistorico !== "Em Andamento") return -1;
+                if (a.statusHistorico !== "Em Andamento" && b.statusHistorico === "Em Andamento") return 1;
+                return 0;
+            });
+
             let html = '';
             historicoPendencias.forEach((pend, index) => {
                 const isAssumido = pend.statusHistorico === "Risco Assumido";
                 const isResolvido = pend.statusHistorico === "Resolvido";
-                
+                const isAndamento = pend.statusHistorico === "Em Andamento"; // NOVO: Captura o status
+
                 let borderCor = "border-red-500";
                 let bgCor = "bg-slate-50 dark:bg-slate-800";
                 let iconStatus = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
-                
+
                 if (isAssumido) {
                     borderCor = "border-purple-500";
                     bgCor = "bg-purple-50 dark:bg-purple-900/20";
@@ -1659,8 +1689,12 @@
                     borderCor = "border-green-500";
                     bgCor = "bg-green-50 dark:bg-green-900/20";
                     iconStatus = '<i class="fa-solid fa-check-double text-green-500"></i>';
+                } else if (isAndamento) { // NOVO: Pintura e ícone Amarelo Dourado
+                    borderCor = "border-amber-500";
+                    bgCor = "bg-amber-50 dark:bg-amber-900/20";
+                    iconStatus = '<i class="fa-solid fa-bars-progress text-amber-500"></i>';
                 }
-                
+
                 html += `
                 <div class="relative ${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
                     
@@ -1704,7 +1738,7 @@
                         </span>
                         ${isResolvido && pend.diasParaResolver !== null ? `
                         <span title="Resolvido em: ${new Date(pend.dataResolucao).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-stopwatch text-green-500 mr-1"></i> SLA (Tempo de Resposta): <b class="text-green-600 dark:text-green-400 text-sm">${pend.diasParaResolver} dia(s)</b>
+                            <i class="fa-solid fa-stopwatch text-green-500 mr-1"></i> SLA: <b class="text-green-600 dark:text-green-400 text-sm">${pend.diasParaResolver} dia(s)</b>
                         </span>
                         ` : ''}
                     </div>
@@ -1727,7 +1761,7 @@
 
         function alternarStatusHistorico(index) {
             const pend = historicoPendencias[index];
-            if (pend.statusHistorico === "Pendente" || !pend.statusHistorico) {
+            if (pend.statusHistorico === "Pendente" || pend.statusHistorico === "Em Andamento" || !pend.statusHistorico) {
                 if(confirm("Deseja marcar este item como RISCO ASSUMIDO?\nIsso indica que a diretoria tem ciência e assumiu o risco, isentando o SESMT da tratativa imediata.")) {
                     pend.statusHistorico = "Risco Assumido";
                 }
@@ -1806,24 +1840,30 @@
         // 7. DASHBOARD, GRÁFICOS E RELATÓRIOS (PDF)
         // -----------------------------------------------------
         function calcularEstatisticas() {
-            let total = 0, oks = 0, nks = 0, sas = 0;
+            let total = 0, oks = 0, nks = 0, sas = 0, eas = 0;
+            
             Object.values(estadoAtualRonda.respostas).forEach(resp => {
                 total++;
                 if(resp.status === 'ok') oks++;
                 if(resp.status === 'pontuado') nks++;
                 if(resp.status === 'resolvido') sas++;
+                if(resp.status === 'em_andamento') eas++;
             });
             
-            const respondidos = oks + nks + sas;
+            const respondidos = oks + nks + sas + eas;
             const perc = total > 0 ? Math.round((respondidos / total) * 100) : 0;
             
             document.getElementById('stat-progresso').innerText = `${perc}%`;
             document.getElementById('stat-ok').innerText = oks;
             document.getElementById('stat-nk').innerText = nks;
             
-            // NOVO: Atualiza a contagem do painel de Situações Resolvidas
+            // Atualiza a contagem do painel de Situações Resolvidas
             const statSa = document.getElementById('stat-sa');
             if (statSa) statSa.innerText = sas;
+
+            // NOVO: Atualiza a contagem do painel Em Andamento (Dourado)
+            const statEa = document.getElementById('stat-ea');
+            if (statEa) statEa.innerText = eas;
 
             atualizarGraficos(); // Atualiza os gráficos sempre que os dados mudam
             atualizarDashboardExcecoes(); // Atualiza a lista de exceções
@@ -1836,99 +1876,103 @@
                 container = document.createElement('div');
                 container.id = 'container-excecoes-dashboard';
                 container.className = 'mt-8 mb-6 page-break-inside-avoid transition-colors';
-                
-                // Insere logo após os gráficos no Dashboard
                 const divGraficos = document.querySelector('#aba-dashboard .grid.grid-cols-1.lg\\:grid-cols-3');
                 if (divGraficos) divGraficos.after(container);
-                else return; 
+                else return;
             }
 
             let htmlPontuados = '';
             let htmlResolvidos = '';
+            let htmlEmAndamento = ''; // NOVO
             let countPontuados = 0;
             let countResolvidos = 0;
+            let countEmAndamento = 0; // NOVO
 
             moldeAtual.forEach(cat => {
                 cat.itens.forEach(item => {
                     const resp = estadoAtualRonda.respostas[item.idItem];
                     if (!resp) return;
 
-                    // Ignora sumariamente o status "ok" ou null
                     if (resp.status === 'pontuado') {
                         countPontuados++;
                         htmlPontuados += criarCardExcecao(item.descricao, cat.tituloCategoria, 'pontuado', resp);
                     } else if (resp.status === 'resolvido') {
                         countResolvidos++;
                         htmlResolvidos += criarCardExcecao(item.descricao, cat.tituloCategoria, 'resolvido', resp);
+                    } else if (resp.status === 'em_andamento') { // NOVO
+                        countEmAndamento++;
+                        htmlEmAndamento += criarCardExcecao(item.descricao, cat.tituloCategoria, 'em_andamento', resp);
                     }
                 });
-                
-                // Verifica observações gerais da área (Trata como ponto de atenção)
+
                 const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
                 if (obsArea && obsArea.trim() !== '') {
                     countPontuados++;
                     htmlPontuados += `
-                        <div class="bg-white dark:bg-slate-800 border-l-4 border-yellow-500 p-3 mb-2 rounded shadow-sm border-y border-r border-slate-100 dark:border-slate-700">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${cat.tituloCategoria} - Observação Geral</p>
-                            <p class="text-sm text-slate-700 dark:text-slate-200">${obsArea}</p>
-                        </div>`;
+                    <div class="bg-white dark:bg-slate-800 border-l-4 border-yellow-500 p-3 mb-2 rounded shadow-sm border-y border-r border-slate-100 dark:border-slate-700">
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${cat.tituloCategoria} - Observação Geral</p>
+                        <p class="text-sm text-slate-700 dark:text-slate-200">${obsArea}</p>
+                    </div>`;
                 }
             });
 
             let htmlFinal = `<h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-filter text-alblue dark:text-blue-400 mr-2"></i> Resumo de Exceções e Ações</h2>`;
 
-            if (countPontuados === 0 && countResolvidos === 0) {
+            if (countPontuados === 0 && countResolvidos === 0 && countEmAndamento === 0) {
                 htmlFinal += `
-                    <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-6 text-center rounded-xl transition-colors">
-                        <i class="fa-solid fa-shield-check text-4xl text-green-500 mb-2"></i>
-                        <p class="text-green-800 dark:text-green-400 font-bold">Nenhuma exceção relatada!</p>
-                        <p class="text-xs text-green-600 dark:text-green-500 mt-1">Até o momento, não há desvios registrados nesta ronda.</p>
-                    </div>`;
+                <div class="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 p-6 text-center rounded-xl transition-colors">
+                    <i class="fa-solid fa-shield-check text-4xl text-green-500 mb-2"></i>
+                    <p class="text-green-800 dark:text-green-400 font-bold">Nenhuma exceção relatada!</p>
+                    <p class="text-xs text-green-600 dark:text-green-500 mt-1">Até o momento, não há desvios registrados nesta ronda.</p>
+                </div>`;
             } else {
-                htmlFinal += `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+                htmlFinal += `<div class="grid grid-cols-1 md:grid-cols-3 gap-4">`;
                 
-                // Coluna: Situações Resolvidas (AGORA VEM PRIMEIRO)
+                // Coluna 1: Resolvidas
                 htmlFinal += `<div>
-                    <h3 class="font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-check-double"></i> Situações Resolvidas (${countResolvidos})</h3>
-                    <div class="space-y-2">
-                        ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-500 dark:text-slate-400 italic">Nenhuma solução imediata registrada.</p>'}
-                    </div>
+                    <h3 class="font-bold text-blue-600 dark:text-blue-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-check-double"></i> Sit. Resolvidas (${countResolvidos})</h3>
+                    <div class="space-y-2">${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-500 italic">Nenhuma solução.</p>'}</div>
                 </div>`;
 
-                // Coluna: Itens Pontuados (AGORA VEM DEPOIS)
+                // Coluna 2: Em Andamento
+                htmlFinal += `<div>
+                    <h3 class="font-bold text-amber-600 dark:text-amber-500 mb-3 flex items-center gap-2"><i class="fa-solid fa-bars-progress"></i> Em Andamento (${countEmAndamento})</h3>
+                    <div class="space-y-2">${countEmAndamento > 0 ? htmlEmAndamento : '<p class="text-sm text-slate-500 italic">Nenhuma tratativa.</p>'}</div>
+                </div>`;
+
+                // Coluna 3: Pontuados
                 htmlFinal += `<div>
                     <h3 class="font-bold text-red-600 dark:text-red-400 mb-3 flex items-center gap-2"><i class="fa-solid fa-xmark-circle"></i> Itens Pontuados (${countPontuados})</h3>
-                    <div class="space-y-2">
-                        ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-500 dark:text-slate-400 italic">Nenhum item pendente.</p>'}
-                    </div>
+                    <div class="space-y-2">${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-500 italic">Nenhum item pendente.</p>'}</div>
                 </div>`;
-                
+
                 htmlFinal += `</div>`;
             }
-
+            
             container.innerHTML = htmlFinal;
         }
 
-        // NOVO: Componente auxiliar para gerar o Card visual de uma exceção
         function criarCardExcecao(descricao, categoria, tipo, resp) {
-            const borderClass = tipo === 'pontuado' ? 'border-red-500' : 'border-blue-500';
+            let borderClass = 'border-red-500';
+            if (tipo === 'resolvido') borderClass = 'border-blue-500';
+            if (tipo === 'em_andamento') borderClass = 'border-amber-500'; // NOVO: Cor Dourada
+
             let detalhes = '';
-            
             if (resp.observacao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Desvio / Obs:</b> ${resp.observacao}</p>`;
             if (resp.solucao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Solução:</b> ${resp.solucao}</p>`;
             if (resp.fotoBase64) detalhes += `<img src="${resp.fotoBase64}" class="mt-2 h-16 w-auto rounded border border-slate-300 dark:border-slate-600">`;
-            
+
             return `
-                <div class="bg-white dark:bg-slate-800 border-l-4 ${borderClass} p-3 rounded shadow-sm border-y border-r border-slate-100 dark:border-slate-700 transition-colors">
-                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${categoria}</p>
-                    <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">${descricao}</p>
-                    ${detalhes}
-                </div>
+            <div class="bg-white dark:bg-slate-800 border-l-4 ${borderClass} p-3 rounded shadow-sm border-y border-r border-slate-100 dark:border-slate-700 transition-colors">
+                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${categoria}</p>
+                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">${descricao}</p>
+                ${detalhes}
+            </div>
             `;
         }
 
         function atualizarGraficos() {
-            let oksGlobal = 0, nksGlobal = 0, sasGlobal = 0;
+            let oksGlobal = 0, nksGlobal = 0, sasGlobal = 0, easGlobal = 0; // NOVO: easGlobal
             const isDark = document.documentElement.classList.contains('dark') && !document.body.classList.contains('pdf-mode');
             const corTexto = isDark ? '#cbd5e1' : '#475569';
             const corGrid = isDark ? '#334155' : '#e2e8f0';
@@ -1937,35 +1981,37 @@
             let dadosOks = [];
             let dadosNks = [];
             let dadosSas = [];
+            let dadosEas = []; // NOVO: dadosEas
 
             // Varredura de dados
             moldeAtual.forEach(cat => {
-                let oksCat = 0, nksCat = 0, sasCat = 0;
+                let oksCat = 0, nksCat = 0, sasCat = 0, easCat = 0; // NOVO
                 cat.itens.forEach(item => {
                     const resp = estadoAtualRonda.respostas[item.idItem];
                     if (resp && resp.status === 'ok') { oksCat++; oksGlobal++; }
                     else if (resp && resp.status === 'pontuado') { nksCat++; nksGlobal++; }
                     else if (resp && resp.status === 'resolvido') { sasCat++; sasGlobal++; }
+                    else if (resp && resp.status === 'em_andamento') { easCat++; easGlobal++; } // NOVO
                 });
-                
                 labelsSetores.push(cat.tituloCategoria);
                 dadosOks.push(oksCat);
                 dadosNks.push(nksCat);
                 dadosSas.push(sasCat);
+                dadosEas.push(easCat); // NOVO
             });
 
             // 1. GRÁFICO GLOBAL (Doughnut)
             const ctxGeral = document.getElementById('chartGeral');
             if (ctxGeral) {
                 if (chartGeralInstance) chartGeralInstance.destroy();
-                const totalGeral = oksGlobal + nksGlobal + sasGlobal;
+                const totalGeral = oksGlobal + nksGlobal + sasGlobal + easGlobal; // NOVO
                 chartGeralInstance = new Chart(ctxGeral.getContext('2d'), {
                     type: 'doughnut',
                     data: {
-                        labels: ['Conformes', 'Pontuados', 'Sit. Resolvidas'],
+                        labels: ['Conformes', 'Sit. Resolvidas', 'Em Andamento', 'Pontuados'], // Reordenado
                         datasets: [{
-                            data: [oksGlobal, nksGlobal, sasGlobal],
-                            backgroundColor: ['#22c55e', '#ef4444', '#3b82f6'],
+                            data: [oksGlobal, sasGlobal, easGlobal, nksGlobal], // Reordenado
+                            backgroundColor: ['#22c55e', '#3b82f6', '#f59e0b', '#ef4444'], // Verde, Azul, Amarelo, Vermelho
                             borderWidth: isDark ? 2 : 1,
                             borderColor: isDark ? '#1e293b' : '#ffffff'
                         }]
@@ -1991,6 +2037,7 @@
                         datasets: [
                             { label: 'Conformes', data: dadosOks, backgroundColor: '#22c55e', borderRadius: 2 },
                             { label: 'Resolvidos', data: dadosSas, backgroundColor: '#3b82f6', borderRadius: 2 },
+                            { label: 'Em Andamento', data: dadosEas, backgroundColor: '#f59e0b', borderRadius: 2 }, // NOVO Dourado
                             { label: 'Pontuados', data: dadosNks, backgroundColor: '#ef4444', borderRadius: 2 }
                         ]
                     },
@@ -2007,17 +2054,14 @@
                 });
             }
 
-            // 3. NOVO: GRÁFICO DE SLA (Ranking de Tempo de Resposta Horizontais)
+            // 3. GRÁFICO DE SLA (Ranking de Tempo de Resposta Horizontais)
             const ctxSla = document.getElementById('chartSla');
             if (ctxSla) {
                 if (chartSlaInstance) chartSlaInstance.destroy();
-                
-                let slaData = {}; // Estrutura: { "Manutenção": { totalDias: 10, qtd: 2 } }
+                let slaData = {}; 
 
-                // Varre apenas o histórico para encontrar quem resolveu e quando
                 historicoPendencias.forEach(pend => {
                     if (pend.statusHistorico === "Resolvido" && pend.diasParaResolver !== null && pend.responsavelTratativa) {
-                        // Separa os nomes/OS usando o ponto e vírgula
                         const responsaveis = pend.responsavelTratativa.split(';');
                         responsaveis.forEach(resp => {
                             const nomeLimpo = resp.trim().toUpperCase();
@@ -2032,21 +2076,19 @@
 
                 let labelsSla = [];
                 let dadosMediaSla = [];
-                
-                // Calcula a média e ordena (do maior tempo de resposta para o menor)
+
                 const arraySla = Object.keys(slaData).map(nome => {
                     return { nome: nome, media: Math.round(slaData[nome].totalDias / slaData[nome].qtd) };
-                }).sort((a, b) => b.media - a.media); 
+                }).sort((a, b) => b.media - a.media);
 
                 arraySla.forEach(item => {
                     labelsSla.push(item.nome);
                     dadosMediaSla.push(item.media);
                 });
 
-                // Placeholder caso não existam dados resolvidos ainda
                 if (labelsSla.length === 0) {
                     labelsSla = ["Aguardando Resoluções"];
-                    dadosMediaSla = [0];
+                    dadosMediaSla = [0]; // CORRIGIDO: Array vazio ou 0
                 }
 
                 chartSlaInstance = new Chart(ctxSla.getContext('2d'), {
@@ -2056,13 +2098,13 @@
                         datasets: [{
                             label: 'Tempo Médio para Resolver (Em Dias)',
                             data: dadosMediaSla,
-                            backgroundColor: '#a855f7', // Roxo Tailwind para destacar o SLA
+                            backgroundColor: '#a855f7',
                             borderRadius: 4
                         }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false, animation: false,
-                        indexAxis: 'y', // Fundamental: Barras Horizontais facilitam ler os nomes
+                        indexAxis: 'y', 
                         scales: {
                             x: { beginAtZero: true, ticks: { stepSize: 1, color: corTexto }, grid: { color: corGrid } },
                             y: { ticks: { color: corTexto, font: { size: 10, weight: 'bold' } }, grid: { display: false } }
@@ -2084,105 +2126,113 @@
             const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
             const dataObj = new Date();
             const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
-            
             const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 
-                            ? estadoAtualRonda.unidadesSelecionadas.join(", ") 
-                            : "Não informadas";
+                ? estadoAtualRonda.unidadesSelecionadas.join(", ") 
+                : "Não informadas";
             const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 
-                            ? estadoAtualRonda.areasSelecionadas.join(", ") 
-                            : "Não informadas";
+                ? estadoAtualRonda.areasSelecionadas.join(", ") 
+                : "Não informadas";
 
             let html = `
-                <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
-                    <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
-                </div>
-                
-                <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
-                <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
-                    <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
-                    <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
-                    <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
-                    <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
-                </div>
+            <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
+                <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
+                <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
+            </div>
+
+            <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
+            <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
+                <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
+                <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
+                <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
+                <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
+            </div>
             `;
 
             if (estadoAtualRonda.focoCritico) {
                 html += `
-                    <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
-                        <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
-                        <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
-                    </div>
+                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
+                    <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
+                    <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
+                </div>
                 `;
             }
 
-            // Captura os gráficos em formato de imagem estática usando o .toBase64Image()
             const imgGeral = chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
             const imgSetores = chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
 
-            // Injeção de Imagens Estáticas formatadas de forma fluida com Tailwind
             html += `
-                <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 break-inside-avoid page-break-inside-avoid">
-                    <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center border-b border-slate-200 dark:border-slate-700 pb-2">
-                        <i class="fa-solid fa-chart-pie mr-2 text-alblue"></i> Gráficos Analíticos
-                    </h3>
-                    
-                    <div class="flex flex-col sm:flex-row gap-4 w-full items-center justify-between">
-                        <div class="w-full sm:w-2/5 text-center">
-                            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Status Global</h3>
-                            ${imgGeral ? `<img src="${imgGeral}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
-                        </div>
-                        <div class="w-full sm:w-3/5 text-center">
-                            <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor</h3>
-                            ${imgSetores ? `<img src="${imgSetores}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
-                        </div>
+            <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 break-inside-avoid page-break-inside-avoid">
+                <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <i class="fa-solid fa-chart-pie mr-2 text-alblue"></i> Gráficos Analíticos
+                </h3>
+                <div class="flex flex-col sm:flex-row gap-4 w-full items-center justify-between">
+                    <div class="w-full sm:w-2/5 text-center">
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Status Global</h3>
+                        ${imgGeral ? `<img src="${imgGeral}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
+                    </div>
+                    <div class="w-full sm:w-3/5 text-center">
+                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor</h3>
+                        ${imgSetores ? `<img src="${imgSetores}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
                     </div>
                 </div>
+            </div>
             `;
 
             let htmlPontuados = '';
             let htmlResolvidos = '';
+            let htmlEmAndamento = ''; // NOVO
             let htmlConformes = '';
             let countPontuados = 0;
             let countResolvidos = 0;
+            let countEmAndamento = 0; // NOVO
             let countConformes = 0;
 
             moldeAtual.forEach(secao => {
                 secao.itens.forEach(item => {
                     const resp = estadoAtualRonda.respostas[item.idItem];
-                    
                     if (resp && resp.status === 'pontuado') {
                         countPontuados++;
                         htmlPontuados += `
-                            <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
-                                ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
-                                ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                                ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
-                            </div>
+                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
+                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
+                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                        </div>
                         `;
                     } else if (resp && resp.status === 'resolvido') {
                         countResolvidos++;
                         htmlResolvidos += `
-                            <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countResolvidos}. ${item.descricao}</p>
-                                ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
-                                ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
-                                ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                                ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
-                            </div>
+                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countResolvidos}. ${item.descricao}</p>
+                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
+                            ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
+                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                        </div>
+                        `;
+                    } else if (resp && resp.status === 'em_andamento') { // NOVO
+                        countEmAndamento++;
+                        htmlEmAndamento += `
+                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countEmAndamento}. ${item.descricao}</p>
+                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${resp.observacao}</div>` : ''}
+                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                        </div>
                         `;
                     } else if (resp && resp.status === 'ok') {
                         countConformes++;
                         htmlConformes += `
-                            <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countConformes}. ${item.descricao}</p>
-                                <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
-                                ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
-                            </div>
+                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countConformes}. ${item.descricao}</p>
+                            <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                        </div>
                         `;
                     }
                 });
@@ -2191,80 +2241,84 @@
                 if (obsArea && obsArea.trim() !== '') {
                     countPontuados++;
                     htmlPontuados += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. Observação Geral da Área</p>
-                            <div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Relato:</b> ${obsArea}</div>
-                        </div>
+                    <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. Observação Geral da Área</p>
+                        <div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Relato:</b> ${obsArea}</div>
+                    </div>
                     `;
                 }
             });
 
-            // Estrutura Visual: Situações Resolvidas (AGORA VEM PRIMEIRO E EM AZUL)
+            // Estrutura Visual: Situações Resolvidas (AZUL - VEM PRIMEIRO)
             html += `
-                <div class="mb-5 break-inside-avoid page-break-inside-avoid">
-                    <h2 class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1">
-                        <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS
-                    </h2>
-                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                        ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma.</p>'}
-                    </div>
+            <div class="mb-5">
+                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1">
+                    <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS
+                </h2>
+                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
+                    ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma.</p>'}
                 </div>
+            </div>
             `;
 
-            // Estrutura Visual: Itens Pontuados (AGORA VEM DEPOIS)
+            // NOVO: Estrutura Visual: Em Andamento (DOURADO - VEM NO MEIO)
             html += `
-                <div class="mb-5 break-inside-avoid page-break-inside-avoid">
-                    <h2 class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1">
-                        <i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)
-                    </h2>
-                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                        ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>'}
-                    </div>
+            <div class="mb-5">
+                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-amber-600 dark:text-amber-500 border-b-2 border-amber-200 dark:border-amber-800 mb-3 flex items-center gap-2 pb-1">
+                    <i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO (Tratativas Iniciadas)
+                </h2>
+                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
+                    ${countEmAndamento > 0 ? htmlEmAndamento : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item em andamento.</p>'}
                 </div>
+            </div>
+            `;
+
+            // Estrutura Visual: Itens Pontuados (VERMELHO - VEM DEPOIS)
+            html += `
+            <div class="mb-5">
+                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)
+                </h2>
+                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
+                    ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>'}
+                </div>
+            </div>
             `;
 
             // Estrutura Visual: Itens Conformes (Trilha de Auditoria - Fluxo Contínuo)
             if (countConformes > 0) {
                 html += `
-                    <div class="mb-5 break-inside-avoid page-break-inside-avoid">
-                        <h2 class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2">
-                            <i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)
-                        </h2>
-                        <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                            ${htmlConformes}
-                        </div>
+                <div class="mb-5">
+                    <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2">
+                        <i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)
+                    </h2>
+                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
+                        ${htmlConformes}
                     </div>
+                </div>
                 `;
             }
 
-            // Estrutura Visual: Anexos Documentais Vinculados (Folha Exclusiva por Página)
+            // Estrutura Visual: Anexos Documentais Vinculados
             if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
                 estadoAtualRonda.anexos.forEach((anexo) => {
-                    // Variáveis de paginação salvas no Passo 2
                     const pagAtual = anexo.paginaAtual || 1;
                     const totalPag = anexo.totalPaginas || 1;
                     const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
-
+                    
                     html += `
                     <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
-                        
-                        <!-- CABEÇALHO DA FOLHA DE ANEXO -->
                         <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
                             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
                             <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
                         </div>
-                        
-                        <!-- ÁREA DA IMAGEM / QUADRADO FIXO DE RENDERIZAÇÃO -->
                         <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
                             <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
                         </div>
-                        
-                        <!-- RODAPÉ DA FOLHA DE ANEXO -->
                         <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
                             <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
                         </div>
-                        
                     </div>
                     `;
                 });
@@ -2280,7 +2334,6 @@
                     </h2>
                     <div class="space-y-4">
                 `;
-                
                 historicoPendente.forEach((pend) => {
                     const isAssumido = pend.statusHistorico === "Risco Assumido";
                     const borderCor = isAssumido ? "border-purple-400" : "border-red-400";
@@ -2305,7 +2358,6 @@
                     </div>
                     `;
                 });
-                
                 html += `
                     </div>
                 </div>
@@ -2314,13 +2366,13 @@
 
             // Assinatura
             html += `
-                <div class="mt-16 pt-8 text-center break-inside-avoid">
-                    <p class="text-xs text-slate-500 mb-12 uppercase tracking-widest">Relatório de Vistorias de Campo da Segurança do trabalho.</p>
-                    <div class="w-64 mx-auto border-t border-slate-800 dark:border-slate-500 pt-2">
-                        <p class="font-bold text-slate-800 dark:text-slate-200">${inspetor}</p>
-                        <p class="text-xs text-slate-500">SESMT - AL Indústria</p>
-                    </div>
+            <div class="mt-16 pt-8 text-center break-inside-avoid">
+                <p class="text-xs text-slate-500 mb-12 uppercase tracking-widest">Relatório de Vistorias de Campo da Segurança do trabalho.</p>
+                <div class="w-64 mx-auto border-t border-slate-800 dark:border-slate-500 pt-2">
+                    <p class="font-bold text-slate-800 dark:text-slate-200">${inspetor}</p>
+                    <p class="text-xs text-slate-500">SESMT - AL Indústria</p>
                 </div>
+            </div>
             `;
 
             container.innerHTML = html;
@@ -2397,7 +2449,7 @@
                 moldeAtual.forEach(cat => {
                     cat.itens.forEach(item => {
                         const resp = estadoAtualRonda.respostas[item.idItem];
-                        if (resp && resp.status === 'pontuado') {
+                        if (resp && (resp.status === 'pontuado' || resp.status === 'em_andamento')) {
                             
                             // Verifica se esse problema já existe no fundo do histórico
                             let pendenciaExistente = historicoPendencias.find(p => p.idItem === item.idItem);
@@ -2415,6 +2467,10 @@
                                 if(resp.observacao) pendenciaExistente.ultimaAnotacao = resp.observacao;
                                 if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel; // NOVO: Atualiza o responsável
                                 
+                                // NOVO: Atualiza o status do histórico se a tratativa iniciou (e não foi assumida ou resolvida)
+                                if (pendenciaExistente.statusHistorico !== "Risco Assumido" && pendenciaExistente.statusHistorico !== "Resolvido") {
+                                    pendenciaExistente.statusHistorico = (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente";
+                                }
                             } else {
                                 // Cria uma nova pendência no fundo do aplicativo
                                 historicoPendencias.push({
@@ -2426,7 +2482,7 @@
                                     contagemVezes: 1,
                                     diasAberto: 0,
                                     ultimaAnotacao: resp.observacao || "Sem anotação",
-                                    statusHistorico: "Pendente",
+                                    statusHistorico: (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente",
                                     responsavelTratativa: resp.responsavel || "", // ATUALIZADO: Herda da ronda atual
                                     dataResolucao: null,      // NOVO: Gestão de SLA
                                     diasParaResolver: null    // NOVO: Gestão de SLA
@@ -2453,26 +2509,26 @@
             const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
             const dataObj = new Date();
             const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
-            
             const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 
-                            ? estadoAtualRonda.unidadesSelecionadas.join(", ") 
-                            : "Não informadas";
+                ? estadoAtualRonda.unidadesSelecionadas.join(", ") 
+                : "Não informadas";
             const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 
-                            ? estadoAtualRonda.areasSelecionadas.join(", ") 
-                            : "Não informadas";
-            
+                ? estadoAtualRonda.areasSelecionadas.join(", ") 
+                : "Não informadas";
+
             let texto = `*RESUMO DA RONDA SESMT*\nFiliais Vistoriadas: ${unidadesStr}\nData: ${dataStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
-            
+
             if(estadoAtualRonda.focoCritico) {
                 texto += `*🎯 FOCO DO DIA:* ${estadoAtualRonda.focoCritico}\n\n`;
             }
 
             let itensPontuados = "";
             let itensResolvidos = "";
+            let itensEmAndamento = ""; // NOVO
             let itensConformes = "";
-            
             let numPontuados = 0;
             let numResolvidos = 0;
+            let numEmAndamento = 0; // NOVO
             let numConformes = 0;
 
             moldeAtual.forEach(cat => {
@@ -2484,12 +2540,14 @@
                     } else if (resp && resp.status === 'resolvido') {
                         numResolvidos++;
                         itensResolvidos += `✅ ${numResolvidos}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Desvio: ${resp.observacao || 'Não relatado'}\n   ↳ Solução: ${resp.solucao || 'Não relatada'}\n\n`;
+                    } else if (resp && resp.status === 'em_andamento') { // NOVO
+                        numEmAndamento++;
+                        itensEmAndamento += `⏳ ${numEmAndamento}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Tratativa: ${resp.observacao || 'Em andamento'}\n\n`;
                     } else if (resp && resp.status === 'ok') {
                         numConformes++;
                         itensConformes += `✔️ ${numConformes}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Status: Inspecionado e validado.\n\n`;
                     }
                 });
-                
                 const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
                 if (obsArea && obsArea.trim() !== "") {
                     numPontuados++;
@@ -2502,6 +2560,14 @@
                 texto += `Nenhuma.\n\n`;
             } else {
                 texto += `${itensResolvidos}`;
+            }
+
+            // NOVO: Bloco Dourado
+            texto += `*⏳ EM ANDAMENTO (Tratativas Iniciadas):*\n`;
+            if (itensEmAndamento === "") {
+                texto += `Nenhum item em andamento.\n\n`;
+            } else {
+                texto += `${itensEmAndamento}`;
             }
 
             texto += `*🚨 ITENS PONTUADOS (Aguardando Ação):*\n`;
