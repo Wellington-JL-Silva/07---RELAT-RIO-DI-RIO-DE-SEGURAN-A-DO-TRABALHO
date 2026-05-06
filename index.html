@@ -1678,19 +1678,31 @@
         function renderizarHistoricoPendencias() {
             const container = document.getElementById('lista-historico-pendencias');
             if (!container) return;
-
+            
             if (!historicoPendencias || historicoPendencias.length === 0) {
                 container.innerHTML = '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded">Nenhum histórico pendente acumulado.</p>';
                 return;
             }
-
-            // NOVO: Ordenar a lista para que os itens "Em Andamento" fiquem sempre no topo
+            
+            // ORDENAÇÃO INTELIGENTE DA TELA (Em Andamento -> Pendente -> Resolvido no fundo)
             historicoPendencias.sort((a, b) => {
-                if (a.statusHistorico === "Em Andamento" && b.statusHistorico !== "Em Andamento") return -1;
-                if (a.statusHistorico !== "Em Andamento" && b.statusHistorico === "Em Andamento") return 1;
-                return 0;
+                const getPeso = (status) => {
+                    if (status === "Em Andamento") return 1; // Topo
+                    if (status === "Resolvido") return 3;    // Fundo
+                    return 2;                                // Pendente/Risco Assumido (Meio)
+                };
+                
+                const pesoA = getPeso(a.statusHistorico);
+                const pesoB = getPeso(b.statusHistorico);
+                
+                if (pesoA !== pesoB) return pesoA - pesoB;
+                
+                // Se for o mesmo status, ordena pela data
+                const dataA = a.dataPrimeiroApontamento ? new Date(a.dataPrimeiroApontamento).getTime() : 0;
+                const dataB = b.dataPrimeiroApontamento ? new Date(b.dataPrimeiroApontamento).getTime() : 0;
+                return dataB - dataA;
             });
-
+            
             let html = '';
             historicoPendencias.forEach((pend, index) => {
                 const isAssumido = pend.statusHistorico === "Risco Assumido";
@@ -2270,17 +2282,7 @@
                 }
             });
 
-            // Estrutura Visual: Situações Resolvidas (AZUL - VEM PRIMEIRO)
-            html += `
-            <div class="mb-5">
-                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1">
-                    <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS
-                </h2>
-                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                    ${countResolvidos > 0 ? htmlResolvidos : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma.</p>'}
-                </div>
-            </div>
-            `;
+            // (O Bloco de Situações Resolvidas da Ronda Atual foi movido para o final do PDF)
 
             // NOVO: Estrutura Visual: Em Andamento (DOURADO - VEM NO MEIO)
             html += `
@@ -2396,50 +2398,74 @@
             `;
 
             // -------------------------------------------------------------------------
-            // NOVO: TAREFA 25 - MEMORIAL DE RESOLUÇÕES (Passivo Resolvido)
+            // TAREFA 27.2 - TODOS OS RESOLVIDOS NO FUNDO (ORDENADOS POR DATA)
             // -------------------------------------------------------------------------
             const historicoResolvido = historicoPendencias.filter(p => p.statusHistorico === "Resolvido");
 
-            if (historicoResolvido.length > 0) {
-                html += `
-                <div style="page-break-before: always; break-before: page;" class="w-full pt-8 pb-4">
-                <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Pendências Antigas Finalizadas)
-                </h2>
-                <div class="space-y-4">
-                `;
+            // ORDENAÇÃO INTELIGENTE (Do mais recente para o mais antigo)
+            historicoResolvido.sort((a, b) => {
+                const dataA = a.dataResolucao ? new Date(a.dataResolucao).getTime() : 0;
+                const dataB = b.dataResolucao ? new Date(b.dataResolucao).getTime() : 0;
+                return dataB - dataA; // Decrescente
+            });
+
+            if (countResolvidos > 0 || historicoResolvido.length > 0) {
+                html += `<div style="page-break-before: always; break-before: page;" class="w-full pt-8 pb-4">`;
                 
-                historicoResolvido.forEach((pend) => {
-                    const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
-                    const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
-                    const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
-                    
+                // 1. Resolvidos da Ronda Atual
+                if (countResolvidos > 0) {
                     html += `
-                    <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
-                        <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-100 text-blue-800"><i class="fa-solid fa-check-double"></i> Finalizado</span>
-                        </div>
-                        
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">${pend.descricao}</p>
-                        
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
-                            <p><b>Criado em:</b> <span class="text-slate-800 dark:text-white">${dataCitado}</span></p>
-                            <p><b>Resolvido em:</b> <span class="text-blue-600 font-bold">${dataResolvido}</span></p>
-                            <p><b>SLA / Resposta:</b> <span class="text-green-600 font-bold">${sla} dia(s)</span></p>
-                            <p><b>Vezes Cobrado:</b> <span class="text-slate-800 dark:text-white">${pend.contagemVezes}x</span></p>
-                        </div>
-                        
-                        ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
-                        ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+                    <h2 class="text-xl font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 pb-2 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS (Ronda Atual)
+                    </h2>
+                    <div class="space-y-4 ${historicoResolvido.length > 0 ? 'mb-10' : ''}">
+                        ${htmlResolvidos}
                     </div>
                     `;
-                });
+                }
 
-                html += `
-                </div>
-                </div>
-                `;
+                // 2. Resolvidos do Histórico (Memorial ordenado)
+                if (historicoResolvido.length > 0) {
+                    html += `
+                    <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Contínuo)
+                    </h2>
+                    <div class="space-y-4">
+                    `;
+                    
+                    historicoResolvido.forEach((pend) => {
+                        const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
+                        const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
+                        const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
+                        
+                        html += `
+                        <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
+                            <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
+                                <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-100 text-blue-800"><i class="fa-solid fa-check-double"></i> Finalizado em ${dataResolvido}</span>
+                            </div>
+                            
+                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">${pend.descricao}</p>
+                            
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
+                                <p><b>Criado em:</b> <span class="text-slate-800 dark:text-white">${dataCitado}</span></p>
+                                <p><b>Resolvido em:</b> <span class="text-blue-600 font-bold">${dataResolvido}</span></p>
+                                <p><b>SLA / Resposta:</b> <span class="text-green-600 font-bold">${sla} dia(s)</span></p>
+                                <p><b>Vezes Cobrado:</b> <span class="text-slate-800 dark:text-white">${pend.contagemVezes}x</span></p>
+                            </div>
+                            
+                            ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
+                            ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+                        </div>
+                        `;
+                    });
+
+                    html += `
+                    </div>
+                    `;
+                }
+
+                html += `</div>`;
             }
 
             container.innerHTML = html;
@@ -2506,40 +2532,43 @@
             }, 500);
         }
 
-        // ATUALIZADO: Motor de Fechamento de Dia e Migração para o Histórico
         function limparRonda() {
-            if(confirm("Deseja fechar o dia? Os itens em conformidade serão limpos, mas os apontamentos (N.C) serão migrados para o Histórico Contínuo.")) {
-                
+            if(confirm("Deseja fechar o dia? Os itens em conformidade serão limpos, mas os apontamentos (N.C) e os itens Resolvidos hoje serão migrados para o Histórico Contínuo.")) {
                 const hoje = new Date();
                 
-                // Varre a ronda atual procurando os itens que estão PONTUADOS no dia de hoje
+                // Varre a ronda atual procurando PONTUADOS, EM ANDAMENTO ou RESOLVIDOS
                 moldeAtual.forEach(cat => {
                     cat.itens.forEach(item => {
                         const resp = estadoAtualRonda.respostas[item.idItem];
-                        if (resp && (resp.status === 'pontuado' || resp.status === 'em_andamento')) {
+                        
+                        if (resp && (resp.status === 'pontuado' || resp.status === 'em_andamento' || resp.status === 'resolvido')) {
                             
-                            // Verifica se esse problema já existe no fundo do histórico
                             let pendenciaExistente = historicoPendencias.find(p => p.idItem === item.idItem);
                             
                             if (pendenciaExistente) {
-                                // Atualiza a pendência antiga (Conta mais 1 vez apontada e calcula dias)
-                                pendenciaExistente.contagemVezes += 1;
+                                // Se já existia no histórico e foi pontuado novamente
+                                if (resp.status !== 'resolvido') {
+                                    pendenciaExistente.contagemVezes += 1;
+                                }
                                 pendenciaExistente.dataUltimoApontamento = hoje.toISOString();
-                                
                                 const dataPrimeiro = new Date(pendenciaExistente.dataPrimeiroApontamento);
                                 const diferencaTempo = Math.abs(hoje - dataPrimeiro);
                                 pendenciaExistente.diasAberto = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
                                 
-                                // Preserva ou atualiza a anotação se houver uma nova
                                 if(resp.observacao) pendenciaExistente.ultimaAnotacao = resp.observacao;
-                                if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel; // NOVO: Atualiza o responsável
+                                if(resp.solucao) pendenciaExistente.solucao = resp.solucao;
+                                if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel;
                                 
-                                // NOVO: Atualiza o status do histórico se a tratativa iniciou (e não foi assumida ou resolvida)
-                                if (pendenciaExistente.statusHistorico !== "Risco Assumido" && pendenciaExistente.statusHistorico !== "Resolvido") {
+                                // Atualiza Status
+                                if (resp.status === 'resolvido') {
+                                    pendenciaExistente.statusHistorico = "Resolvido";
+                                    pendenciaExistente.dataResolucao = hoje.toISOString();
+                                    pendenciaExistente.diasParaResolver = pendenciaExistente.diasAberto;
+                                } else if (pendenciaExistente.statusHistorico !== "Risco Assumido" && pendenciaExistente.statusHistorico !== "Resolvido") {
                                     pendenciaExistente.statusHistorico = (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente";
                                 }
                             } else {
-                                // Cria uma nova pendência no fundo do aplicativo
+                                // Cria um novo registro permanente no fundo do aplicativo
                                 historicoPendencias.push({
                                     idItem: item.idItem,
                                     descricao: item.descricao,
@@ -2548,11 +2577,11 @@
                                     dataUltimoApontamento: hoje.toISOString(),
                                     contagemVezes: 1,
                                     diasAberto: 0,
-                                    ultimaAnotacao: resp.observacao || "Sem anotação",
-                                    statusHistorico: (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente",
-                                    responsavelTratativa: resp.responsavel || "", // ATUALIZADO: Herda da ronda atual
-                                    dataResolucao: null,      // NOVO: Gestão de SLA
-                                    diasParaResolver: null    // NOVO: Gestão de SLA
+                                    ultimaAnotacao: resp.observacao || (resp.status === 'resolvido' ? "Resolvido no mesmo dia da vistoria" : "Sem anotação"),
+                                    statusHistorico: resp.status === 'resolvido' ? "Resolvido" : (resp.status === 'em_andamento' ? "Em Andamento" : "Pendente"),
+                                    responsavelTratativa: resp.responsavel || "",
+                                    dataResolucao: resp.status === 'resolvido' ? hoje.toISOString() : null,
+                                    diasParaResolver: resp.status === 'resolvido' ? 0 : null
                                 });
                             }
                         }
@@ -2562,13 +2591,12 @@
                 // 1. Salva o fundo histórico no navegador
                 localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
                 
-                // 2. Só então limpa a ronda superficial de hoje
+                // 2. Limpa a ronda superficial de hoje
                 localStorage.removeItem('sgi_vistoria_progresso');
                 estadoAtualRonda.focoCritico = "";
                 document.getElementById('input-foco').value = "";
-                
                 bootApp();
-                mostrarToast("Dia fechado! Pendências migradas para o histórico com sucesso.");
+                mostrarToast("Dia fechado! Pendências e Resoluções guardadas no histórico para sempre.");
             }
         }
 
