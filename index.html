@@ -2824,7 +2824,8 @@
             const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
             const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
 
-            let texto = `*RESUMO DA RONDA SESMT*\nFiliais Vistoriadas: ${unidadesStr}\nData: ${dataStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
+            // NOVO TAREFA 37: Título dinâmico com a data (Removida a data redundante abaixo)
+            let texto = `*RESUMO DAS RONDAS DO DIA ${dataStr}*\nFiliais Vistoriadas: ${unidadesStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
 
             if(estadoAtualRonda.focoCritico) {
                 texto += `*🎯 FOCO DO DIA:* ${estadoAtualRonda.focoCritico}\n\n`;
