@@ -2583,11 +2583,16 @@
             // A mágica: Renderizar a prévia AGORA gera imagens estáticas dos gráficos em Base64
             renderizarPrevia();
             const containerPrevia = document.getElementById('relatorio-print-container');
-
             const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
-            const dataStr = `${("0"+dataObj.getDate()).slice(-2)}-${("0"+(dataObj.getMonth()+1)).slice(-2)}-${dataObj.getFullYear()}`;
-            const insp = document.getElementById('input-inspetor').value.replace(/[^a-zA-Z0-9]/g, '_') || "SESMT";
-            const nomeArquivo = `Relatorio_Vistoria_${insp}_${dataStr}.pdf`;
+
+            // NOVO TAREFA 32: Formatação customizada do nome do arquivo
+            const diaStr = ("0" + dataObj.getDate()).slice(-2);
+            const mesStr = ("0" + (dataObj.getMonth() + 1)).slice(-2);
+            const anoStr = dataObj.getFullYear();
+            const dataFormatadaStr = `${anoStr}.${mesStr}.${diaStr}`;
+
+            const insp = document.getElementById('input-inspetor').value.trim() || "SESMT";
+            const nomeArquivo = `${diaStr}-${dataFormatadaStr} - RELATÓRIO DA VISTORIA - ${insp}.pdf`;
 
             // Configuração com Margem Inferior Expandida (Evita o corte de linhas no limite da folha)
             const opt = {
