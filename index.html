@@ -2361,12 +2361,12 @@
 
             let htmlPontuados = '';
             let htmlResolvidos = '';
-            let htmlEmAndamento = ''; 
+            let htmlEmAndamento = '';
             let htmlReincidentes = ''; // NOVO 33.4
             let htmlConformes = '';
             let countPontuados = 0;
             let countResolvidos = 0;
-            let countEmAndamento = 0; 
+            let countEmAndamento = 0;
             let countReincidentes = 0; // NOVO 33.4
             let countConformes = 0;
 
@@ -2376,7 +2376,7 @@
                     if (resp && resp.status === 'pontuado') {
                         countPontuados++;
                         htmlPontuados += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
                             <div class="flex justify-between items-start mb-1">
                                 <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
                                 ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
@@ -2384,13 +2384,13 @@
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
                             ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
                         </div>
                         `;
                     } else if (resp && resp.status === 'resolvido') {
                         countResolvidos++;
                         htmlResolvidos += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
                             <div class="flex justify-between items-start mb-1">
                                 <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
                                 ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
@@ -2399,13 +2399,13 @@
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
                             ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
                             ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
                         </div>
                         `;
-                    } else if (resp && resp.status === 'em_andamento') { 
+                    } else if (resp && resp.status === 'em_andamento') {
                         countEmAndamento++;
                         htmlEmAndamento += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
                             <div class="flex justify-between items-start mb-1">
                                 <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
                                 ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
@@ -2413,15 +2413,15 @@
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countEmAndamento}. ${item.descricao}</p>
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${resp.observacao}</div>` : ''}
                             ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
                         </div>
                         `;
-                    } else if (resp && resp.status === 'ja_pontuado') { // NOVO TAREFA 33.4
+                    } else if (resp && resp.status === 'ja_pontuado') {
                         countReincidentes++;
                         htmlReincidentes += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <div class="mb-3 p-4 bg-purple-50 dark:bg-slate-900 border border-purple-200 dark:border-purple-800/50 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
                             <div class="flex justify-between items-start mb-1">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                                <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
                                 ${resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${resp.ticketAntigo}</span>` : ''}
                             </div>
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countReincidentes}. ${item.descricao}</p>
@@ -2431,11 +2431,11 @@
                     } else if (resp && resp.status === 'ok') {
                         countConformes++;
                         htmlConformes += `
-                        <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
+                        <div class="mb-2 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
                             <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countConformes}. ${item.descricao}</p>
                             <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="h-40 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm"></div>` : ''}
+                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
                         </div>
                         `;
                     }
@@ -2445,8 +2445,8 @@
                 if (obsArea && obsArea.trim() !== '') {
                     countPontuados++;
                     htmlPontuados += `
-                    <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                    <div class="mb-3 p-4 bg-yellow-50 dark:bg-slate-900 border border-yellow-200 dark:border-yellow-800/50 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+                        <p class="text-[10px] font-bold text-yellow-600 dark:text-yellow-500 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
                         <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. Observação Geral da Área</p>
                         <div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Relato:</b> ${obsArea}</div>
                     </div>
@@ -2550,7 +2550,7 @@
             const historicoPendente = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
             if (historicoPendente.length > 0) {
                 html += `
-                <div style="page-break-before: always; break-before: page;" class="w-full pt-8 pb-4">
+                <div class="w-full pt-6 pb-4">
                     <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
                     </h2>
@@ -2610,7 +2610,7 @@
             });
 
             if (historicoResolvido.length > 0) {
-                html += `<div style="page-break-before: always; break-before: page;" class="w-full pt-8 pb-4">`;
+                html += `<div class="w-full pt-6 pb-4">`;
 
                 // O Bloco de "Situações Resolvidas (Ronda Atual)" foi movido para o corpo principal.
                 
