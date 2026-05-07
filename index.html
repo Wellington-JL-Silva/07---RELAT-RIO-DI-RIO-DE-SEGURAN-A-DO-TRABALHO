@@ -1356,11 +1356,50 @@
             else icone.style.transform = 'rotate(0deg)';
         }
 
+        // =====================================================
+        // NOVO MÓDULO TAREFA 30: MOTOR DE RASTREABILIDADE
+        // =====================================================
+        function gerarTicketDoDia() {
+            const hoje = new Date();
+            const prefixo = `${hoje.getFullYear()}${("0"+(hoje.getMonth()+1)).slice(-2)}${("0"+hoje.getDate()).slice(-2)}`;
+            let maxNum = 0;
+
+            // 1. Procura no histórico contínuo
+            if (historicoPendencias) {
+                historicoPendencias.forEach(p => {
+                    if (p.ticket && p.ticket.startsWith(prefixo)) {
+                        const num = parseInt(p.ticket.split('-')[1]);
+                        if (num > maxNum) maxNum = num;
+                    }
+                });
+            }
+
+            // 2. Procura nas respostas da ronda atual
+            if (estadoAtualRonda && estadoAtualRonda.respostas) {
+                Object.values(estadoAtualRonda.respostas).forEach(r => {
+                    if (r && r.ticket && r.ticket.startsWith(prefixo)) {
+                        const num = parseInt(r.ticket.split('-')[1]);
+                        if (num > maxNum) maxNum = num;
+                    }
+                });
+            }
+
+            const proximoNum = ("0" + (maxNum + 1)).slice(-2);
+            return `${prefixo}-${proximoNum}`;
+        }
+
         function marcarStatus(itemId, status) {
             // Lógica de Desclicar (Toggle): Se já for o status atual, ele reseta para null.
             const statusAtual = estadoAtualRonda.respostas[itemId].status;
             const novoStatus = (statusAtual === status) ? null : status;
             estadoAtualRonda.respostas[itemId].status = novoStatus;
+
+            // NOVO TAREFA 30: Gerar Rastreabilidade ao marcar problema
+            if (novoStatus === 'pontuado' || novoStatus === 'resolvido' || novoStatus === 'em_andamento') {
+                if (!estadoAtualRonda.respostas[itemId].ticket) {
+                    estadoAtualRonda.respostas[itemId].ticket = gerarTicketDoDia();
+                }
+            }
             
             salvarProgresso();
             
@@ -1780,7 +1819,10 @@
                     
                     <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
                         <div class="flex-1 ${isModoOp ? 'pr-16' : ''}"> <!-- Espaço para não encavalar nos botões OP -->
-                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">${iconStatus} ${pend.categoria}</span>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                                ${pend.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-black mr-1 border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${pend.ticket}</span>` : ''}
+                                ${iconStatus} ${pend.categoria}
+                            </span>
                             <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
                         </div>
                         
@@ -2025,16 +2067,22 @@
         function criarCardExcecao(descricao, categoria, tipo, resp) {
             let borderClass = 'border-red-500';
             if (tipo === 'resolvido') borderClass = 'border-blue-500';
-            if (tipo === 'em_andamento') borderClass = 'border-amber-500'; // NOVO: Cor Dourada
-
+            if (tipo === 'em_andamento') borderClass = 'border-amber-500'; 
+            
             let detalhes = '';
             if (resp.observacao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Desvio / Obs:</b> ${resp.observacao}</p>`;
             if (resp.solucao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Solução:</b> ${resp.solucao}</p>`;
             if (resp.fotoBase64) detalhes += `<img src="${resp.fotoBase64}" class="mt-2 h-16 w-auto rounded border border-slate-300 dark:border-slate-600">`;
 
+            // NOVO TAREFA 30: Etiqueta de Rastreabilidade (Ticket)
+            const tagTicket = resp.ticket ? `<span class="float-right bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] ml-2 font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : '';
+
             return `
             <div class="bg-white dark:bg-slate-800 border-l-4 ${borderClass} p-3 rounded shadow-sm border-y border-r border-slate-100 dark:border-slate-700 transition-colors">
-                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${categoria}</p>
+                <div class="flex justify-between items-start mb-1">
+                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${categoria}</p>
+                    ${tagTicket}
+                </div>
                 <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 leading-tight">${descricao}</p>
                 ${detalhes}
             </div>
@@ -2574,7 +2622,6 @@
             if(confirm("Deseja fechar o dia? Os itens em conformidade serão limpos, mas os apontamentos (N.C) e os itens Resolvidos hoje serão migrados para o Histórico Contínuo.")) {
                 const hoje = new Date();
                 
-                // Varre a ronda atual procurando PONTUADOS, EM ANDAMENTO ou RESOLVIDOS
                 moldeAtual.forEach(cat => {
                     cat.itens.forEach(item => {
                         const resp = estadoAtualRonda.respostas[item.idItem];
@@ -2584,7 +2631,9 @@
                             let pendenciaExistente = historicoPendencias.find(p => p.idItem === item.idItem);
                             
                             if (pendenciaExistente) {
-                                // Se já existia no histórico e foi pontuado novamente
+                                // NOVO TAREFA 30: Transfere o ticket caso a pendência antiga não tivesse
+                                if (resp.ticket && !pendenciaExistente.ticket) pendenciaExistente.ticket = resp.ticket;
+
                                 if (resp.status !== 'resolvido') {
                                     pendenciaExistente.contagemVezes += 1;
                                 }
@@ -2597,7 +2646,6 @@
                                 if(resp.solucao) pendenciaExistente.solucao = resp.solucao;
                                 if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel;
                                 
-                                // Atualiza Status
                                 if (resp.status === 'resolvido') {
                                     pendenciaExistente.statusHistorico = "Resolvido";
                                     pendenciaExistente.dataResolucao = hoje.toISOString();
@@ -2606,8 +2654,11 @@
                                     pendenciaExistente.statusHistorico = (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente";
                                 }
                             } else {
-                                // Cria um novo registro permanente no fundo do aplicativo
+                                // NOVO TAREFA 30: Assegura o ticket permanente
+                                const ticketFinal = resp.ticket || gerarTicketDoDia();
+
                                 historicoPendencias.push({
+                                    ticket: ticketFinal,
                                     idItem: item.idItem,
                                     descricao: item.descricao,
                                     categoria: cat.tituloCategoria,
@@ -2626,10 +2677,7 @@
                     });
                 });
 
-                // 1. Salva o fundo histórico no navegador
                 localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
-                
-                // 2. Limpa a ronda superficial de hoje
                 localStorage.removeItem('sgi_vistoria_progresso');
                 estadoAtualRonda.focoCritico = "";
                 document.getElementById('input-foco').value = "";
