@@ -2558,9 +2558,21 @@
                 `;
                 historicoPendente.forEach((pend) => {
                     const isAssumido = pend.statusHistorico === "Risco Assumido";
-                    const borderCor = isAssumido ? "border-purple-400" : "border-red-400";
-                    const bgTag = isAssumido ? "bg-purple-100 text-purple-800" : "bg-red-100 text-red-800";
-                    const iconStatus = isAssumido ? '<i class="fa-solid fa-shield-halved"></i> Risco Assumido' : '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
+                    const isAndamento = pend.statusHistorico === "Em Andamento"; // NOVO TAREFA 39
+
+                    let borderCor = "border-red-400";
+                    let bgTag = "bg-red-100 text-red-800";
+                    let iconStatus = '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
+
+                    if (isAssumido) {
+                        borderCor = "border-purple-400";
+                        bgTag = "bg-purple-100 text-purple-800";
+                        iconStatus = '<i class="fa-solid fa-shield-halved"></i> Risco Assumido';
+                    } else if (isAndamento) {
+                        borderCor = "border-amber-500";
+                        bgTag = "bg-amber-100 text-amber-800";
+                        iconStatus = '<i class="fa-solid fa-bars-progress"></i> Em Andamento';
+                    }
 
                     html += `
                     <div class="border border-slate-300 border-l-4 ${borderCor} p-4 rounded bg-slate-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm">
