@@ -2312,7 +2312,10 @@
                         countPontuados++;
                         htmlPontuados += `
                         <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <div class="flex justify-between items-start mb-1">
+                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
+                            </div>
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
                             ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
@@ -2323,7 +2326,10 @@
                         countResolvidos++;
                         htmlResolvidos += `
                         <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <div class="flex justify-between items-start mb-1">
+                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
+                            </div>
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countResolvidos}. ${item.descricao}</p>
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
                             ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
@@ -2335,7 +2341,10 @@
                         countEmAndamento++;
                         htmlEmAndamento += `
                         <div class="mb-4 pb-4 border-b border-slate-200 dark:border-slate-700 last:border-0 break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                            <div class="flex justify-between items-start mb-1">
+                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
+                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
+                            </div>
                             <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countEmAndamento}. ${item.descricao}</p>
                             ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${resp.observacao}</div>` : ''}
                             ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
@@ -2717,13 +2726,16 @@
                     const resp = estadoAtualRonda.respostas[item.idItem];
                     if (resp && resp.status === 'pontuado') {
                         numPontuados++;
-                        itensPontuados += `❌ ${numPontuados}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Obs: ${resp.observacao || 'Sem anotações'}\n\n`;
+                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
+                        itensPontuados += `❌ ${numPontuados}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Obs: ${resp.observacao || 'Sem anotações'}\n\n`;
                     } else if (resp && resp.status === 'resolvido') {
                         numResolvidos++;
-                        itensResolvidos += `✅ ${numResolvidos}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Desvio: ${resp.observacao || 'Não relatado'}\n   ↳ Solução: ${resp.solucao || 'Não relatada'}\n\n`;
+                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
+                        itensResolvidos += `✅ ${numResolvidos}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Desvio: ${resp.observacao || 'Não relatado'}\n   ↳ Solução: ${resp.solucao || 'Não relatada'}\n\n`;
                     } else if (resp && resp.status === 'em_andamento') { // NOVO
                         numEmAndamento++;
-                        itensEmAndamento += `⏳ ${numEmAndamento}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Tratativa: ${resp.observacao || 'Em andamento'}\n\n`;
+                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
+                        itensEmAndamento += `⏳ ${numEmAndamento}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Tratativa: ${resp.observacao || 'Em andamento'}\n\n`;
                     } else if (resp && resp.status === 'ok') {
                         numConformes++;
                         itensConformes += `✔️ ${numConformes}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Status: Inspecionado e validado.\n\n`;
