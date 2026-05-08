@@ -1873,6 +1873,10 @@
                             <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
                                 ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : 'Risco Assumido'}
                             </button>
+                            <!-- NOVO TAREFA 40: Botão Em Andamento -->
+                            <button onclick="marcarHistoricoAndamento(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAndamento ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800'}">
+                                ${isAndamento ? '<i class="fa-solid fa-bars-progress mr-1"></i> Em Andamento' : 'Andamento'}
+                            </button>
                             <button onclick="marcarHistoricoResolvido(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isResolvido ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 border border-blue-300 dark:border-blue-800'}">
                                 ${isResolvido ? '<i class="fa-solid fa-check-double mr-1"></i> Resolvido' : 'Marcar Resolvido'}
                             </button>
@@ -1931,6 +1935,22 @@
             historicoPendencias[index].ultimaAnotacao = texto;
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             mostrarToast("Anotação do histórico salva com sucesso!");
+        }
+
+        // NOVO TAREFA 40: Função para alternar o status para "Em Andamento" no Histórico
+        function marcarHistoricoAndamento(index) {
+            const pend = historicoPendencias[index];
+            if (pend.statusHistorico !== "Em Andamento") {
+                pend.statusHistorico = "Em Andamento";
+                // Limpa dados de resolução/SLA caso estivesse marcado como resolvido antes
+                pend.dataResolucao = null;
+                pend.diasParaResolver = null;
+            } else {
+                pend.statusHistorico = "Pendente"; // Clique duplo desfaz e volta a ser Vermelho
+            }
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+            atualizarGraficos(); // Atualiza os gráficos do Dashboard
+            renderizarHistoricoPendencias(); // Re-renderiza a gaveta com o cartão movido
         }
 
         // NOVO: Calcula o SLA e marca a pendência crônica como resolvida
