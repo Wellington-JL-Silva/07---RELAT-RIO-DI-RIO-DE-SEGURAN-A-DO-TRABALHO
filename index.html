@@ -548,6 +548,102 @@
     </div>
 
     <!-- ========================================== -->
+    <!-- TELA DE LOGIN BLINDADA (A TRANCA) -->
+    <!-- ========================================== -->
+    <div id="tela-login" class="fixed inset-0 bg-slate-900 z-[1] flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-2xl p-8 w-full max-w-sm text-center border-t-4 border-alblue">
+            <i class="fa-solid fa-shield-halved text-5xl text-alblue dark:text-blue-400 mb-4"></i>
+            <h2 class="text-2xl font-black text-slate-800 dark:text-slate-100 mb-2">SGI Vistoria</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-6 font-bold uppercase tracking-widest">Acesso Restrito</p>
+            <div class="space-y-4 text-left">
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Usuário ou E-mail</label>
+                    <!-- Alterado de type="email" para type="text" -->
+                    <input type="text" id="login-email" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-3 text-sm focus:outline-none focus:border-alblue text-slate-800 dark:text-slate-200" placeholder="Ex: wellington, andre, patricia">
+                </div>
+                <div>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Senha</label>
+                    <input type="password" id="login-senha" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-3 text-sm focus:outline-none focus:border-alblue text-slate-800 dark:text-slate-200" placeholder="••••••••">
+                </div>
+                <button onclick="fazerLogin()" class="w-full bg-alblue hover:bg-alblue_light text-white font-bold py-3 rounded-lg shadow-md transition-colors mt-2">
+                    Entrar no Sistema
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- FIREBASE SDK E INICIALIZAÇÃO (O CÉREBRO) -->
+    <!-- ========================================== -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+
+    <script>
+    // Chaves Oficiais do Projeto rondas-sst
+    const firebaseConfig = {
+        apiKey: "AIzaSyAmLkodQw_az1NSSaliknij_i0mU85GqOE",
+        authDomain: "rondas-sst.firebaseapp.com",
+        projectId: "rondas-sst",
+        storageBucket: "rondas-sst.firebasestorage.app",
+        messagingSenderId: "78280697138",
+        appId: "1:78280697138:web:bc6e75f0560a8f59fc632b",
+        measurementId: "G-CWZ15X35JB"
+    };
+
+    // Inicializa o Motor do Google
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Monitor de Segurança (Tranca a tela se não estiver logado)
+    auth.onAuthStateChanged(user => {
+        if (user) {
+            // Usuário logado: Esconde a tranca
+            document.getElementById('tela-login').classList.add('hidden');
+            
+            // Pega o que está antes do @ para colocar no campo de Inspetor
+            const inputInspetor = document.getElementById('input-inspetor');
+            if (inputInspetor && !inputInspetor.value) {
+                inputInspetor.value = user.email.split('@')[0].toUpperCase();
+                if(typeof salvarMetadados === 'function') salvarMetadados();
+            }
+        } else {
+            // Ninguém logado: Mostra a tranca
+            document.getElementById('tela-login').classList.remove('hidden');
+        }
+    });
+
+    function fazerLogin() {
+        let identificacao = document.getElementById('login-email').value.trim().toLowerCase();
+        const senha = document.getElementById('login-senha').value;
+        
+        if(!identificacao || !senha) {
+            alert("Por favor, preencha o Usuário e a Senha.");
+            return;
+        }
+
+        // TRUQUE MÁGICO: Se o usuário digitou apenas o nome (não tem '@'), adiciona o domínio invisível
+        if (!identificacao.includes('@')) {
+            identificacao = identificacao + "@sgi.com.br";
+        }
+
+        auth.signInWithEmailAndPassword(identificacao, senha)
+        .then(() => {
+            mostrarToast("Acesso Liberado!");
+        })
+        .catch(error => {
+            alert("Erro no Login: Verifique seu Usuário e Senha.");
+            console.error(error);
+        });
+    }
+    </script>
+
+    <!-- ========================================== -->
     <!-- MOTOR JAVASCRIPT INTEGRADO -->
     <!-- ========================================== -->
     <script>
