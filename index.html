@@ -227,6 +227,11 @@
                 <!-- NOVO: Campo bloqueado (readonly) e com estilo de cursor não permitido -->
                 <input type="text" id="input-inspetor" placeholder="Inspetor" class="bg-alblue_light text-white text-xs font-bold px-2 py-1 rounded border border-blue-800 focus:outline-none text-right w-24 sm:w-32 cursor-not-allowed opacity-90" readonly title="Identidade Blindada">
                 
+                <!-- NOVO: BOTÃO SINCRONIZAR NUVEM (GATILHO MANUAL) -->
+                <button onclick="if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem(true)" class="bg-blue-500 hover:bg-blue-400 text-white text-xs font-bold w-8 h-8 rounded transition-colors shadow flex items-center justify-center" title="Fazer Backup na Nuvem">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </button>
+                
                 <!-- BOTÃO MODO ESCURO -->
                 <button onclick="toggleDarkMode()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold w-8 h-8 rounded transition-colors shadow flex items-center justify-center">
                     <i id="icone-tema" class="fa-solid fa-moon"></i>
@@ -1056,7 +1061,46 @@
             estadoAtualRonda.obsAreas = obsAreasMescladas;
         }
 
+        // ==========================================
+        // TAREFA 46: MOTOR DE NUVEM POR GATILHO
+        // ==========================================
+        function sincronizarComNuvem(exibirAviso = false) {
+            // Só tenta enviar se estiver logado
+            if (typeof auth !== 'undefined' && auth.currentUser) {
+                
+                // Proteção contra lentidão: Se estiver sem rede, avisa e aborta a nuvem (o celular já salvou)
+                if (!navigator.onLine) {
+                    if (exibirAviso) mostrarToast("Sem conexão. Dados a salvo no celular.");
+                    return;
+                }
+
+                const emailUsuario = auth.currentUser.email;
+                const docRef = db.collection('dados_inspetores').doc(emailUsuario);
+
+                // O Pacote Completo (Custa apenas 1 gravação na cota do Google)
+                const pacoteNuvem = {
+                    dono: emailUsuario,
+                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                    rascunhoRonda: estadoAtualRonda,
+                    historico: typeof historicoPendencias !== 'undefined' ? historicoPendencias : []
+                };
+
+                docRef.set(pacoteNuvem)
+                .then(() => {
+                    console.log("Lote sincronizado com o Google Firestore com sucesso.");
+                    if (exibirAviso) mostrarToast("Backup na Nuvem Atualizado!");
+                })
+                .catch(error => {
+                    console.error("Erro na nuvem:", error);
+                    if (exibirAviso) mostrarToast("Falha na rede. Dados seguros no celular.");
+                });
+            } else {
+                if (exibirAviso) alert("Você precisa estar logado para fazer o backup na nuvem.");
+            }
+        }
+
         function salvarProgresso() {
+            // SALVAMENTO OFFLINE-FIRST: Roda na velocidade da luz a cada letra digitada, custo ZERO.
             localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(estadoAtualRonda));
             calcularEstatisticas();
         }
@@ -1727,6 +1771,10 @@
                     const base64 = e.target.result;
                     estadoAtualRonda.respostas[itemId].fotoBase64 = base64;
                     salvarProgresso();
+
+                    // TAREFA 46.3: Gatilho de Mídia (Sincroniza ao tirar foto para não perder arquivos pesados)
+                    if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+
                     document.getElementById(`preview-img-${itemId}`).src = base64;
                     document.querySelector(`label[for="input-foto-${itemId}"]`).classList.add('hidden');
                     document.getElementById(`preview-container-${itemId}`).classList.remove('hidden');
@@ -1856,6 +1904,10 @@
                 }
                 
                 salvarProgresso();
+
+                // TAREFA 46.3: Gatilho de Mídia (Sincroniza ao anexar arquivos e PDFs externos)
+                if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+
                 renderizarListaAnexos();
                 
                 // Limpa os campos para o próximo upload
@@ -2853,6 +2905,9 @@
 
         // MOTOR PROFISSIONAL DE EXPORTAÇÃO PDF (LIMPO, SEGURO E RAIZ)
         function gerarRelatorioPDF() {
+            // TAREFA 46.3: Gatilho Documental (Sincroniza antes de gerar o PDF)
+            if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+
             mostrarToast("A preparar PDF corporativo... Aguarde um instante.");
             
             const isDark = document.documentElement.classList.contains('dark');
@@ -3003,6 +3058,10 @@
                 estadoAtualRonda.focoCritico = "";
                 document.getElementById('input-foco').value = "";
                 bootApp();
+
+                // TAREFA 46.3: Gatilho de Fechamento (Garante que o novo histórico das pendências vá pra nuvem)
+                if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+
                 mostrarToast("Dia fechado! Reincidências atualizadas e pendências guardadas para sempre.");
             }
         }
