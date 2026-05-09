@@ -566,9 +566,15 @@
                             </h2>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Acompanhe as pendências e auditorias registradas por toda a equipe.</p>
                         </div>
-                        <button onclick="if(typeof carregarHistoricoNuvem === 'function') carregarHistoricoNuvem();" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold py-2 px-3 rounded transition-colors flex items-center gap-2 border border-slate-200 dark:border-slate-600 shadow-sm">
-                            <i class="fa-solid fa-rotate"></i> Atualizar
-                        </button>
+                        <div class="flex items-center gap-2 flex-wrap justify-end">
+                            <!-- GALERIA CLICÁVEL DO PASSADO -->
+                            <button onclick="if(typeof carregarArquivoMorto === 'function') carregarArquivoMorto()" class="text-xs bg-slate-800 dark:bg-slate-700 text-white px-4 py-2 rounded-lg hover:bg-slate-700 transition font-bold shadow flex items-center gap-2">
+                                <i class="fa-solid fa-clock-rotate-left text-alyellow"></i> Acessar Arquivos Mortos
+                            </button>
+                            <button onclick="if(typeof carregarHistoricoNuvem === 'function') carregarHistoricoNuvem();" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold py-2 px-4 rounded-lg transition-colors flex items-center gap-2 border border-slate-200 dark:border-slate-600 shadow-sm">
+                                <i class="fa-solid fa-rotate"></i> Atualizar Fábrica
+                            </button>
+                        </div>
                     </div>
                     
                     <div id="lista-historico-nuvem" class="space-y-4">
@@ -683,11 +689,51 @@
             if (inputInspetor) inputInspetor.value = nomeLogado;
             if (nomeInspetor) nomeInspetor.value = nomeLogado;
 
-            // Garante que a memória do sistema receba o nome correto, ignorando edições
+            // Garante que a memória do sistema receba o nome correto
             if (typeof estadoAtualRonda !== 'undefined') {
                 estadoAtualRonda.inspetor = nomeLogado;
+            }
+
+            // ==========================================
+            // TAREFA 54.1: O POTE CENTRAL E A LOUSA (LOGIN)
+            // ==========================================
+            if (navigator.onLine && typeof db !== 'undefined') {
+                mostrarToast("Sincronizando com a Nuvem Global...");
+                
+                // 1. Busca a Lousa do Dia (O trabalho da pessoa)
+                db.collection('dados_inspetores').doc(user.email).get().then(doc => {
+                    if (doc.exists && doc.data().rascunhoRonda) {
+                        localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(doc.data().rascunhoRonda));
+                    }
+                    
+                    // 2. Busca o Histórico Global da Fábrica (O Pote Central)
+                    db.collection('historico_global').doc('fabrica_al').get().then(histDoc => {
+                        if (histDoc.exists && histDoc.data().pendencias) {
+                            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(histDoc.data().pendencias));
+                        }
+                        
+                        // Tudo na mão! Carrega a tela com as duas camadas separadas.
+                        bootApp();
+                        
+                        // TAREFA 56: Auto-Load do Mural da Fábrica (Lousas Ativas)
+                        if (typeof carregarHistoricoNuvem === 'function') {
+                            carregarHistoricoNuvem();
+                        }
+                        
+                        mostrarToast("Sincronizado! Lousa e Quadro Global carregados.");
+                    }).catch(e => {
+                        console.error("Erro no Histórico Global:", e);
+                        bootApp();
+                    });
+                }).catch(e => {
+                    console.error("Erro na Lousa:", e);
+                    bootApp();
+                });
+            } else {
+                // Modo Offline total
                 if (typeof salvarProgresso === 'function') salvarProgresso();
             }
+
         } else {
             // Ninguém logado: Mostra a tranca
             document.getElementById('tela-login').classList.remove('hidden');
@@ -1091,45 +1137,65 @@
         }
 
         // ==========================================
-        // TAREFA 46: MOTOR DE NUVEM POR GATILHO
+        // TAREFA 55: MOTOR DE MESCLAGEM ANTI-ATROPELAMENTO
         // ==========================================
         function sincronizarComNuvem(exibirAviso = false) {
-            // Só tenta enviar se estiver logado
             if (typeof auth !== 'undefined' && auth.currentUser) {
-                
-                // Proteção contra lentidão: Se estiver sem rede, avisa e aborta a nuvem (o celular já salvou)
                 if (!navigator.onLine) {
                     if (exibirAviso) mostrarToast("Sem conexão. Dados a salvo no celular.");
                     return;
                 }
 
                 const emailUsuario = auth.currentUser.email;
-                const docRef = db.collection('dados_inspetores').doc(emailUsuario);
-
-                // O Pacote Completo (Custa apenas 1 gravação na cota do Google)
-                const pacoteNuvem = {
+                
+                // 1. A LOUSA: Salva apenas o Rascunho da Ronda Atual do Inspetor
+                const promessaLousa = db.collection('dados_inspetores').doc(emailUsuario).set({
                     dono: emailUsuario,
                     ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    rascunhoRonda: estadoAtualRonda,
-                    historico: typeof historicoPendencias !== 'undefined' ? historicoPendencias : []
-                };
+                    rascunhoRonda: estadoAtualRonda
+                });
 
-                docRef.set(pacoteNuvem)
-                .then(() => {
-                    console.log("Lote sincronizado com o Google Firestore com sucesso.");
-                    if (exibirAviso) mostrarToast("Backup na Nuvem Atualizado!");
-                })
-                .catch(error => {
+                // 2. O POTE CENTRAL: Puxa, Mescla Inteligente e Salva!
+                const refPoteCentral = db.collection('historico_global').doc('fabrica_al');
+                const promessaHistorico = refPoteCentral.get().then(doc => {
+                    let pendenciasNuvem = [];
+                    if (doc.exists && doc.data().pendencias) {
+                        pendenciasNuvem = doc.data().pendencias;
+                    }
+                    
+                    // Mescla pela chave única (ticket). O que está no celular atualiza, mas preserva os dos colegas!
+                    let mapaMesclado = new Map();
+                    pendenciasNuvem.forEach(p => mapaMesclado.set(p.ticket, p));
+                    if (typeof historicoPendencias !== 'undefined') {
+                        historicoPendencias.forEach(p => mapaMesclado.set(p.ticket, p));
+                    }
+                    
+                    const novoHistorico = Array.from(mapaMesclado.values());
+                    
+                    return refPoteCentral.set({
+                        ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                        pendencias: novoHistorico
+                    }).then(() => {
+                        // Atualiza a memória do celular com o trabalho feito pelos outros silenciosamente
+                        historicoPendencias = novoHistorico;
+                        localStorage.setItem('sgi_historico_pendencias', JSON.stringify(novoHistorico));
+                    });
+                });
+
+                Promise.all([promessaLousa, promessaHistorico]).then(() => {
+                    console.log("Sincronização Híbrida e Mesclagem concluídas.");
+                    if (exibirAviso) mostrarToast("Mural Global e Nuvem Atualizados!");
+                }).catch(error => {
                     console.error("Erro na nuvem:", error);
                     if (exibirAviso) mostrarToast("Falha na rede. Dados seguros no celular.");
                 });
             } else {
-                if (exibirAviso) alert("Você precisa estar logado para fazer o backup na nuvem.");
+                if (exibirAviso) alert("Você precisa estar logado para fazer backup.");
             }
         }
 
         // ==========================================
-        // TAREFA 47: LEITURA GLOBAL E MODO ESPIÃO
+        // TAREFA 54.4: O NOVO MURAL GLOBAL E ESPIÃO (CORRIGIDO)
         // ==========================================
         let dadosGlobaisNuvem = [];
         let backupMeuRascunho = null;
@@ -1142,14 +1208,14 @@
                 container.innerHTML = '<p class="text-red-500 text-center font-bold">Faça login para conectar ao banco.</p>';
                 return;
             }
-
             container.innerHTML = '<div class="text-center p-8"><i class="fa-solid fa-satellite-dish animate-pulse text-4xl text-alblue dark:text-blue-400 mb-3"></i><p class="text-sm font-bold text-slate-500">Varrendo a fábrica na nuvem...</p></div>';
-
+            
+            // O Espião agora lê apenas as "Lousas" ativas dos inspetores (O histórico já é compartilhado e global)
             db.collection('dados_inspetores').get().then((querySnapshot) => {
                 dadosGlobaisNuvem = [];
                 let html = '';
                 const meuEmail = auth.currentUser.email;
-
+                
                 querySnapshot.forEach((doc) => {
                     const dados = doc.data();
                     const dono = dados.dono;
@@ -1157,27 +1223,23 @@
                     
                     const nomeDono = dono.split('@')[0].toUpperCase();
                     const isMeu = dono === meuEmail;
-
-                    // Calcula o número de pendências ativas daquela pessoa
-                    let totalPendencias = 0;
-                    if (dados.historico) {
-                        totalPendencias += dados.historico.filter(h => h.statusHistorico !== 'Resolvido' && h.statusHistorico !== 'Risco Assumido').length;
-                    }
+                    
+                    // Calcula as pendências APENAS da Lousa do Dia atual (Rascunho)
+                    let pendenciasHoje = 0;
                     if (dados.rascunhoRonda && dados.rascunhoRonda.respostas) {
                         Object.values(dados.rascunhoRonda.respostas).forEach(r => {
-                            if (r.status === 'pontuado' || r.status === 'em_andamento' || r.status === 'ja_pontuado') totalPendencias++;
+                            if (r.status === 'pontuado' || r.status === 'em_andamento' || r.status === 'ja_pontuado') pendenciasHoje++;
                         });
                     }
-
+                    
                     dadosGlobaisNuvem.push(dados);
                     const index = dadosGlobaisNuvem.length - 1;
-
                     const corBorda = isMeu ? 'border-alblue shadow-md' : 'border-slate-200 dark:border-slate-700';
                     const corBadge = isMeu ? 'bg-alblue text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
                     const icone = isMeu ? '<i class="fa-solid fa-user-check"></i>' : '<i class="fa-solid fa-user-clock"></i>';
-                    const textoBotao = isMeu ? 'Meu Trabalho' : 'Espionar';
+                    const textoBotao = isMeu ? 'Ver Minha Lousa' : 'Espionar Lousa';
                     const iconeBotao = isMeu ? 'fa-arrow-right' : 'fa-eye';
-
+                    
                     html += `
                     <div class="bg-white dark:bg-slate-900 border-2 ${corBorda} rounded-xl p-4 transition-all flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex items-center gap-4 w-full sm:w-auto">
@@ -1187,8 +1249,8 @@
                             <div class="flex-1">
                                 <h3 class="font-bold text-slate-800 dark:text-slate-200 text-lg leading-none">${nomeDono} ${isMeu ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded ml-2 align-middle">Você</span>' : ''}</h3>
                                 <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">
-                                    <span class="${totalPendencias > 0 ? 'text-red-500' : 'text-green-500'}">
-                                        <i class="fa-solid ${totalPendencias > 0 ? 'fa-triangle-exclamation' : 'fa-check-circle'}"></i> ${totalPendencias} Pendências Ativas
+                                    <span class="${pendenciasHoje > 0 ? 'text-red-500' : 'text-slate-400'}">
+                                        <i class="fa-solid ${pendenciasHoje > 0 ? 'fa-triangle-exclamation' : 'fa-list-check'}"></i> Lousa de Hoje: ${pendenciasHoje} Itens Pendentes
                                     </span>
                                 </p>
                             </div>
@@ -1199,11 +1261,10 @@
                     </div>
                     `;
                 });
-
-                if (html === '') html = '<p class="text-slate-500 text-center font-bold">Nenhum dado encontrado na nuvem.</p>';
+                
+                if (html === '') html = '<p class="text-slate-500 text-center font-bold">Nenhuma lousa ativa encontrada.</p>';
                 container.innerHTML = html;
-                mostrarToast("Leitura global concluída!");
-
+                mostrarToast("Leitura das Lousas da Fábrica concluída!");
             }).catch((error) => {
                 console.error("Erro ao buscar dados:", error);
                 container.innerHTML = '<p class="text-red-500 text-center font-bold">Erro ao acessar o banco de dados.</p>';
@@ -1213,37 +1274,32 @@
         function abrirVisaoEspiao(index) {
             const dadosAlvo = dadosGlobaisNuvem[index];
             const meuEmail = auth.currentUser.email;
-
-            // Se for o meu próprio card, eu simplesmente mudo para a aba Checklist
+            
             if (dadosAlvo.dono === meuEmail) {
                 mudarAba('checklist');
                 return;
             }
-
-            // Se for o de outra pessoa: Entra no Modo Espião
+            
             isSpyMode = true;
             document.body.classList.add('modo-espiao');
-
-            // 1. Salva meu trabalho atual na "gaveta" invisível (sem mexer no localStorage)
+            
+            // Guarda o trabalho local
             backupMeuRascunho = JSON.stringify(estadoAtualRonda);
             backupMeuHistorico = JSON.stringify(historicoPendencias);
-
-            // 2. Sobrescreve as variáveis globais com os dados do Alvo (sem disparar o salvarProgresso)
+            
+            // Projeta apenas a Lousa do Alvo. O Histórico Global se mantém intacto na tela!
             estadoAtualRonda = dadosAlvo.rascunhoRonda || estadoAtualRonda;
-            historicoPendencias = dadosAlvo.historico || [];
-
-            // 3. Re-renderiza a tela para exibir as respostas projetadas
+            
             renderizarChecklist();
             renderizarHistoricoPendencias();
             atualizarInputsMetadados();
-
-            // Desliga a trava do cadeado temporariamente para mostrar o nome da pessoa na tela
+            
             const nomeInsp = document.getElementById('nome-inspetor');
             const inputInsp = document.getElementById('input-inspetor');
             if(nomeInsp) nomeInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
             if(inputInsp) inputInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
-
-            mostrarToast("MODO ESPIÃO: Somente Leitura Ativado!");
+            
+            mostrarToast("MODO ESPIÃO: Vendo a Lousa Atual do colega!");
             mudarAba('checklist');
         }
 
@@ -1266,7 +1322,86 @@
             }
             atualizarInputsMetadados();
 
-            mostrarToast("Modo Espião finalizado. De volta ao seu trabalho.");
+            // Retorna o botão vermelho ao texto original caso seja usado de novo
+            const btnSair = document.getElementById('btn-sair-espiao');
+            if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-user-secret text-xl"></i> SAIR DO MODO ESPIÃO';
+
+            mostrarToast("Visualização finalizada. De volta ao seu trabalho atual.");
+        }
+
+        // ==========================================
+        // MÁQUINA DO TEMPO (GALERIA CLICÁVEL)
+        // ==========================================
+        function carregarArquivoMorto() {
+            const container = document.getElementById('lista-historico-nuvem');
+            if (typeof db === 'undefined' || !auth.currentUser || !navigator.onLine) {
+                alert("Você precisa estar online para buscar arquivos mortos.");
+                return;
+            }
+
+            container.innerHTML = '<div class="text-center p-8"><i class="fa-solid fa-clock-rotate-left animate-spin text-4xl text-alyellow mb-3"></i><p class="text-sm font-bold text-slate-500">Buscando seus relatórios passados...</p></div>';
+
+            const emailUsuario = auth.currentUser.email;
+            db.collection('historico_arquivado').where('dono', '==', emailUsuario).get().then(snapshot => {
+                if (snapshot.empty) {
+                    container.innerHTML = '<div class="text-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl"><p class="text-slate-500 font-bold">Nenhum arquivo morto encontrado para o seu usuário. Eles são gerados quando você clica em "Limpar Ronda".</p></div>';
+                    return;
+                }
+
+                let html = '<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-folder-open text-alyellow mr-2"></i> Clique em uma data para abrir a Vistoria Passada</h3><div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">';
+                
+                // Puxa as datas, ordena da mais nova para a mais velha
+                let documentos = [];
+                snapshot.forEach(doc => documentos.push({ id: doc.id, data: doc.data() }));
+                documentos.sort((a, b) => new Date(b.data.dataArquivo) - new Date(a.data.dataArquivo));
+
+                documentos.forEach(doc => {
+                    const dataAmigavel = doc.data.dataArquivo.split('-').reverse().join('/');
+                    html += `
+                    <button onclick="viajarNoTempoDoc('${doc.id}', '${dataAmigavel}')" class="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-alyellow dark:hover:border-alyellow p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group">
+                        <i class="fa-solid fa-file-pdf text-3xl text-slate-300 dark:text-slate-600 group-hover:text-alyellow transition-colors"></i>
+                        <span class="font-bold text-sm text-slate-700 dark:text-slate-200">${dataAmigavel}</span>
+                    </button>`;
+                });
+                html += '</div>';
+                container.innerHTML = html;
+                mostrarToast("Galeria do Tempo carregada!");
+            }).catch(e => {
+                console.error(e);
+                container.innerHTML = '<p class="text-red-500 text-center font-bold">Erro ao acessar a máquina do tempo.</p>';
+            });
+        }
+
+        function viajarNoTempoDoc(docIdBusca, dataAmigavel) {
+            mostrarToast("Viajando para o passado...");
+            db.collection('historico_arquivado').doc(docIdBusca).get().then((doc) => {
+                if (doc.exists) {
+                    const dadosPassado = doc.data();
+                    isSpyMode = true;
+                    document.body.classList.add('modo-espiao');
+                    
+                    backupMeuRascunho = JSON.stringify(estadoAtualRonda);
+                    backupMeuHistorico = JSON.stringify(historicoPendencias);
+                    
+                    estadoAtualRonda = dadosPassado.rascunhoRonda || estadoAtualRonda;
+                    historicoPendencias = dadosPassado.historico || [];
+                    
+                    renderizarChecklist();
+                    renderizarHistoricoPendencias();
+                    atualizarInputsMetadados();
+
+                    const nomeInsp = document.getElementById('nome-inspetor');
+                    const inputInsp = document.getElementById('input-inspetor');
+                    if(nomeInsp) nomeInsp.value = `[ARQUIVO MORTO: ${dataAmigavel}] - ${dadosPassado.dono.split('@')[0].toUpperCase()}`;
+                    if(inputInsp) inputInsp.value = `[ARQUIVO: ${dataAmigavel}]`;
+
+                    const btnSair = document.getElementById('btn-sair-espiao');
+                    if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-clock-rotate-left text-xl"></i> VOLTAR AO PRESENTE';
+
+                    mostrarToast(`VIAGEM CONCLUÍDA: Você está lendo a vistoria finalizada do dia ${dataAmigavel}.`);
+                    mudarAba('checklist');
+                }
+            });
         }
 
         function salvarProgresso() {
@@ -1275,6 +1410,9 @@
                 console.warn("Bloqueado pelo Modo Espião. Salvamento abortado.");
                 return;
             }
+
+            // TAREFA 51.1: O Carimbo de Tempo (Essencial para a resolução de conflitos da Nuvem)
+            estadoAtualRonda.timestampEdicao = Date.now();
 
             // SALVAMENTO OFFLINE-FIRST: Roda na velocidade da luz a cada letra digitada, custo ZERO.
             localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(estadoAtualRonda));
@@ -3220,6 +3358,9 @@
         function limparRonda() {
             if(confirm("Deseja fechar o dia? Os itens em conformidade serão limpos, mas os apontamentos (N.C) e os itens Resolvidos hoje serão migrados para o Histórico Contínuo.")) {
                 const hoje = new Date();
+
+                // TAREFA 49.1: Tira uma "Fotografia" imutável da ronda exata de hoje ANTES do sistema limpá-la
+                const fotografiaDoDia = JSON.parse(JSON.stringify(estadoAtualRonda));
                 
                 moldeAtual.forEach(cat => {
                     cat.itens.forEach(item => {
@@ -3304,10 +3445,30 @@
                 document.getElementById('input-foco').value = "";
                 bootApp();
 
-                // TAREFA 46.3: Gatilho de Fechamento (Garante que o novo histórico das pendências vá pra nuvem)
+                // Atualiza a Lousa em branco e o Pote Central Global com as últimas mudanças
                 if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
 
-                mostrarToast("Dia fechado! Reincidências atualizadas e pendências guardadas para sempre.");
+                // TAREFA 54.3: O COFRE DE FECHAMENTO COM CORREÇÃO DE FUSO HORÁRIO
+                if (typeof auth !== 'undefined' && auth.currentUser) {
+                    const emailUsuario = auth.currentUser.email;
+                    
+                    // Corrige o fuso horário para o Brasil (Impede que vistorias noturnas caiam no dia seguinte do UTC)
+                    const tzOffset = hoje.getTimezoneOffset() * 60000;
+                    const dataLocal = new Date(hoje - tzOffset);
+                    const dataIsoString = dataLocal.toISOString().split('T')[0];
+                    
+                    db.collection('historico_arquivado').doc(`${emailUsuario}_${dataIsoString}`).set({
+                        dono: emailUsuario,
+                        dataArquivo: dataIsoString,
+                        timestampGeracao: firebase.firestore.FieldValue.serverTimestamp(),
+                        rascunhoRonda: fotografiaDoDia,
+                        historico: historicoPendencias
+                    }).then(() => {
+                        console.log("Fotografia diária arquivada no Cofre!");
+                    }).catch(e => console.error("Erro no Cofre:", e));
+                }
+
+                mostrarToast("Dia fechado! Histórico unificado atualizado e Lousa limpa para a próxima ronda.");
             }
         }
 
