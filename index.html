@@ -206,6 +206,30 @@
             margin-top: 10px;
             border: 1px solid #ccc;
         }
+
+        /* =======================================================
+           TAREFA 47: TRAVAS DE EDIÇÃO (MODO ESPIÃO NUVEM)
+        ======================================================= */
+        .modo-espiao input:not(#input-inspetor):not(#input-data-ronda),
+        .modo-espiao textarea,
+        .modo-espiao select { pointer-events: none !important; opacity: 0.7 !important; background-color: #f1f5f9 !important; }
+        .dark .modo-espiao input,
+        .dark .modo-espiao textarea,
+        .dark .modo-espiao select { background-color: #1e293b !important; }
+
+        .modo-espiao button[id^="btn-ok-"],
+        .modo-espiao button[id^="btn-nk-"],
+        .modo-espiao button[id^="btn-sa-"],
+        .modo-espiao button[id^="btn-ea-"],
+        .modo-espiao button[id^="btn-jp-"],
+        .modo-espiao button[id^="btn-camera-"],
+        .modo-espiao button[id^="btn-nota-"],
+        .modo-espiao #btn-iniciar-ronda,
+        .modo-espiao #btn-adicionar-anexo,
+        .modo-espiao button[onclick*="excluir"],
+        .modo-espiao button[onclick*="remover"] { pointer-events: none !important; filter: grayscale(100%); opacity: 0.5 !important; cursor: not-allowed !important; }
+
+        .modo-espiao #btn-sair-espiao { display: flex !important; }
     </style>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-200 font-sans flex flex-col h-screen overflow-hidden transition-colors duration-300">
@@ -581,6 +605,11 @@
 
         </div>
     </main>
+
+    <!-- BOTÃO SAIR DO MODO ESPIÃO -->
+    <button id="btn-sair-espiao" onclick="if(typeof sairModoEspiao === 'function') sairModoEspiao()" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full shadow-2xl z-50 font-black tracking-widest items-center gap-2 border-4 border-white transition-transform hover:scale-105">
+        <i class="fa-solid fa-user-secret text-xl"></i> SAIR DO MODO ESPIÃO
+    </button>
 
     <!-- Modal de Toast (Avisos) -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 dark:bg-slate-700 text-white px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-2 font-semibold border border-slate-700 dark:border-slate-600">
@@ -1099,7 +1128,154 @@
             }
         }
 
+        // ==========================================
+        // TAREFA 47: LEITURA GLOBAL E MODO ESPIÃO
+        // ==========================================
+        let dadosGlobaisNuvem = [];
+        let backupMeuRascunho = null;
+        let backupMeuHistorico = null;
+        let isSpyMode = false;
+
+        function carregarHistoricoNuvem() {
+            const container = document.getElementById('lista-historico-nuvem');
+            if (typeof db === 'undefined' || !auth.currentUser) {
+                container.innerHTML = '<p class="text-red-500 text-center font-bold">Faça login para conectar ao banco.</p>';
+                return;
+            }
+
+            container.innerHTML = '<div class="text-center p-8"><i class="fa-solid fa-satellite-dish animate-pulse text-4xl text-alblue dark:text-blue-400 mb-3"></i><p class="text-sm font-bold text-slate-500">Varrendo a fábrica na nuvem...</p></div>';
+
+            db.collection('dados_inspetores').get().then((querySnapshot) => {
+                dadosGlobaisNuvem = [];
+                let html = '';
+                const meuEmail = auth.currentUser.email;
+
+                querySnapshot.forEach((doc) => {
+                    const dados = doc.data();
+                    const dono = dados.dono;
+                    if(!dono) return;
+                    
+                    const nomeDono = dono.split('@')[0].toUpperCase();
+                    const isMeu = dono === meuEmail;
+
+                    // Calcula o número de pendências ativas daquela pessoa
+                    let totalPendencias = 0;
+                    if (dados.historico) {
+                        totalPendencias += dados.historico.filter(h => h.statusHistorico !== 'Resolvido' && h.statusHistorico !== 'Risco Assumido').length;
+                    }
+                    if (dados.rascunhoRonda && dados.rascunhoRonda.respostas) {
+                        Object.values(dados.rascunhoRonda.respostas).forEach(r => {
+                            if (r.status === 'pontuado' || r.status === 'em_andamento' || r.status === 'ja_pontuado') totalPendencias++;
+                        });
+                    }
+
+                    dadosGlobaisNuvem.push(dados);
+                    const index = dadosGlobaisNuvem.length - 1;
+
+                    const corBorda = isMeu ? 'border-alblue shadow-md' : 'border-slate-200 dark:border-slate-700';
+                    const corBadge = isMeu ? 'bg-alblue text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300';
+                    const icone = isMeu ? '<i class="fa-solid fa-user-check"></i>' : '<i class="fa-solid fa-user-clock"></i>';
+                    const textoBotao = isMeu ? 'Meu Trabalho' : 'Espionar';
+                    const iconeBotao = isMeu ? 'fa-arrow-right' : 'fa-eye';
+
+                    html += `
+                    <div class="bg-white dark:bg-slate-900 border-2 ${corBorda} rounded-xl p-4 transition-all flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center gap-4 w-full sm:w-auto">
+                            <div class="w-12 h-12 rounded-full ${corBadge} flex items-center justify-center text-xl shrink-0">
+                                ${icone}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-bold text-slate-800 dark:text-slate-200 text-lg leading-none">${nomeDono} ${isMeu ? '<span class="text-[10px] bg-green-100 text-green-700 px-2 py-0.5 rounded ml-2 align-middle">Você</span>' : ''}</h3>
+                                <p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">
+                                    <span class="${totalPendencias > 0 ? 'text-red-500' : 'text-green-500'}">
+                                        <i class="fa-solid ${totalPendencias > 0 ? 'fa-triangle-exclamation' : 'fa-check-circle'}"></i> ${totalPendencias} Pendências Ativas
+                                    </span>
+                                </p>
+                            </div>
+                        </div>
+                        <button onclick="abrirVisaoEspiao(${index})" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-2.5 px-6 rounded-lg transition-colors flex items-center justify-center gap-2 shadow-sm shrink-0">
+                            <i class="fa-solid ${iconeBotao}"></i> ${textoBotao}
+                        </button>
+                    </div>
+                    `;
+                });
+
+                if (html === '') html = '<p class="text-slate-500 text-center font-bold">Nenhum dado encontrado na nuvem.</p>';
+                container.innerHTML = html;
+                mostrarToast("Leitura global concluída!");
+
+            }).catch((error) => {
+                console.error("Erro ao buscar dados:", error);
+                container.innerHTML = '<p class="text-red-500 text-center font-bold">Erro ao acessar o banco de dados.</p>';
+            });
+        }
+
+        function abrirVisaoEspiao(index) {
+            const dadosAlvo = dadosGlobaisNuvem[index];
+            const meuEmail = auth.currentUser.email;
+
+            // Se for o meu próprio card, eu simplesmente mudo para a aba Checklist
+            if (dadosAlvo.dono === meuEmail) {
+                mudarAba('checklist');
+                return;
+            }
+
+            // Se for o de outra pessoa: Entra no Modo Espião
+            isSpyMode = true;
+            document.body.classList.add('modo-espiao');
+
+            // 1. Salva meu trabalho atual na "gaveta" invisível (sem mexer no localStorage)
+            backupMeuRascunho = JSON.stringify(estadoAtualRonda);
+            backupMeuHistorico = JSON.stringify(historicoPendencias);
+
+            // 2. Sobrescreve as variáveis globais com os dados do Alvo (sem disparar o salvarProgresso)
+            estadoAtualRonda = dadosAlvo.rascunhoRonda || estadoAtualRonda;
+            historicoPendencias = dadosAlvo.historico || [];
+
+            // 3. Re-renderiza a tela para exibir as respostas projetadas
+            renderizarChecklist();
+            renderizarHistoricoPendencias();
+            atualizarInputsMetadados();
+
+            // Desliga a trava do cadeado temporariamente para mostrar o nome da pessoa na tela
+            const nomeInsp = document.getElementById('nome-inspetor');
+            const inputInsp = document.getElementById('input-inspetor');
+            if(nomeInsp) nomeInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
+            if(inputInsp) inputInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
+
+            mostrarToast("MODO ESPIÃO: Somente Leitura Ativado!");
+            mudarAba('checklist');
+        }
+
+        function sairModoEspiao() {
+            if (!isSpyMode) return;
+            isSpyMode = false;
+            document.body.classList.remove('modo-espiao');
+
+            // Restaura meu próprio trabalho da gaveta
+            if (backupMeuRascunho) estadoAtualRonda = JSON.parse(backupMeuRascunho);
+            if (backupMeuHistorico) historicoPendencias = JSON.parse(backupMeuHistorico);
+
+            renderizarChecklist();
+            renderizarHistoricoPendencias();
+            
+            // Restaura minha identidade
+            if (typeof auth !== 'undefined' && auth.currentUser) {
+                const meuNome = auth.currentUser.email.split('@')[0].toUpperCase();
+                estadoAtualRonda.inspetor = meuNome;
+            }
+            atualizarInputsMetadados();
+
+            mostrarToast("Modo Espião finalizado. De volta ao seu trabalho.");
+        }
+
         function salvarProgresso() {
+            // TAREFA 47.3: Blindagem absoluta. Se o Modo Espião estiver ativo, o aplicativo é proibido de salvar e alterar o LocalStorage do celular!
+            if (isSpyMode) {
+                console.warn("Bloqueado pelo Modo Espião. Salvamento abortado.");
+                return;
+            }
+
             // SALVAMENTO OFFLINE-FIRST: Roda na velocidade da luz a cada letra digitada, custo ZERO.
             localStorage.setItem('sgi_vistoria_progresso', JSON.stringify(estadoAtualRonda));
             calcularEstatisticas();
@@ -1764,25 +1940,94 @@
             document.getElementById(`area-foto-obs-${itemId}`).classList.toggle('open');
         }
 
+        // ==========================================
+        // TAREFA 48.1: COMPRESSOR DE IMAGENS "BASE 99"
+        // ==========================================
+        function comprimirImagemBase99(file, callback) {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = event => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800; // Resolução otimizada para o chão de fábrica
+                    const scaleSize = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scaleSize;
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    
+                    // Compressão agressiva (Fica leve em torno de 100kb a 200kb)
+                    const base64Comprimida = canvas.toDataURL('image/jpeg', 0.7);
+                    callback(base64Comprimida);
+                }
+            };
+        }
+
+        // ==========================================
+        // TAREFA 48.2 e 48.3: PASTAS INTELIGENTES E UPLOAD HÍBRIDO
+        // ==========================================
         function processarImagem(input, itemId) {
             if (input.files && input.files[0]) {
-                const leitor = new FileReader();
-                leitor.onload = function(e) {
-                    const base64 = e.target.result;
+                const file = input.files[0];
+                const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
+                const iconeUpload = document.querySelector(`label[for="input-foto-${itemId}"] p`);
+                
+                if (iconeUpload) iconeUpload.innerText = "Comprimindo imagem...";
+                if (lblBotao) {
+                    lblBotao.innerText = "Comprimindo...";
+                    lblBotao.parentElement.classList.add('animate-pulse');
+                }
+
+                comprimirImagemBase99(file, (base64) => {
+                    // 1. Salva a versão super leve no celular IMEDIATAMENTE (Offline)
                     estadoAtualRonda.respostas[itemId].fotoBase64 = base64;
                     salvarProgresso();
-
-                    // TAREFA 46.3: Gatilho de Mídia (Sincroniza ao tirar foto para não perder arquivos pesados)
-                    if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
-
+                    
+                    // 2. Projeta na tela na velocidade da luz
                     document.getElementById(`preview-img-${itemId}`).src = base64;
                     document.querySelector(`label[for="input-foto-${itemId}"]`).classList.add('hidden');
                     document.getElementById(`preview-container-${itemId}`).classList.remove('hidden');
-                    const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
-                    lblBotao.innerText = "Foto Anexada";
-                    lblBotao.parentElement.className = "no-print w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 rounded-md text-xs font-bold bg-alblue dark:bg-blue-600 text-white hover:bg-slate-200 transition-colors flex items-center justify-center gap-2";
-                }
-                leitor.readAsDataURL(input.files[0]);
+                    
+                    lblBotao.innerText = "Enviando Nuvem...";
+
+                    // 3. Tenta mandar para o Google Storage em Segundo Plano
+                    if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                        
+                        // Organização Automática de Pastas (Ano/Mês/Dia)
+                        const hoje = new Date();
+                        const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
+                        const emailDono = auth.currentUser.email.split('@')[0];
+                        const nomeArquivo = `${emailDono}_${itemId}_${Date.now()}.jpg`;
+                        
+                        const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
+                        
+                        storageRef.putString(base64, 'data_url').then(() => {
+                            storageRef.getDownloadURL().then((url) => {
+                                // A MÁGICA: Substitui o Texto Gigante Local pelo Link Curto Oficial da Nuvem!
+                                estadoAtualRonda.respostas[itemId].fotoBase64 = url;
+                                salvarProgresso();
+                                
+                                // Dispara a sincronização do JSON Mestre
+                                if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+                                
+                                lblBotao.innerText = "Foto Anexada";
+                                lblBotao.parentElement.classList.remove('animate-pulse');
+                                lblBotao.parentElement.className = "no-print w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 rounded-md text-xs font-bold bg-alblue dark:bg-blue-600 text-white transition-colors flex items-center justify-center gap-2";
+                            });
+                        }).catch(error => {
+                            console.error("Erro ao subir pro Storage:", error);
+                            lblBotao.innerText = "Salvo (Sem Nuvem)";
+                            lblBotao.parentElement.classList.remove('animate-pulse');
+                        });
+                    } else {
+                        lblBotao.innerText = "Salvo (Offline)";
+                        lblBotao.parentElement.classList.remove('animate-pulse');
+                        if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+                    }
+                });
             }
         }
 
