@@ -224,7 +224,8 @@
                 <!-- NOVO: TAREFA 26 - Campo de Data Editável -->
                 <input type="date" id="input-data-ronda" class="bg-alblue_light text-white text-xs font-bold px-2 py-1 rounded border border-blue-800 focus:outline-none focus:border-alyellow text-center w-28 sm:w-32 placeholder-blue-300" onchange="salvarMetadados()" title="Data de Emissão do Relatório">
                 
-                <input type="text" id="input-inspetor" placeholder="Nome do Inspetor" class="bg-alblue_light text-white text-xs font-bold px-2 py-1 rounded border border-blue-800 focus:outline-none focus:border-alyellow text-right w-24 sm:w-32 placeholder-blue-300" onchange="salvarMetadados()">
+                <!-- NOVO: Campo bloqueado (readonly) e com estilo de cursor não permitido -->
+                <input type="text" id="input-inspetor" placeholder="Inspetor" class="bg-alblue_light text-white text-xs font-bold px-2 py-1 rounded border border-blue-800 focus:outline-none text-right w-24 sm:w-32 cursor-not-allowed opacity-90" readonly title="Identidade Blindada">
                 
                 <!-- BOTÃO MODO ESCURO -->
                 <button onclick="toggleDarkMode()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs font-bold w-8 h-8 rounded transition-colors shadow flex items-center justify-center">
@@ -249,7 +250,12 @@
             <button onclick="mudarAba('previa')" id="btn-tab-previa" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
                 <i class="fa-solid fa-file-signature"></i> Prévia
             </button>
-            <button onclick="mudarAba('config')" id="btn-tab-config" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
+            <!-- NOVO: BOTÃO HISTÓRICO GERAL -->
+            <button onclick="mudarAba('historico')" id="btn-tab-historico" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
+                <i class="fa-solid fa-globe"></i> Histórico Geral
+            </button>
+            <!-- NOVO: Escondido por padrão (hidden) -->
+            <button onclick="mudarAba('config')" id="btn-tab-config" class="hidden flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
                 <i class="fa-solid fa-code"></i> Motor JSON
             </button>
         </nav>
@@ -430,8 +436,9 @@
                         </div>
 
                         <div>
-                            <label for="nome-inspetor" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nome do Inspetor</label>
-                            <input type="text" id="nome-inspetor" placeholder="Nome do Inspetor" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-3 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue transition-colors">
+                        <label for="nome-inspetor" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Nome do Inspetor <span class="text-red-500 text-[10px] ml-1 font-black"><i class="fa-solid fa-lock"></i> IDENTIDADE BLINDADA</span></label>
+                        <!-- NOVO: Input com fundo cinza, sem hover, readonly -->
+                        <input type="text" id="nome-inspetor" placeholder="Autenticando..." class="w-full bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded p-3 text-sm text-slate-600 dark:text-slate-400 focus:outline-none cursor-not-allowed transition-colors" readonly>
                         </div>
 
                         <button id="btn-iniciar-ronda" class="w-full bg-alblue hover:bg-alblue_light dark:bg-blue-600 dark:hover:bg-blue-500 text-white font-bold py-3 rounded-lg shadow-md transition-colors flex items-center justify-center gap-2 mt-2">
@@ -515,6 +522,34 @@
             <section id="aba-previa" class="hidden fade-enter">
                 <div id="relatorio-print-container" class="bg-white dark:bg-slate-800 p-6 sm:p-10 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 transition-colors">
                     <!-- O conteúdo do relatório será injetado aqui dinamicamente -->
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- NOVA ABA: HISTÓRICO GERAL (NUVEM) -->
+            <!-- ========================================== -->
+            <section id="aba-historico" class="hidden fade-enter">
+                <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-5 transition-colors mb-6">
+                    <div class="flex justify-between items-center mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-globe text-alblue dark:text-blue-400"></i> Histórico Geral da Fábrica
+                            </h2>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Acompanhe as pendências e auditorias registradas por toda a equipe.</p>
+                        </div>
+                        <button onclick="if(typeof carregarHistoricoNuvem === 'function') carregarHistoricoNuvem();" class="text-xs bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 font-bold py-2 px-3 rounded transition-colors flex items-center gap-2 border border-slate-200 dark:border-slate-600 shadow-sm">
+                            <i class="fa-solid fa-rotate"></i> Atualizar
+                        </button>
+                    </div>
+                    
+                    <div id="lista-historico-nuvem" class="space-y-4">
+                        <!-- Placeholder temporário até plugar o banco -->
+                        <div class="p-8 text-center border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl bg-slate-50 dark:bg-slate-900/50">
+                            <i class="fa-solid fa-cloud-arrow-down text-4xl text-slate-300 dark:text-slate-600 mb-3"></i>
+                            <p class="text-sm font-bold text-slate-500 dark:text-slate-400">Banco de Dados em Configuração</p>
+                            <p class="text-xs text-slate-400 mt-1">Em breve, a lista global de pendências da nuvem aparecerá aqui.</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -605,12 +640,19 @@
         if (user) {
             // Usuário logado: Esconde a tranca
             document.getElementById('tela-login').classList.add('hidden');
-            
-            // Pega o que está antes do @ para colocar no campo de Inspetor
+
+            // TAREFA 45.3: Pega o nome e aplica nos campos travados obrigatoriamente
+            const nomeLogado = user.email.split('@')[0].toUpperCase();
             const inputInspetor = document.getElementById('input-inspetor');
-            if (inputInspetor && !inputInspetor.value) {
-                inputInspetor.value = user.email.split('@')[0].toUpperCase();
-                if(typeof salvarMetadados === 'function') salvarMetadados();
+            const nomeInspetor = document.getElementById('nome-inspetor');
+
+            if (inputInspetor) inputInspetor.value = nomeLogado;
+            if (nomeInspetor) nomeInspetor.value = nomeLogado;
+
+            // Garante que a memória do sistema receba o nome correto, ignorando edições
+            if (typeof estadoAtualRonda !== 'undefined') {
+                estadoAtualRonda.inspetor = nomeLogado;
+                if (typeof salvarProgresso === 'function') salvarProgresso();
             }
         } else {
             // Ninguém logado: Mostra a tranca
@@ -1034,6 +1076,11 @@
         }
 
         function atualizarInputsMetadados() {
+            // NOVO: Trava de Ferro Anti-Falsificação (Força sempre o nome do usuário logado na Nuvem)
+            if (typeof auth !== 'undefined' && auth.currentUser) {
+                estadoAtualRonda.inspetor = auth.currentUser.email.split('@')[0].toUpperCase();
+            }
+
             document.getElementById('input-inspetor').value = estadoAtualRonda.inspetor || "";
             document.getElementById('input-foco').value = estadoAtualRonda.focoCritico || "";
             
@@ -1347,6 +1394,7 @@
         function toggleModoOp() {
             const btn = document.getElementById('btn-modo-op');
             const icon = document.getElementById('icone-modo-op');
+            const btnTabConfig = document.getElementById('btn-tab-config'); // NOVO
 
             if (isModoOp) {
                 isModoOp = false;
@@ -1354,7 +1402,12 @@
                 btn.classList.add('bg-slate-700');
                 icon.classList.remove('fa-lock-open');
                 icon.classList.add('fa-lock');
+                btnTabConfig.classList.add('hidden'); // NOVO: Esconde a aba Motor JSON
                 mostrarToast("Modo OP Desativado. Visualização normal.");
+                // Se o usuário estava na aba de Config, joga ele pro Dashboard para não ficar em tela fantasma
+                if (!document.getElementById('aba-config').classList.contains('hidden')) {
+                    mudarAba('dashboard');
+                }
                 renderizarChecklist();
             } else {
                 const senha = prompt("ACESSO RESTRITO:\nDigite a senha para habilitar a edição da estrutura da Vistoria:");
@@ -1364,6 +1417,7 @@
                     btn.classList.add('bg-red-600', 'dark:bg-red-600');
                     icon.classList.remove('fa-lock');
                     icon.classList.add('fa-lock-open');
+                    btnTabConfig.classList.remove('hidden'); // NOVO: Mostra a aba Motor JSON
                     mostrarToast("MODO OP ATIVADO! Você pode editar a estrutura.");
                     mudarAba('checklist');
                     renderizarChecklist();
@@ -1437,13 +1491,21 @@
             document.getElementById('aba-dashboard').classList.add('hidden');
             document.getElementById('aba-checklist').classList.add('hidden');
             document.getElementById('aba-previa').classList.add('hidden');
+            document.getElementById('aba-historico').classList.add('hidden'); 
             document.getElementById('aba-config').classList.add('hidden');
             
             const classesInativas = "flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap";
+            
             document.getElementById('btn-tab-dashboard').className = classesInativas;
             document.getElementById('btn-tab-checklist').className = classesInativas;
             document.getElementById('btn-tab-previa').className = classesInativas;
+            document.getElementById('btn-tab-historico').className = classesInativas; 
             document.getElementById('btn-tab-config').className = classesInativas;
+
+            // NOVO: Trava para manter o Motor JSON invisível se não estiver no Modo OP
+            if (!isModoOp && abaId !== 'config') {
+                document.getElementById('btn-tab-config').classList.add('hidden');
+            }
 
             document.getElementById(`aba-${abaId}`).classList.remove('hidden');
             document.getElementById(`btn-tab-${abaId}`).className = "flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-slate-100 dark:bg-slate-900 text-alblue dark:text-blue-400 shadow-[0_-2px_5px_rgba(0,0,0,0.1)] whitespace-nowrap";
