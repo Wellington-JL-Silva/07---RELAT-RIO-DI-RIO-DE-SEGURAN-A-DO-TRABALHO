@@ -1137,7 +1137,44 @@
         }
 
         // ==========================================
-        // TAREFA 55: MOTOR DE MESCLAGEM ANTI-ATROPELAMENTO
+        // TAREFA 57: MOTOR DE UPLOAD RETARDADO (BASE64 -> STORAGE)
+        // ==========================================
+        async function processarUploadsPendentes() {
+            if (typeof storage === 'undefined' || typeof auth === 'undefined' || !auth.currentUser || !navigator.onLine) return;
+            
+            let houveMudanca = false;
+            const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
+            const hoje = new Date();
+            const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
+
+            // Varre todas as respostas procurando por códigos Base64 gigantes
+            for (const itemId in estadoAtualRonda.respostas) {
+                const resp = estadoAtualRonda.respostas[itemId];
+                if (resp.fotoBase64 && resp.fotoBase64.startsWith('data:image')) {
+                    try {
+                        mostrarToast("Despachando fotos offline para a Nuvem...");
+                        const nomeArquivo = `offline_sync_${emailDono}_${itemId}_${Date.now()}.jpg`;
+                        const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
+                        
+                        await storageRef.putString(resp.fotoBase64, 'data_url');
+                        const url = await storageRef.getDownloadURL();
+                        
+                        // Mágica: Troca o texto pesado de 200kb pelo Link Curto do Google
+                        estadoAtualRonda.respostas[itemId].fotoBase64 = url;
+                        houveMudanca = true;
+                    } catch (e) {
+                        console.error(`Erro ao despachar foto offline do item ${itemId}:`, e);
+                    }
+                }
+            }
+            
+            if (houveMudanca) {
+                salvarProgresso(); // Salva a lousa leve no celular antes de mandar pro Firestore
+            }
+        }
+
+        // ==========================================
+        // TAREFA 55 E 57: SINCRONIZAÇÃO COM ESPERA DE UPLOAD
         // ==========================================
         function sincronizarComNuvem(exibirAviso = false) {
             if (typeof auth !== 'undefined' && auth.currentUser) {
@@ -1146,48 +1183,50 @@
                     return;
                 }
 
-                const emailUsuario = auth.currentUser.email;
-                
-                // 1. A LOUSA: Salva apenas o Rascunho da Ronda Atual do Inspetor
-                const promessaLousa = db.collection('dados_inspetores').doc(emailUsuario).set({
-                    dono: emailUsuario,
-                    ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                    rascunhoRonda: estadoAtualRonda
-                });
+                // TAREFA 57: Primeiro varre as fotos pendentes, só depois atualiza o banco de textos
+                processarUploadsPendentes().then(() => {
+                    const emailUsuario = auth.currentUser.email;
 
-                // 2. O POTE CENTRAL: Puxa, Mescla Inteligente e Salva!
-                const refPoteCentral = db.collection('historico_global').doc('fabrica_al');
-                const promessaHistorico = refPoteCentral.get().then(doc => {
-                    let pendenciasNuvem = [];
-                    if (doc.exists && doc.data().pendencias) {
-                        pendenciasNuvem = doc.data().pendencias;
-                    }
-                    
-                    // Mescla pela chave única (ticket). O que está no celular atualiza, mas preserva os dos colegas!
-                    let mapaMesclado = new Map();
-                    pendenciasNuvem.forEach(p => mapaMesclado.set(p.ticket, p));
-                    if (typeof historicoPendencias !== 'undefined') {
-                        historicoPendencias.forEach(p => mapaMesclado.set(p.ticket, p));
-                    }
-                    
-                    const novoHistorico = Array.from(mapaMesclado.values());
-                    
-                    return refPoteCentral.set({
+                    // 1. A LOUSA: Salva apenas o Rascunho da Ronda Atual do Inspetor
+                    const promessaLousa = db.collection('dados_inspetores').doc(emailUsuario).set({
+                        dono: emailUsuario,
                         ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
-                        pendencias: novoHistorico
-                    }).then(() => {
-                        // Atualiza a memória do celular com o trabalho feito pelos outros silenciosamente
-                        historicoPendencias = novoHistorico;
-                        localStorage.setItem('sgi_historico_pendencias', JSON.stringify(novoHistorico));
+                        rascunhoRonda: estadoAtualRonda
                     });
-                });
 
-                Promise.all([promessaLousa, promessaHistorico]).then(() => {
-                    console.log("Sincronização Híbrida e Mesclagem concluídas.");
-                    if (exibirAviso) mostrarToast("Mural Global e Nuvem Atualizados!");
-                }).catch(error => {
-                    console.error("Erro na nuvem:", error);
-                    if (exibirAviso) mostrarToast("Falha na rede. Dados seguros no celular.");
+                    // 2. O POTE CENTRAL: Puxa, Mescla Inteligente e Salva!
+                    const refPoteCentral = db.collection('historico_global').doc('fabrica_al');
+                    const promessaHistorico = refPoteCentral.get().then(doc => {
+                        let pendenciasNuvem = [];
+                        if (doc.exists && doc.data().pendencias) {
+                            pendenciasNuvem = doc.data().pendencias;
+                        }
+                        
+                        // Mescla pela chave única (ticket).
+                        let mapaMesclado = new Map();
+                        pendenciasNuvem.forEach(p => mapaMesclado.set(p.ticket, p));
+                        if (typeof historicoPendencias !== 'undefined') {
+                            historicoPendencias.forEach(p => mapaMesclado.set(p.ticket, p));
+                        }
+                        
+                        const novoHistorico = Array.from(mapaMesclado.values());
+                        
+                        return refPoteCentral.set({
+                            ultimaAtualizacao: firebase.firestore.FieldValue.serverTimestamp(),
+                            pendencias: novoHistorico
+                        }).then(() => {
+                            historicoPendencias = novoHistorico;
+                            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(novoHistorico));
+                        });
+                    });
+
+                    Promise.all([promessaLousa, promessaHistorico]).then(() => {
+                        console.log("Sincronização Híbrida e Mesclagem concluídas.");
+                        if (exibirAviso) mostrarToast("Mural Global e Nuvem Atualizados!");
+                    }).catch(error => {
+                        console.error("Erro na nuvem:", error);
+                        if (exibirAviso) mostrarToast("Falha na rede. Dados seguros no celular.");
+                    });
                 });
             } else {
                 if (exibirAviso) alert("Você precisa estar logado para fazer backup.");
@@ -1303,102 +1342,202 @@
             mudarAba('checklist');
         }
 
+        // ==========================================
+        // TAREFA 60.4: O RETORNO SEGURO (DESTRUIÇÃO DE ESTADO)
+        // ==========================================
         function sairModoEspiao() {
             if (!isSpyMode) return;
+            
+            // 1. Desliga o Modo de Leitura
             isSpyMode = false;
             document.body.classList.remove('modo-espiao');
-
-            // Restaura meu próprio trabalho da gaveta
+            
+            // 2. TAREFA 60.4: Destrói o Passado e Restaura o Presente (Deep Parse)
             if (backupMeuRascunho) estadoAtualRonda = JSON.parse(backupMeuRascunho);
             if (backupMeuHistorico) historicoPendencias = JSON.parse(backupMeuHistorico);
-
+            
+            // 3. Limpeza de Segurança (Garante que a RAM libere os dados visuais do passado)
+            backupMeuRascunho = null;
+            backupMeuHistorico = null;
+            
+            // 4. Re-desenha toda a interface do ZERO com os dados da Vistoria Atual
             renderizarChecklist();
             renderizarHistoricoPendencias();
             
-            // Restaura minha identidade
+            // 5. Restaura a Identidade do Inspetor atual
             if (typeof auth !== 'undefined' && auth.currentUser) {
                 const meuNome = auth.currentUser.email.split('@')[0].toUpperCase();
                 estadoAtualRonda.inspetor = meuNome;
             }
             atualizarInputsMetadados();
-
-            // Retorna o botão vermelho ao texto original caso seja usado de novo
+            
+            // 6. Atualiza o botão para uma nomenclatura global unificada
             const btnSair = document.getElementById('btn-sair-espiao');
-            if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-user-secret text-xl"></i> SAIR DO MODO ESPIÃO';
-
-            mostrarToast("Visualização finalizada. De volta ao seu trabalho atual.");
+            if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-eye-slash text-xl"></i> ENCERRAR VISUALIZAÇÃO';
+            
+            mostrarToast("Sessão restaurada. Você voltou com segurança para a edição atual.");
         }
 
         // ==========================================
-        // MÁQUINA DO TEMPO (GALERIA CLICÁVEL)
+        // MÁQUINA DO TEMPO (GALERIA CLICÁVEL E GLOBAL)
         // ==========================================
+        let cacheArquivoMortoGlobal = {}; // TAREFA 60.1: Guarda os arquivos baixados
+
         function carregarArquivoMorto() {
             const container = document.getElementById('lista-historico-nuvem');
             if (typeof db === 'undefined' || !auth.currentUser || !navigator.onLine) {
                 alert("Você precisa estar online para buscar arquivos mortos.");
                 return;
             }
+            container.innerHTML = '<div class="text-center p-8"><i class="fa-solid fa-clock-rotate-left animate-spin text-4xl text-alyellow mb-3"></i><p class="text-sm font-bold text-slate-500">Varrendo arquivos mortos de toda a fábrica...</p></div>';
 
-            container.innerHTML = '<div class="text-center p-8"><i class="fa-solid fa-clock-rotate-left animate-spin text-4xl text-alyellow mb-3"></i><p class="text-sm font-bold text-slate-500">Buscando seus relatórios passados...</p></div>';
-
-            const emailUsuario = auth.currentUser.email;
-            db.collection('historico_arquivado').where('dono', '==', emailUsuario).get().then(snapshot => {
+            // TAREFA 60.1: Busca Global (Sem o filtro where do usuário)
+            db.collection('historico_arquivado').get().then(snapshot => {
                 if (snapshot.empty) {
-                    container.innerHTML = '<div class="text-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl"><p class="text-slate-500 font-bold">Nenhum arquivo morto encontrado para o seu usuário. Eles são gerados quando você clica em "Limpar Ronda".</p></div>';
+                    container.innerHTML = '<div class="text-center p-8 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl"><p class="text-slate-500 font-bold">Nenhum arquivo morto encontrado na fábrica.</p></div>';
                     return;
                 }
 
-                let html = '<h3 class="font-bold text-slate-700 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-folder-open text-alyellow mr-2"></i> Clique em uma data para abrir a Vistoria Passada</h3><div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">';
-                
-                // Puxa as datas, ordena da mais nova para a mais velha
-                let documentos = [];
-                snapshot.forEach(doc => documentos.push({ id: doc.id, data: doc.data() }));
-                documentos.sort((a, b) => new Date(b.data.dataArquivo) - new Date(a.data.dataArquivo));
+                cacheArquivoMortoGlobal = {}; // Reseta o cache
+                let totalRelatorios = 0;
 
-                documentos.forEach(doc => {
-                    const dataAmigavel = doc.data.dataArquivo.split('-').reverse().join('/');
+                // Agrupa os relatórios pelo email do dono
+                snapshot.forEach(doc => {
+                    const dados = doc.data();
+                    const dono = dados.dono || "Desconhecido";
+                    
+                    if (!cacheArquivoMortoGlobal[dono]) {
+                        cacheArquivoMortoGlobal[dono] = [];
+                    }
+                    cacheArquivoMortoGlobal[dono].push({ id: doc.id, data: dados });
+                    totalRelatorios++;
+                });
+
+                // TAREFA 60.1: Desenha as Pastas dos Usuários
+                let html = `
+                <div class="flex justify-between items-center mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-users text-alyellow"></i> Pastas de Arquivos Mortos (${totalRelatorios} Relatórios)
+                    </h3>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">`;
+
+                // Transforma num array para organizar alfabeticamente
+                const usuarios = Object.keys(cacheArquivoMortoGlobal).sort();
+
+                usuarios.forEach(email => {
+                    const relatoriosDoUsuario = cacheArquivoMortoGlobal[email];
+                    const nomeAmigavel = email.split('@')[0].toUpperCase();
+                    const numRelatorios = relatoriosDoUsuario.length;
+                    const eMeu = email === auth.currentUser.email;
+                    const corBorda = eMeu ? 'border-alyellow' : 'border-slate-200 dark:border-slate-700';
+                    
                     html += `
-                    <button onclick="viajarNoTempoDoc('${doc.id}', '${dataAmigavel}')" class="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-alyellow dark:hover:border-alyellow p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group">
-                        <i class="fa-solid fa-file-pdf text-3xl text-slate-300 dark:text-slate-600 group-hover:text-alyellow transition-colors"></i>
-                        <span class="font-bold text-sm text-slate-700 dark:text-slate-200">${dataAmigavel}</span>
+                    <button onclick="abrirPastaUsuario('${email}')" class="bg-white dark:bg-slate-800 border-2 ${corBorda} hover:border-alyellow dark:hover:border-alyellow p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-slate-500 dark:text-slate-400 group-hover:text-alyellow transition-colors">
+                                <i class="fa-solid ${eMeu ? 'fa-user-check text-alyellow' : 'fa-folder-closed'} text-2xl"></i>
+                            </div>
+                            <div class="text-left">
+                                <h4 class="font-bold text-slate-800 dark:text-slate-200">${nomeAmigavel} ${eMeu ? '<span class="text-[9px] bg-yellow-100 text-yellow-700 px-1.5 py-0.5 rounded ml-1">Você</span>' : ''}</h4>
+                                <p class="text-xs text-slate-500 font-bold">${numRelatorios} Relatório(s)</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 group-hover:text-alyellow transition-colors"></i>
                     </button>`;
                 });
+
                 html += '</div>';
                 container.innerHTML = html;
-                mostrarToast("Galeria do Tempo carregada!");
+                mostrarToast("Pastas da fábrica carregadas!");
+
             }).catch(e => {
                 console.error(e);
                 container.innerHTML = '<p class="text-red-500 text-center font-bold">Erro ao acessar a máquina do tempo.</p>';
             });
         }
 
+        // ==========================================
+        // TAREFA 60.2: ABRIR PASTA DE USUÁRIO (NAVEGAÇÃO)
+        // ==========================================
+        function abrirPastaUsuario(emailAlvo) {
+            const container = document.getElementById('lista-historico-nuvem');
+            const relatorios = cacheArquivoMortoGlobal[emailAlvo];
+            if (!relatorios) return;
+
+            const nomeAmigavel = emailAlvo.split('@')[0].toUpperCase();
+
+            // Ordena os relatórios do mais novo para o mais velho
+            relatorios.sort((a, b) => new Date(b.data.dataArquivo) - new Date(a.data.dataArquivo));
+
+            let html = `
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 border-b border-slate-200 dark:border-slate-700 pb-2 gap-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="carregarArquivoMorto()" class="text-slate-500 hover:text-alblue dark:text-slate-400 dark:hover:text-blue-400 bg-slate-100 hover:bg-blue-50 dark:bg-slate-700 dark:hover:bg-slate-600 w-10 h-10 rounded-lg flex items-center justify-center transition-colors shadow-sm shrink-0">
+                        <i class="fa-solid fa-arrow-left"></i>
+                    </button>
+                    <h3 class="font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-folder-open text-alyellow"></i> Relatórios de ${nomeAmigavel}
+                    </h3>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-3">`;
+
+            relatorios.forEach(doc => {
+                // Formata a data (YYYY-MM-DD -> DD/MM/YYYY)
+                const dataAmigavel = doc.data.dataArquivo.split('-').reverse().join('/');
+                
+                html += `
+                <button onclick="viajarNoTempoDoc('${doc.id}', '${dataAmigavel}')" class="bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 hover:border-alyellow dark:hover:border-alyellow p-4 rounded-xl shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center gap-2 group">
+                    <i class="fa-solid fa-file-pdf text-3xl text-slate-300 dark:text-slate-600 group-hover:text-alyellow transition-colors"></i>
+                    <span class="font-bold text-sm text-slate-700 dark:text-slate-200">${dataAmigavel}</span>
+                </button>`;
+            });
+
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        // ==========================================
+        // TAREFA 60.3: ISOLAMENTO DE REFERÊNCIA (DEEP CLONE)
+        // ==========================================
         function viajarNoTempoDoc(docIdBusca, dataAmigavel) {
-            mostrarToast("Viajando para o passado...");
+            mostrarToast("Carregando visualização do relatório...");
             db.collection('historico_arquivado').doc(docIdBusca).get().then((doc) => {
                 if (doc.exists) {
                     const dadosPassado = doc.data();
+
+                    // Ativa modo Read-Only (variáveis legadas)
                     isSpyMode = true;
                     document.body.classList.add('modo-espiao');
                     
+                    // Backup da sessão de edição atual
                     backupMeuRascunho = JSON.stringify(estadoAtualRonda);
                     backupMeuHistorico = JSON.stringify(historicoPendencias);
                     
-                    estadoAtualRonda = dadosPassado.rascunhoRonda || estadoAtualRonda;
-                    historicoPendencias = dadosPassado.historico || [];
+                    // TAREFA 60.3: Aplica Deep Clone para evitar sobrescrita de referência na memória RAM
+                    if (dadosPassado.rascunhoRonda) {
+                        estadoAtualRonda = JSON.parse(JSON.stringify(dadosPassado.rascunhoRonda));
+                    }
+                    if (dadosPassado.historico) {
+                        historicoPendencias = JSON.parse(JSON.stringify(dadosPassado.historico));
+                    } else {
+                        historicoPendencias = [];
+                    }
                     
                     renderizarChecklist();
                     renderizarHistoricoPendencias();
                     atualizarInputsMetadados();
-
+                    
                     const nomeInsp = document.getElementById('nome-inspetor');
                     const inputInsp = document.getElementById('input-inspetor');
-                    if(nomeInsp) nomeInsp.value = `[ARQUIVO MORTO: ${dataAmigavel}] - ${dadosPassado.dono.split('@')[0].toUpperCase()}`;
-                    if(inputInsp) inputInsp.value = `[ARQUIVO: ${dataAmigavel}]`;
-
+                    if(nomeInsp) nomeInsp.value = `[HISTÓRICO: ${dataAmigavel}] - ${dadosPassado.dono.split('@')[0].toUpperCase()}`;
+                    if(inputInsp) inputInsp.value = `[HISTÓRICO: ${dataAmigavel}]`;
+                    
                     const btnSair = document.getElementById('btn-sair-espiao');
-                    if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-clock-rotate-left text-xl"></i> VOLTAR AO PRESENTE';
-
-                    mostrarToast(`VIAGEM CONCLUÍDA: Você está lendo a vistoria finalizada do dia ${dataAmigavel}.`);
+                    if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-arrow-left text-xl"></i> VOLTAR À EDIÇÃO';
+                    
+                    mostrarToast(`Leitura concluída: Visualizando o relatório de ${dataAmigavel}.`);
                     mudarAba('checklist');
                 }
             });
@@ -3413,7 +3552,12 @@
                                     pendenciaExistente.dataResolucao = hoje.toISOString();
                                     pendenciaExistente.diasParaResolver = pendenciaExistente.diasAberto;
                                 } else if (pendenciaExistente.statusHistorico !== "Risco Assumido" && pendenciaExistente.statusHistorico !== "Resolvido") {
-                                    pendenciaExistente.statusHistorico = (resp.status === 'em_andamento') ? "Em Andamento" : "Pendente";
+                                    // TAREFA 58: Prevenção de Downgrade. Mantém "Em Andamento" caso já tenha evoluído no histórico.
+                                    if (resp.status === 'em_andamento') {
+                                        pendenciaExistente.statusHistorico = "Em Andamento";
+                                    } else if (pendenciaExistente.statusHistorico !== "Em Andamento") {
+                                        pendenciaExistente.statusHistorico = "Pendente";
+                                    }
                                 }
                             } else {
                                 // Se não encontrou o Ticket Antigo, ou se é um problema 100% novo:
