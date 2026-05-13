@@ -64,9 +64,11 @@
             margin-top: 0;
         }
         .photo-obs-area.open {
-            max-height: 500px;
+            /* Aqui eu aumento o limite da animação de 500px para 3000px. Isso garante que, por mais ações que eu adicione na Linha do Tempo, a moldura vai esticar e não vai engolir meus botões no fundo da tela. */
+            max-height: 3000px;
             opacity: 1;
             margin-top: 0.75rem;
+            padding-bottom: 0.5rem;
         }
 
         input[type="file"] { display: none; }
@@ -363,8 +365,8 @@
                         <p class="text-3xl font-black text-red-500 dark:text-red-400 mt-1" id="stat-nk">0</p>
                     </div>
                     <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 text-center flex flex-col justify-center items-center no-print transition-colors col-span-2 sm:col-span-1 lg:col-span-1">
-                        <button onclick="limparRonda()" class="text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 font-bold py-2 px-4 rounded transition text-sm w-full h-full flex flex-col items-center justify-center gap-1">
-                            <i class="fa-solid fa-trash-can"></i> Limpar Ronda
+                        <button onclick="finalizardia()" class="text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30 font-bold py-2 px-4 rounded transition text-sm w-full h-full flex flex-col items-center justify-center gap-1">
+                            <i class="fa-solid fa-trash-can"></i> Finalizar o Dia
                         </button>
                     </div>
                 </div>
@@ -493,12 +495,12 @@
                 <!-- NOVO BLOCO: MÓDULO DE ANEXOS DA RONDA -->
                 <div class="bg-white dark:bg-slate-800 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mt-6 mb-6 no-print transition-colors">
                     <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-paperclip text-alblue dark:text-blue-400 mr-2"></i> Anexos da Ronda</h2>
-                    
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label for="categoria-anexo" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Categoria do Documento</label>
-                                <select id="categoria-anexo" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-3 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue transition-colors">
+                                <!-- TAREFA 62: Input Select Melhorado (Bordas fortes e anel de foco) -->
+                                <select id="categoria-anexo" class="w-full bg-slate-50 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm font-bold text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 transition-all cursor-pointer shadow-sm">
                                     <option value="" disabled selected>Selecione a Categoria...</option>
                                     <option value="Certificado">Certificado</option>
                                     <option value="Permissão de Trabalho (PT)">Permissão de Trabalho (PT)</option>
@@ -508,15 +510,31 @@
                                 </select>
                             </div>
                             <div>
-                                <label for="arquivo-anexo" class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Selecione o Arquivo (Foto/PDF)</label>
-                                <input type="file" id="arquivo-anexo" accept=".pdf, image/*" class="w-full bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2.5 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue transition-colors file:mr-4 file:py-1 file:px-3 file:rounded file:border-0 file:text-xs file:font-semibold file:bg-alblue file:text-white hover:file:bg-alblue_light cursor-pointer">
+                                <span class="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">Selecione o Arquivo (Foto/PDF)</span>
+                                <!-- TAREFA 62.1: Upload Customizado (Esconde botão padrão e cria Dropzone) -->
+                                <label for="arquivo-anexo" class="flex flex-col items-center justify-center w-full py-2.5 bg-slate-50 dark:bg-slate-900 border-2 border-dashed border-slate-400 dark:border-slate-500 rounded-lg cursor-pointer hover:border-alblue dark:hover:border-blue-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all active:scale-95 shadow-sm group">
+                                    <div class="flex items-center gap-2 pointer-events-none px-3 text-center">
+                                        <i id="icone-arquivo-anexo" class="fa-solid fa-folder-open text-xl text-slate-400 dark:text-slate-500 group-hover:text-alblue dark:group-hover:text-blue-400 transition-colors"></i>
+                                        <span id="nome-arquivo-selecionado" class="text-sm font-bold text-slate-600 dark:text-slate-300 truncate max-w-[200px] sm:max-w-xs">Toque para escolher arquivo...</span>
+                                    </div>
+                                    <input type="file" id="arquivo-anexo" accept=".pdf, image/*" class="hidden" onchange="
+                                        const nomeEl = document.getElementById('nome-arquivo-selecionado');
+                                        const iconeEl = document.getElementById('icone-arquivo-anexo');
+                                        if(this.files.length > 0) {
+                                            nomeEl.innerText = this.files[0].name;
+                                            iconeEl.className = 'fa-solid fa-file-circle-check text-xl text-green-500';
+                                        } else {
+                                            nomeEl.innerText = 'Toque para escolher arquivo...';
+                                            iconeEl.className = 'fa-solid fa-folder-open text-xl text-slate-400 dark:text-slate-500 group-hover:text-alblue dark:group-hover:text-blue-400 transition-colors';
+                                        }
+                                    ">
+                                </label>
                             </div>
                         </div>
-
-                        <button id="btn-adicionar-anexo" class="w-full sm:w-auto px-6 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-3 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 mt-2">
-                            <i class="fa-solid fa-plus"></i> Adicionar Anexo
+                        <!-- TAREFA 62: Botão de Ação com Feedback Tátil (Contorno sólido e efeito de afundamento) -->
+                        <button id="btn-adicionar-anexo" class="w-full sm:w-auto px-8 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 border-2 border-slate-300 dark:border-slate-500 hover:border-alblue dark:hover:border-blue-400 text-slate-800 dark:text-white font-bold py-3 rounded-lg shadow-sm transition-all flex items-center justify-center gap-2 mt-2 active:scale-95 active:bg-slate-300 dark:active:bg-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:focus:ring-blue-800">
+                            <i class="fa-solid fa-plus text-alblue dark:text-blue-400"></i> Adicionar Anexo ao Relatório
                         </button>
-                        
                         <div id="lista-anexos-adicionados" class="mt-4 space-y-2">
                             <!-- Preenchido dinamicamente pelo JS -->
                         </div>
@@ -528,7 +546,7 @@
                     <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2 border-b border-slate-200 dark:border-slate-600 pb-2 flex items-center gap-2">
                         <i class="fa-solid fa-clock-rotate-left text-alyellow"></i> Histórico Contínuo (Pendências Antigas)
                     </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Itens reincidentes ou riscos assumidos migrados de dias anteriores. Eles não são apagados ao "Limpar Ronda".</p>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Itens reincidentes ou riscos assumidos migrados de dias anteriores. Eles não são apagados ao "Finalizar o Dia".</p>
                     <div id="lista-historico-pendencias" class="space-y-4">
                         <!-- Preenchido dinamicamente pelo JS -->
                     </div>
@@ -805,31 +823,31 @@
         // -----------------------------------------------------
         const mockJsonConfig = {
             unidades: [
-                "Ferragens", 
-                "Sistemas", 
+                "Matriz Ferragens", 
+                "AL Sistemas", 
                 "Filial Alumínio",
                 "Matriz Alumínio"
             ],
             areas_vistoriadas: {
                 administrativos: [
-                    "Compras", "Financeiro", "Fiscal", "Marketing", 
-                    "PCP", "RH", "SST", "Vendas", "Qualidade",
-                    "Recepção e portaria"
+                    "Matriz Ferragens - Compras", "Matriz ferragens - Financeiro", "Fiscal", "Matriz Ferragens - Marketing", 
+                    "Matriz Ferragens - PCP", "Matriz Ferragens - RH", "SST", "Matriz Ferragens -Vendas", "Matriz Ferragens - Qualidade",
+                    "Matriz Ferragens - Recepção e portaria"
                 ],
                 operacionais: [
-                    "Devolução/Recebimento", "Expedição", "Logística", 
-                    "Injetora", "Montagem", "Pintura", "Puxadores", 
-                    "Maxsystem", "Manutenção",
-                    "Vestiário masculino", "Docas de carga e descarga", 
-                    "Área de armazenamento de produtos químicos", "Estacionamentos",
+                    "Matriz Ferragens - Devolução/Recebimento", "Matriz Ferragens - Expedição", "Matriz Ferragens - Logística", 
+                    "Matriz Ferragens - Injetora", "Matriz Ferragens - Montagem", "Matriz Ferragens - Pintura", "Matriz Ferragens - Puxadores", 
+                    "Matriz Ferragens - Maxsystem", "Matriz Ferragens - Manutenção",
+                    "Vestiário masculino", "Matriz Ferragens - Docas de carga e descarga", 
+                    "Matriz Ferragens - Área de armazenamento de produtos químicos", "Matriz Ferragens - Estacionamentos",
                     // NOVO: Setores exclusivos do Alumínio
-                    "Expedição Matriz Alumínio", "Extrusão Matriz Alumínio",
-                    "Pintura Matriz Alumínio", "Barra Filial Alumínio",
-                    "Expedição Filial Alumínio", "Pia Filial Alumínio",
-                    "Sacada Filial Alumínio",
+                    "Matriz Alumínio - Expedição", "Matriz Alumínio - Extrusão",
+                    "Matriz Alumínio - Pintura", " Filial Alumínio - Barra",
+                    "Filial Alumínio - Expedição", "Filial Alumínio - Pia",
+                    "Filial Alumínio - Sacada",
                     // NOVO: Setores exclusivos da AL Sistemas
-                    "Barra AL Sistemas", "Box AL Sistemas",
-                    "Engenharia AL Sistemas", "Expedição AL Sistemas"
+                    "AL Sistemas - Barra ", "AL Sistemas - Box",
+                    "AL Sistemas - Engenharia", "AL Sistemas - Expedição"
                 ]
             },
             categorias_inspecao: [
@@ -947,6 +965,20 @@
                         { idItem: "chk_foc_2", descricao: "Observada alguma anomalia de comportamento inseguro sistêmico que requer ação imediata da Liderança?", permite_foto: true, campo_observacao_dinamico: true },
                         { idItem: "chk_foc_3", descricao: "Relato de outras necessidades de reparos gerais, vazamentos pontuais ou desvios ambientais atípicos?", permite_foto: true, campo_observacao_dinamico: true }
                     ]
+                },
+                // ==========================================
+                // TAREFA 73: NOVA ABA PARA LIBERAÇÃO DE PT/PET
+                // ==========================================
+                // Aqui eu adiciono uma categoria nova no meu molde mestre para registrar as permissões de trabalho liberadas no dia.
+                // Como eu configurei isso direto na matriz JSON, o meu sistema vai tratar essa aba automaticamente: vai gerar botões, aceitar fotos, imprimir no PDF e permitir clonar cartões com o [ + ]!
+                {
+                    idCategoria: "cat_pt_pet",
+                    tituloCategoria: "Liberação de PT/PET",
+                    icone: "fa-solid fa-clipboard-list",
+                    cor: "text-cyan-600 dark:text-cyan-400",
+                    itens: [
+                        { idItem: "chk_pt_1", descricao: "Atividades liberadas hoje?", permite_foto: true, campo_observacao_dinamico: true }
+                    ]
                 }
             ]
         };
@@ -1012,7 +1044,8 @@
             areasSelecionadas: [],
             respostas: {},
             obsAreas: {},
-            anexos: []
+            anexos: [],
+            itensExtras: [] // TAREFA 71.1: Gaveta dos Clones Fantasmas
         };
 
         // NOVO: Array Global para guardar o Histórico Contínuo
@@ -1043,13 +1076,14 @@
         }
 
         function bootApp() {
-            // A. Tenta carregar o Molde (Prioriza a nova estrutura mockJsonConfig)
+            // A. Tenta carregar o Molde (Prioriza a nova estrutura)
+            // TAREFA 71.1 (Blindagem): Realiza Deep Clone para garantir que a memória matriz nunca seja sujada
             const moldeSalvo = localStorage.getItem('sgi_vistoria_molde');
             if (moldeSalvo) {
                 try { moldeAtual = JSON.parse(moldeSalvo); } 
-                catch (e) { moldeAtual = mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao; }
+                catch (e) { moldeAtual = JSON.parse(JSON.stringify(mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao)); }
             } else {
-                moldeAtual = mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao;
+                moldeAtual = JSON.parse(JSON.stringify(mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao));
             }
 
             // B. Tenta carregar o Progresso
@@ -1091,6 +1125,30 @@
             
             // Garante o mapeamento correto caso o JSON contenha root ou vá direto nas categorias
             const categorias = estruturaJson.categorias_inspecao || estruturaJson;
+
+            // ==========================================
+            // TAREFA 71.1: INJEÇÃO DOS CLONES (FANTASMAS) NA MATRIZ ANTES DA RENDERIZAÇÃO
+            // ==========================================
+            if (progressoLocal && progressoLocal.itensExtras) {
+                estadoAtualRonda.itensExtras = progressoLocal.itensExtras;
+                progressoLocal.itensExtras.forEach(extra => {
+                    const catAlvo = categorias.find(c => c.idCategoria === extra.idCategoria);
+                    if (catAlvo) {
+                        // Previne duplicação de clones na mesma sessão
+                        if (!catAlvo.itens.find(i => i.idItem === extra.item.idItem)) {
+                            // Insere o clone logo abaixo do item pai que lhe deu origem
+                            const idxPai = catAlvo.itens.findIndex(i => i.idItem === extra.idItemOriginal);
+                            if (idxPai >= 0) {
+                                catAlvo.itens.splice(idxPai + 1, 0, extra.item);
+                            } else {
+                                catAlvo.itens.push(extra.item);
+                            }
+                        }
+                    }
+                });
+            } else {
+                estadoAtualRonda.itensExtras = [];
+            }
             
             categorias.forEach(categoria => {
                 obsAreasMescladas[categoria.idCategoria] = "";
@@ -1100,6 +1158,7 @@
                         observacao: "",
                         solucao: "",
                         fotoBase64: null,
+                        fotos: [], // TAREFA 66.1: Nova estrutura para múltiplas fotos
                         responsavel: "" // NOVO: Campo no checklist ativo
                     };
                 });
@@ -1310,34 +1369,66 @@
             });
         }
 
+        // ==========================================
+        // TAREFA 71.3: VISIBILIDADE DE CLONES NOS MODOS DE LEITURA (O TRADUTOR)
+        // ==========================================
+        function recarregarMatrizComClones(estadoReferencia) {
+            // 1. Aqui eu limpo a matriz atual restaurando o padrão original do sistema para não acumular "lixo visual" das telas de outras pessoas.
+            const moldeSalvo = localStorage.getItem('sgi_vistoria_molde');
+            if (moldeSalvo) {
+                try { moldeAtual = JSON.parse(moldeSalvo); }
+                catch (e) { moldeAtual = JSON.parse(JSON.stringify(mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao)); }
+            } else {
+                moldeAtual = JSON.parse(JSON.stringify(mockJsonConfig.categorias_inspecao || jsonEstruturaPadrao));
+            }
+
+            // 2. Aqui eu olho para a gaveta (itensExtras) do estado que estou investigando (seja a lousa de um colega ou um relatório antigo).
+            if (estadoReferencia && estadoReferencia.itensExtras) {
+                estadoReferencia.itensExtras.forEach(extra => {
+                    const catAlvo = moldeAtual.find(c => c.idCategoria === extra.idCategoria);
+                    
+                    // 3. Se a categoria existe e o clone ainda não foi injetado na tela, eu colo ele embaixo da pergunta original.
+                    if (catAlvo && !catAlvo.itens.find(i => i.idItem === extra.item.idItem)) {
+                        const idxPai = catAlvo.itens.findIndex(i => i.idItem === extra.idItemOriginal);
+                        if (idxPai >= 0) {
+                            catAlvo.itens.splice(idxPai + 1, 0, extra.item);
+                        } else {
+                            catAlvo.itens.push(extra.item);
+                        }
+                    }
+                });
+            }
+        }
+
         function abrirVisaoEspiao(index) {
             const dadosAlvo = dadosGlobaisNuvem[index];
             const meuEmail = auth.currentUser.email;
-            
             if (dadosAlvo.dono === meuEmail) {
                 mudarAba('checklist');
                 return;
             }
-            
             isSpyMode = true;
             document.body.classList.add('modo-espiao');
-            
-            // Guarda o trabalho local
+
+            // Aqui eu guardo o meu trabalho em um cofre seguro antes de olhar a lousa do colega.
             backupMeuRascunho = JSON.stringify(estadoAtualRonda);
             backupMeuHistorico = JSON.stringify(historicoPendencias);
-            
-            // Projeta apenas a Lousa do Alvo. O Histórico Global se mantém intacto na tela!
+
+            // Aqui eu projeto a lousa do colega para a tela do meu celular.
             estadoAtualRonda = dadosAlvo.rascunhoRonda || estadoAtualRonda;
-            
+
+            // A MÁGICA 71.3: Aqui eu obrigo o sistema a injetar os clones que o meu colega fez antes de renderizar a tela!
+            recarregarMatrizComClones(estadoAtualRonda);
+
             renderizarChecklist();
             renderizarHistoricoPendencias();
             atualizarInputsMetadados();
-            
+
             const nomeInsp = document.getElementById('nome-inspetor');
             const inputInsp = document.getElementById('input-inspetor');
             if(nomeInsp) nomeInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
             if(inputInsp) inputInsp.value = dadosAlvo.dono.split('@')[0].toUpperCase();
-            
+
             mostrarToast("MODO ESPIÃO: Vendo a Lousa Atual do colega!");
             mudarAba('checklist');
         }
@@ -1347,34 +1438,34 @@
         // ==========================================
         function sairModoEspiao() {
             if (!isSpyMode) return;
-            
-            // 1. Desliga o Modo de Leitura
+            // 1. Desligo o Modo de Leitura.
             isSpyMode = false;
             document.body.classList.remove('modo-espiao');
-            
-            // 2. TAREFA 60.4: Destrói o Passado e Restaura o Presente (Deep Parse)
+
+            // 2. Destruo os dados da lousa do colega e resgato o meu trabalho do cofre.
             if (backupMeuRascunho) estadoAtualRonda = JSON.parse(backupMeuRascunho);
             if (backupMeuHistorico) historicoPendencias = JSON.parse(backupMeuHistorico);
-            
-            // 3. Limpeza de Segurança (Garante que a RAM libere os dados visuais do passado)
+
+            // A MÁGICA 71.3: Ao voltar para a minha lousa, reconstruo a tela com os MEUS clones.
+            recarregarMatrizComClones(estadoAtualRonda);
+
+            // 3. Esvazio o cofre de segurança.
             backupMeuRascunho = null;
             backupMeuHistorico = null;
-            
-            // 4. Re-desenha toda a interface do ZERO com os dados da Vistoria Atual
+
+            // 4. Mando desenhar minha ronda de novo.
             renderizarChecklist();
             renderizarHistoricoPendencias();
-            
-            // 5. Restaura a Identidade do Inspetor atual
+
+            // 5. Restauro o meu nome no topo do relatório.
             if (typeof auth !== 'undefined' && auth.currentUser) {
                 const meuNome = auth.currentUser.email.split('@')[0].toUpperCase();
                 estadoAtualRonda.inspetor = meuNome;
             }
             atualizarInputsMetadados();
-            
-            // 6. Atualiza o botão para uma nomenclatura global unificada
+
             const btnSair = document.getElementById('btn-sair-espiao');
             if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-eye-slash text-xl"></i> ENCERRAR VISUALIZAÇÃO';
-            
             mostrarToast("Sessão restaurada. Você voltou com segurança para a edição atual.");
         }
 
@@ -1499,7 +1590,7 @@
         }
 
         // ==========================================
-        // TAREFA 60.3: ISOLAMENTO DE REFERÊNCIA (DEEP CLONE)
+        // TAREFA 60.3: ISOLAMENTO DE REFERÊNCIA E VIAGEM NO TEMPO
         // ==========================================
         function viajarNoTempoDoc(docIdBusca, dataAmigavel) {
             mostrarToast("Carregando visualização do relatório...");
@@ -1507,15 +1598,15 @@
                 if (doc.exists) {
                     const dadosPassado = doc.data();
 
-                    // Ativa modo Read-Only (variáveis legadas)
+                    // Aqui eu travo a tela para que eu não possa editar os dados do passado (Read-Only).
                     isSpyMode = true;
                     document.body.classList.add('modo-espiao');
-                    
-                    // Backup da sessão de edição atual
+
+                    // Aqui eu escondo meu trabalho do dia no cofre, para não perdê-lo.
                     backupMeuRascunho = JSON.stringify(estadoAtualRonda);
                     backupMeuHistorico = JSON.stringify(historicoPendencias);
-                    
-                    // TAREFA 60.3: Aplica Deep Clone para evitar sobrescrita de referência na memória RAM
+
+                    // Aqui eu carrego com segurança o passado na memória RAM.
                     if (dadosPassado.rascunhoRonda) {
                         estadoAtualRonda = JSON.parse(JSON.stringify(dadosPassado.rascunhoRonda));
                     }
@@ -1524,16 +1615,23 @@
                     } else {
                         historicoPendencias = [];
                     }
-                    
+
+                    // A MÁGICA 71.3: Aqui eu ensino a máquina do tempo a ler as perguntas que foram clonadas naquele dia do passado!
+                    if (typeof recarregarMatrizComClones === 'function') {
+                        recarregarMatrizComClones(estadoAtualRonda);
+                    }
+
+                    // Mando desenhar o passado na tela.
                     renderizarChecklist();
                     renderizarHistoricoPendencias();
                     atualizarInputsMetadados();
-                    
+
+                    // Modifico os nomes para ficar bem claro que estou no Arquivo Morto.
                     const nomeInsp = document.getElementById('nome-inspetor');
                     const inputInsp = document.getElementById('input-inspetor');
                     if(nomeInsp) nomeInsp.value = `[HISTÓRICO: ${dataAmigavel}] - ${dadosPassado.dono.split('@')[0].toUpperCase()}`;
                     if(inputInsp) inputInsp.value = `[HISTÓRICO: ${dataAmigavel}]`;
-                    
+
                     const btnSair = document.getElementById('btn-sair-espiao');
                     if (btnSair) btnSair.innerHTML = '<i class="fa-solid fa-arrow-left text-xl"></i> VOLTAR À EDIÇÃO';
                     
@@ -1737,14 +1835,59 @@
                     const isEa = resposta ? (resposta.status === 'em_andamento') : false;
                     const isJp = resposta ? (resposta.status === 'ja_pontuado') : false; // NOVO: 33.2
                     
-                    const temFoto = resposta && resposta.fotoBase64 !== null;
+                    // TAREFA 66.2: Preparação do Mural de Fotos (Retrocompatível)
+                    const arrayFotos = (resposta && resposta.fotos && resposta.fotos.length > 0) ? resposta.fotos : ((resposta && resposta.fotoBase64) ? [resposta.fotoBase64] : []);
+                    const temFoto = arrayFotos.length > 0;
+                    const limiteFotosAtingido = arrayFotos.length >= 4;
+
+                    // Montagem do HTML do Mural (Grid)
+                    let htmlMuralFotos = '';
+                    if (temFoto) {
+                        htmlMuralFotos = '<div class="grid grid-cols-2 gap-2 mt-2">';
+                        arrayFotos.forEach((imgB64, idxImg) => {
+                            htmlMuralFotos += `
+                            <div class="relative inline-block w-full text-center">
+                                <img src="${imgB64}" class="h-24 w-full object-cover rounded border border-slate-300 dark:border-slate-600 shadow-sm">
+                                <button onclick="if(typeof removerFotoLote === 'function') removerFotoLote('${item.idItem}', ${idxImg})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border border-white dark:border-slate-800" title="Excluir">
+                                    <i class="fa-solid fa-times text-[10px]"></i>
+                                </button>
+                            </div>`;
+                        });
+                        htmlMuralFotos += '</div>';
+                    }
+
                     const temNota = resposta && resposta.observacao.trim() !== "";
                     const temSolucao = resposta && resposta.solucao && resposta.solucao.trim() !== "";
                     const temResponsavel = resposta && resposta.responsavel && resposta.responsavel.trim() !== "";
                     const temTicket = resposta && resposta.ticketAntigo && resposta.ticketAntigo.trim() !== ""; // NOVO: 33.2
-                    
+
+                    // ==========================================
+                    // TAREFA 75.1a: O ENVELOPE INVISÍVEL DAS AÇÕES
+                    // ==========================================
+                    // Aqui eu crio uma "div" com um ID exclusivo (lista-acoes-XXX) para guardar APENAS os cartões de ação.
+                    // Assim, quando eu adicionar uma ação nova, o sistema vai atualizar apenas o que está dentro dessa div, sem recarregar a tela inteira.
+                    const acoes = (resposta && resposta.acoes) ? resposta.acoes : [];
+                    const temAcoes = acoes.length > 0;
+                    let htmlAcoes = `<div id="lista-acoes-${item.idItem}" class="space-y-2 mt-2 mb-2">`;
+                    if (temAcoes) {
+                        acoes.forEach((acao, idxAcao) => {
+                            htmlAcoes += `
+                            <div class="bg-amber-50 dark:bg-slate-900 border border-amber-200 dark:border-amber-700/50 p-2.5 rounded flex justify-between items-start gap-2 shadow-sm transition-colors">
+                            <div class="flex-1">
+                            <span class="text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded shadow-sm border border-amber-200 dark:border-amber-800"><i class="fa-solid fa-calendar-day"></i> ${acao.data}</span>
+                            <p class="text-xs text-slate-800 dark:text-slate-200 mt-1.5 font-medium leading-tight">${acao.texto}</p>
+                            </div>
+                            <div class="flex gap-2 shrink-0">
+                            <button onclick="if(typeof editarAcaoItem === 'function') editarAcaoItem('${item.idItem}', ${idxAcao})" class="text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Editar Ação"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="if(typeof excluirAcaoItem === 'function') excluirAcaoItem('${item.idItem}', ${idxAcao})" class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Excluir Ação"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                            </div>
+                            </div>`;
+                        });
+                    }
+                    htmlAcoes += `</div>`;
+
                     // Abre a área de texto se qualquer status de exceção estiver marcado
-                    const areaAberta = isNk || isSa || isEa || isJp || temFoto || temNota || temSolucao || temResponsavel || temTicket;
+                    const areaAberta = isNk || isSa || isEa || isJp || temFoto || temNota || temSolucao || temResponsavel || temTicket || temAcoes;
                     const bordaItem = isModoOp ? 'border-red-200 dark:border-red-800 border-dashed' : 'border-slate-200 dark:border-slate-700';
 
                     htmlHTML += `
@@ -1765,8 +1908,15 @@
                         `;
                     }
 
+                    // Aqui eu estou desenhando o texto da pergunta e injetando o novo botão de clonar (o botão de "+" / cópia).
+                    // Coloquei esse botão dentro de um flexbox para ele ficar alinhado à direita da pergunta, bem intuitivo para eu clicar durante a ronda.
                     htmlHTML += `
-                    <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 mb-3 pr-14">${item.descricao}</p>
+                    <div class="flex justify-between items-start gap-2 mb-3 pr-14">
+                        <p class="text-sm font-semibold text-slate-700 dark:text-slate-200">${item.descricao}</p>
+                        <button onclick="duplicarItemDaRonda('${secao.idCategoria}', '${item.idItem}')" class="no-print text-alblue dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 p-1.5 rounded shadow-sm border border-blue-200 dark:border-blue-800 transition active:scale-95 flex-shrink-0" title="Adicionar um apontamento extra para este mesmo item">
+                            <i class="fa-solid fa-copy"></i>
+                        </button>
+                    </div>
                     <div class="flex flex-col gap-3">
                         
                         <!-- NOVO 33.2: Botões de Status (Layout Adaptado para 5 Opções) -->
@@ -1802,25 +1952,33 @@
                             <i class="fa-solid fa-book"></i> <span>${temNota || temSolucao || temTicket ? 'Anotado' : 'Anotar'}</span>
                             </button>
                             <button id="btn-camera-${item.idItem}" onclick="toggleAreaFoto('${item.idItem}')" class="no-print flex-1 sm:flex-none px-3 py-2 rounded-md text-xs font-bold ${temFoto ? 'bg-alblue dark:bg-blue-600 text-white' : 'text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600'} transition-colors flex items-center justify-center gap-2 ${isJp ? 'hidden' : ''}">
-                            <i class="fa-solid fa-camera"></i> <span id="lbl-foto-${item.idItem}">${temFoto ? 'Foto Anexada' : 'Foto'}</span>
+                            <i class="fa-solid fa-camera"></i> <span id="lbl-foto-${item.idItem}">${temFoto ? arrayFotos.length + ' Foto(s)' : 'Foto'}</span>
                             </button>
                         </div>
                     </div>
                     
                     <div id="area-foto-obs-${item.idItem}" class="photo-obs-area bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg p-3 ${areaAberta ? 'open' : ''}">
                         
-                        <!-- NOVO: Oculta a área de foto se for Já Pontuado -->
+                        <!-- TAREFA 66.2.2: NOVA INTERFACE MULTIMÍDIA (MURAL E CÂMERA DUPLA) -->
                         <div id="container-foto-${item.idItem}" class="mb-3 ${isJp ? 'hidden' : ''}">
-                            <label for="input-foto-${item.idItem}" class="no-print cursor-pointer block w-full border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-4 text-center hover:border-alblue dark:hover:border-blue-400 transition-colors bg-white dark:bg-slate-800 ${temFoto ? 'hidden' : ''}">
-                            <i class="fa-solid fa-cloud-arrow-up text-slate-400 dark:text-slate-500 text-xl mb-1"></i>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">Toque para anexar evidência fotográfica</p>
-                            </label>
-                            <input type="file" id="input-foto-${item.idItem}" accept="image/*" onchange="processarImagem(this, '${item.idItem}')">
-                            <div id="preview-container-${item.idItem}" class="${temFoto ? '' : 'hidden'} mt-2 relative inline-block w-full text-center">
-                            <img id="preview-img-${item.idItem}" src="${temFoto ? resposta.fotoBase64 : ''}" alt="Evidência fotográfica" class="h-32 w-auto max-w-full rounded border border-slate-300 dark:border-slate-600 object-cover shadow-sm mx-auto">
-                            <button onclick="removerFoto('${item.idItem}')" class="no-print absolute -top-2 right-0 md:right-auto bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600">
-                            <i class="fa-solid fa-times text-xs"></i>
-                            </button>
+                            <div id="botoes-foto-${item.idItem}" class="flex gap-2 w-full no-print ${limiteFotosAtingido ? 'hidden' : ''}">
+                                <!-- Botão Câmera (Força abrir a câmera no celular) -->
+                                <label for="input-foto-cam-${item.idItem}" class="flex-1 cursor-pointer border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-3 flex flex-col items-center justify-center hover:border-alblue dark:hover:border-blue-400 transition-colors bg-white dark:bg-slate-800 active:scale-95 shadow-sm">
+                                    <i class="fa-solid fa-camera text-alblue dark:text-blue-400 text-lg mb-1"></i>
+                                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center mt-1">Tirar Foto</span>
+                                </label>
+                                <input type="file" id="input-foto-cam-${item.idItem}" accept="image/jpeg, image/png, image/jpg" capture="environment" class="hidden" onchange="if(typeof processarImagemLote === 'function') processarImagemLote(this, '${item.idItem}')">
+                                
+                                <!-- Botão Galeria -->
+                                <label for="input-foto-gal-${item.idItem}" class="flex-1 cursor-pointer border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg p-3 flex flex-col items-center justify-center hover:border-alblue dark:hover:border-blue-400 transition-colors bg-white dark:bg-slate-800 active:scale-95 shadow-sm">
+                                    <i class="fa-regular fa-images text-slate-500 dark:text-slate-400 text-lg mb-1"></i>
+                                    <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest text-center mt-1">Galeria</span>
+                                </label>
+                                <input type="file" id="input-foto-gal-${item.idItem}" accept="image/jpeg, image/png, image/jpg" multiple="multiple" class="hidden" onchange="if(typeof processarImagemLote === 'function') processarImagemLote(this, '${item.idItem}')">
+                            </div>
+                            
+                            <div id="preview-container-${item.idItem}" class="${temFoto ? '' : 'hidden'} w-full mt-2">
+                                ${htmlMuralFotos}
                             </div>
                         </div>
 
@@ -1839,6 +1997,19 @@
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Qual foi a solução adotada?</label>
                                 <textarea id="solucao-${item.idItem}" onchange="salvarSolucao('${item.idItem}', this.value)" rows="2" placeholder="Descreva como a situação foi resolvida no local..." class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-alblue dark:focus:ring-blue-500 text-slate-700 dark:text-slate-200 transition-all resize-none shadow-sm">${resposta && resposta.solucao ? resposta.solucao : ''}</textarea>
                             </div>
+
+                            <!-- TAREFA 65.2: CAIXA DE AÇÕES (TIMELINE) -->
+                            <div id="box-acoes-${item.idItem}" class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors ${isEa || temAcoes ? '' : 'hidden'}">
+                                <label class="text-xs font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Linha do Tempo / Ações Realizadas</label>
+                                ${htmlAcoes}
+                                <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                                    <input type="text" id="input-acao-${item.idItem}" placeholder="Descreva o que foi feito..." class="flex-1 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm">
+                                    <button onclick="if(typeof adicionarAcaoItem === 'function') adicionarAcaoItem('${item.idItem}')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                                        <i class="fa-solid fa-plus"></i> Adicionar Ação
+                                    </button>
+                                </div>
+                            </div>
+
                             <div id="box-responsavel-${item.idItem}" class="mt-1">
                                 <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 block">Responsáveis / OS (separe com ;)</label>
                                 <input type="text" id="responsavel-${item.idItem}" onchange="salvarResponsavel('${item.idItem}', this.value)" value="${resposta && resposta.responsavel ? resposta.responsavel : ''}" placeholder="Ex: Manutenção; OS-1234; Compras" class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-alblue dark:focus:ring-blue-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm">
@@ -1962,6 +2133,7 @@
                 observacao: "",
                 solucao: "",
                 fotoBase64: null,
+                fotos: [], // TAREFA 66.1: Nova estrutura para múltiplas fotos
                 responsavel: "" // NOVO: Campo no checklist ativo
             };
             
@@ -1979,6 +2151,63 @@
             const categoria = moldeAtual.find(c => c.idCategoria === idCat); if (!categoria) return;
             const item = categoria.itens.find(i => i.idItem === idItem); if (!item) return;
             if (confirm(`Deseja apagar a pergunta:\n"${item.descricao}"?`)) { categoria.itens = categoria.itens.filter(i => i.idItem !== idItem); delete estadoAtualRonda.respostas[idItem]; salvarEAtualizarEstrutura(); setTimeout(() => { document.getElementById(`content-${idCat}`).classList.add('open'); document.getElementById(`icon-${idCat}`).style.transform = 'rotate(180deg)'; }, 50); mostrarToast("Pergunta excluída."); }
+        }
+
+        // ==========================================
+        // TAREFA 71.2: A MÁQUINA DE CLONAR (CLONE FANTASMA)
+        // ==========================================
+        function duplicarItemDaRonda(idCategoria, idItemOriginal) {
+            // Aqui eu busco a categoria (setor) onde a pergunta original está guardada
+            const categoria = moldeAtual.find(c => c.idCategoria === idCategoria);
+            if (!categoria) return;
+
+            // Aqui eu encontro a pergunta exata que eu cliquei para clonar
+            const itemOriginal = categoria.itens.find(i => i.idItem === idItemOriginal);
+            if (!itemOriginal) return;
+
+            // Aqui eu crio uma cópia profunda (Deep Clone) da pergunta para não bagunçar a matriz original do meu aplicativo
+            const novoItem = JSON.parse(JSON.stringify(itemOriginal));
+            
+            // Aqui eu crio um ID único com a data atual para esse clone, assim o sistema trata ele como um extintor/problema novo
+            novoItem.idItem = idItemOriginal + "_clone_" + Date.now();
+            
+            // Aqui eu adiciono a etiqueta "(Adicional)" para eu bater o olho no PDF e saber que fui eu que clonei na hora
+            novoItem.descricao = novoItem.descricao + " (Adicional)";
+
+            // Aqui eu preparo o espaço em branco na memória para receber as anotações, status e fotos que eu vou colocar nesse clone
+            estadoAtualRonda.respostas[novoItem.idItem] = {
+                status: null,
+                observacao: "",
+                solucao: "",
+                fotoBase64: null,
+                fotos: [],
+                responsavel: "",
+                acoes: []
+            };
+
+            // Aqui eu guardo esse clone na minha "Gaveta da Ronda" (itensExtras). É isso que garante que ele não vai sumir se eu recarregar a página
+            estadoAtualRonda.itensExtras.push({
+                idCategoria: idCategoria,
+                idItemOriginal: idItemOriginal,
+                item: novoItem
+            });
+
+            // Aqui eu injeto o clone IMEDIATAMENTE na tela, colocando ele exatamente embaixo do item original que o gerou
+            const idxOriginal = categoria.itens.findIndex(i => i.idItem === idItemOriginal);
+            categoria.itens.splice(idxOriginal + 1, 0, novoItem);
+
+            // Aqui eu salvo o progresso no celular e mando a tela se desenhar de novo para mostrar meu novo item
+            salvarProgresso();
+            renderizarChecklist();
+            
+            // Aqui eu dou um aviso visual para mim mesmo e forço a sanfona a ficar aberta para eu não perder o foco
+            mostrarToast("Pergunta duplicada! Agora você pode relatar mais um equipamento.");
+            const conteudo = document.getElementById(`content-${idCategoria}`);
+            const icone = document.getElementById(`icon-${idCategoria}`);
+            if (conteudo) { 
+                conteudo.classList.add('open'); 
+                if(icone) icone.style.transform = 'rotate(180deg)'; 
+            }
         }
 
         // -----------------------------------------------------
@@ -2076,10 +2305,10 @@
             const areaObs = document.getElementById(`area-foto-obs-${itemId}`);
             const lblObs = document.getElementById(`lbl-obs-${itemId}`);
             const boxSolucao = document.getElementById(`box-solucao-${itemId}`);
-            
             const boxTicket = document.getElementById(`box-ticket-${itemId}`); // TAREFA 33.2
             const containerFoto = document.getElementById(`container-foto-${itemId}`); // TAREFA 33.2
             const btnCamera = document.getElementById(`btn-camera-${itemId}`); // TAREFA 33.2
+            const boxAcoes = document.getElementById(`box-acoes-${itemId}`); // TAREFA 65.4: Mapeia a Timeline
 
             // Estilos padrão inativos (agora em formato de coluna para caber na tela)
             const btnDesclicado = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700";
@@ -2098,6 +2327,7 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
             } else if (novoStatus === 'pontuado') {
                 if (btnNk) btnNk.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
@@ -2105,6 +2335,7 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
             } else if (novoStatus === 'resolvido') {
                 if (btnSa) btnSa.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.remove('hidden');
@@ -2112,6 +2343,7 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // TAREFA 65.4: Mantém ações visíveis em resolvido
             } else if (novoStatus === 'em_andamento') {
                 if (btnEa) btnEa.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
@@ -2119,19 +2351,22 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // TAREFA 65.4: MOSTRA A TIMELINE IMEDIATAMENTE
             } else if (novoStatus === 'ja_pontuado') {
                 if (btnJp) btnJp.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
-                if (boxTicket) boxTicket.classList.remove('hidden'); // Exibe a caixa de Ticket
-                if (containerFoto) containerFoto.classList.add('hidden'); // Esconde a Foto
-                if (btnCamera) btnCamera.classList.add('hidden'); // Esconde Botão Foto
+                if (boxTicket) boxTicket.classList.remove('hidden');
+                if (containerFoto) containerFoto.classList.add('hidden');
+                if (btnCamera) btnCamera.classList.add('hidden');
+                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
             } else {
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
             }
 
             const resp = estadoAtualRonda.respostas[itemId];
@@ -2208,6 +2443,93 @@
             }
         }
 
+        // ==========================================
+        // TAREFA 75.1b: O TRADUTOR CIRÚRGICO DA TIMELINE
+        // ==========================================
+        // Aqui eu crio a função que constrói APENAS os cartões de ação e injeta dentro do nosso Envelope Invisível.
+        function atualizarTimelineDOM(itemId) {
+            const containerAcoes = document.getElementById(`lista-acoes-${itemId}`);
+            if (!containerAcoes) return;
+            
+            const resposta = estadoAtualRonda.respostas[itemId];
+            const acoes = (resposta && resposta.acoes) ? resposta.acoes : [];
+            let htmlAcoes = '';
+            
+            acoes.forEach((acao, idxAcao) => {
+                htmlAcoes += `
+                <div class="bg-amber-50 dark:bg-slate-900 border border-amber-200 dark:border-amber-700/50 p-2.5 rounded flex justify-between items-start gap-2 shadow-sm transition-colors">
+                <div class="flex-1">
+                <span class="text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded shadow-sm border border-amber-200 dark:border-amber-800"><i class="fa-solid fa-calendar-day"></i> ${acao.data}</span>
+                <p class="text-xs text-slate-800 dark:text-slate-200 mt-1.5 font-medium leading-tight">${acao.texto}</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                <button onclick="if(typeof editarAcaoItem === 'function') editarAcaoItem('${itemId}', ${idxAcao})" class="text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Editar Ação"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                <button onclick="if(typeof excluirAcaoItem === 'function') excluirAcaoItem('${itemId}', ${idxAcao})" class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Excluir Ação"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                </div>
+                </div>`;
+            });
+            
+            containerAcoes.innerHTML = htmlAcoes;
+            
+            // Garante que a caixa de linha do tempo principal esteja visível se for a primeira ação a ser adicionada
+            const boxAcoesPrincipal = document.getElementById(`box-acoes-${itemId}`);
+            if (boxAcoesPrincipal && acoes.length > 0) {
+                boxAcoesPrincipal.classList.remove('hidden');
+            }
+        }
+
+        // ==========================================
+        // TAREFA 65.3 ATUALIZADA: MOTOR DA TIMELINE FLUIDA
+        // ==========================================
+        function adicionarAcaoItem(itemId) {
+            const input = document.getElementById(`input-acao-${itemId}`);
+            const textoAcao = input ? input.value.trim() : "";
+            if (!textoAcao) {
+                mostrarToast("Digite qual foi a ação realizada!");
+                return;
+            }
+            // Usa a data oficial do relatório
+            const dataApp = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
+            const dataStr = `${("0"+dataApp.getDate()).slice(-2)}/${("0"+(dataApp.getMonth()+1)).slice(-2)}/${dataApp.getFullYear()}`;
+            if (!estadoAtualRonda.respostas[itemId].acoes) {
+                estadoAtualRonda.respostas[itemId].acoes = [];
+            }
+            
+            // Adiciona o novo bloquinho de ação na memória
+            estadoAtualRonda.respostas[itemId].acoes.push({
+                data: dataStr,
+                texto: textoAcao
+            });
+            
+            salvarProgresso();
+            
+            // Aqui eu injeto apenas a linha do tempo nova na tela e limpo o input de texto (adeus pulo de tela!)
+            atualizarTimelineDOM(itemId);
+            if(input) input.value = ""; 
+            
+            mostrarToast("Ação adicionada à linha do tempo!");
+        }
+
+        function editarAcaoItem(itemId, idxAcao) {
+            const acoes = estadoAtualRonda.respostas[itemId].acoes;
+            const novoTexto = prompt("Editar ação:", acoes[idxAcao].texto);
+            if (novoTexto !== null && novoTexto.trim() !== "") {
+                acoes[idxAcao].texto = novoTexto.trim();
+                salvarProgresso();
+                atualizarTimelineDOM(itemId); // Atualiza silenciosamente
+                mostrarToast("Ação atualizada com sucesso!");
+            }
+        }
+
+        function excluirAcaoItem(itemId, idxAcao) {
+            if (confirm("Tem certeza que deseja apagar esta ação da linha do tempo?")) {
+                estadoAtualRonda.respostas[itemId].acoes.splice(idxAcao, 1);
+                salvarProgresso();
+                atualizarTimelineDOM(itemId); // Atualiza silenciosamente
+                mostrarToast("Ação excluída!");
+            }
+        }
+
         function salvarObservacaoArea(idCategoria, texto) {
             estadoAtualRonda.obsAreas[idCategoria] = texto;
             salvarProgresso();
@@ -2244,80 +2566,122 @@
         }
 
         // ==========================================
-        // TAREFA 48.2 e 48.3: PASTAS INTELIGENTES E UPLOAD HÍBRIDO
+        // TAREFA 66.3: MOTOR MULTIMÍDIA EM LOTE (MÁX 4 FOTOS)
         // ==========================================
-        function processarImagem(input, itemId) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
+        function processarImagemLote(input, itemId) {
+            if (input.files && input.files.length > 0) {
+                const resposta = estadoAtualRonda.respostas[itemId];
+                if (!resposta.fotos) resposta.fotos = [];
+
+                // Retrocompatibilidade
+                if (resposta.fotoBase64) {
+                    resposta.fotos.push(resposta.fotoBase64);
+                    resposta.fotoBase64 = null;
+                }
+
+                const arquivosPendentes = Array.from(input.files);
+                const espacoLivre = 4 - resposta.fotos.length;
+                const arquivosPermitidos = arquivosPendentes.slice(0, espacoLivre);
+
+                if (arquivosPendentes.length > espacoLivre) {
+                    mostrarToast(`Atenção: Apenas ${espacoLivre} foto(s) pôde(ram) ser adicionada(s) pelo limite de 4.`);
+                }
+                if (arquivosPermitidos.length === 0) return;
+
                 const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
-                const iconeUpload = document.querySelector(`label[for="input-foto-${itemId}"] p`);
-                
-                if (iconeUpload) iconeUpload.innerText = "Comprimindo imagem...";
                 if (lblBotao) {
                     lblBotao.innerText = "Comprimindo...";
                     lblBotao.parentElement.classList.add('animate-pulse');
                 }
 
-                comprimirImagemBase99(file, (base64) => {
-                    // 1. Salva a versão super leve no celular IMEDIATAMENTE (Offline)
-                    estadoAtualRonda.respostas[itemId].fotoBase64 = base64;
-                    salvarProgresso();
-                    
-                    // 2. Projeta na tela na velocidade da luz
-                    document.getElementById(`preview-img-${itemId}`).src = base64;
-                    document.querySelector(`label[for="input-foto-${itemId}"]`).classList.add('hidden');
-                    document.getElementById(`preview-container-${itemId}`).classList.remove('hidden');
-                    
-                    lblBotao.innerText = "Enviando Nuvem...";
+                let arquivosProcessados = 0;
+                arquivosPermitidos.forEach((file) => {
+                    comprimirImagemBase99(file, (base64) => {
+                        resposta.fotos.push(base64);
+                        const indexDestaFoto = resposta.fotos.length - 1;
 
-                    // 3. Tenta mandar para o Google Storage em Segundo Plano
-                    if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
-                        
-                        // Organização Automática de Pastas (Ano/Mês/Dia)
-                        const hoje = new Date();
-                        const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
-                        const emailDono = auth.currentUser.email.split('@')[0];
-                        const nomeArquivo = `${emailDono}_${itemId}_${Date.now()}.jpg`;
-                        
-                        const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
-                        
-                        storageRef.putString(base64, 'data_url').then(() => {
-                            storageRef.getDownloadURL().then((url) => {
-                                // A MÁGICA: Substitui o Texto Gigante Local pelo Link Curto Oficial da Nuvem!
-                                estadoAtualRonda.respostas[itemId].fotoBase64 = url;
-                                salvarProgresso();
-                                
-                                // Dispara a sincronização do JSON Mestre
-                                if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
-                                
-                                lblBotao.innerText = "Foto Anexada";
-                                lblBotao.parentElement.classList.remove('animate-pulse');
-                                lblBotao.parentElement.className = "no-print w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 rounded-md text-xs font-bold bg-alblue dark:bg-blue-600 text-white transition-colors flex items-center justify-center gap-2";
-                            });
-                        }).catch(error => {
-                            console.error("Erro ao subir pro Storage:", error);
-                            lblBotao.innerText = "Salvo (Sem Nuvem)";
+                        salvarProgresso();
+                        atualizarMuralDOM(itemId); // Atualiza sem fechar a sanfona!
+                        mostrarToast("Processando evidência na tela...");
+
+                        arquivosProcessados++;
+                        if (arquivosProcessados === arquivosPermitidos.length && lblBotao) {
                             lblBotao.parentElement.classList.remove('animate-pulse');
-                        });
-                    } else {
-                        lblBotao.innerText = "Salvo (Offline)";
-                        lblBotao.parentElement.classList.remove('animate-pulse');
-                        if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
-                    }
+                        }
+
+                        // Upload Dinâmico
+                        if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                            const hoje = new Date();
+                            const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
+                            const emailDono = auth.currentUser.email.split('@')[0];
+                            const nomeArquivo = `${emailDono}_${itemId}_LOTE_${Date.now()}_${indexDestaFoto}.jpg`;
+                            const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
+                            storageRef.putString(base64, 'data_url').then(() => {
+                                storageRef.getDownloadURL().then((url) => {
+                                    estadoAtualRonda.respostas[itemId].fotos[indexDestaFoto] = url;
+                                    salvarProgresso();
+                                    if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+                                });
+                            }).catch(error => console.error(error));
+                        } else {
+                            if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+                        }
+                    });
                 });
+
+                input.value = "";
             }
         }
 
-        function removerFoto(itemId) {
-            estadoAtualRonda.respostas[itemId].fotoBase64 = null;
-            salvarProgresso();
-            document.getElementById(`input-foto-${itemId}`).value = "";
-            document.getElementById(`preview-img-${itemId}`).src = "";
-            document.getElementById(`preview-container-${itemId}`).classList.add('hidden');
-            document.querySelector(`label[for="input-foto-${itemId}"]`).classList.remove('hidden');
+        function atualizarMuralDOM(itemId) {
+            const resposta = estadoAtualRonda.respostas[itemId];
+            const arrayFotos = (resposta && resposta.fotos) ? resposta.fotos : [];
+            const containerMural = document.getElementById(`preview-container-${itemId}`);
+            const boxBotoes = document.getElementById(`botoes-foto-${itemId}`);
             const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
-            lblBotao.innerText = "Adicionar Foto";
-            lblBotao.parentElement.className = "no-print w-full sm:w-auto mt-2 sm:mt-0 px-3 py-2 rounded-md text-xs font-bold text-slate-500 dark:text-slate-300 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center justify-center gap-2";
+
+            if (arrayFotos.length > 0) {
+                if (containerMural) containerMural.classList.remove('hidden');
+                let html = '<div class="grid grid-cols-2 gap-2 mt-2">';
+                arrayFotos.forEach((img, idx) => {
+                    html += `
+                    <div class="relative inline-block w-full text-center">
+                        <img src="${img}" class="h-24 w-full object-cover rounded border border-slate-300 dark:border-slate-600 shadow-sm">
+                        <button onclick="if(typeof removerFotoLote === 'function') removerFotoLote('${itemId}', ${idx})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border border-white dark:border-slate-800" title="Excluir">
+                            <i class="fa-solid fa-times text-[10px]"></i>
+                        </button>
+                    </div>`;
+                });
+                html += '</div>';
+                if (containerMural) containerMural.innerHTML = html;
+                if (lblBotao) lblBotao.innerText = arrayFotos.length + ' Foto(s)';
+            } else {
+                if (containerMural) {
+                    containerMural.classList.add('hidden');
+                    containerMural.innerHTML = '';
+                }
+                if (lblBotao) lblBotao.innerText = 'Foto';
+            }
+
+            if (arrayFotos.length >= 4) {
+                if (boxBotoes) boxBotoes.classList.add('hidden');
+            } else {
+                if (boxBotoes) {
+                    boxBotoes.classList.remove('hidden');
+                    boxBotoes.classList.add('flex'); // TAREFA 66.6: Força o navegador a manter o alinhamento e não sumir com a div
+                }
+            }
+        }
+
+        function removerFotoLote(itemId, indexFoto) {
+            if (confirm("Deseja remover permanentemente esta evidência do cartão?")) {
+                if (estadoAtualRonda.respostas[itemId].fotos && estadoAtualRonda.respostas[itemId].fotos.length > indexFoto) {
+                    estadoAtualRonda.respostas[itemId].fotos.splice(indexFoto, 1);
+                    salvarProgresso();
+                    atualizarMuralDOM(itemId); // Atualiza na tela sem fechar a sanfona
+                    mostrarToast("Evidência removida com sucesso!");
+                }
+            }
         }
 
         // =====================================================
@@ -2435,6 +2799,13 @@
                 // Limpa os campos para o próximo upload
                 selectCategoria.value = "";
                 inputArquivo.value = "";
+
+                // TAREFA 62.1: Reseta a área customizada visual
+                const nomeEl = document.getElementById('nome-arquivo-selecionado');
+                const iconeEl = document.getElementById('icone-arquivo-anexo');
+                if(nomeEl) nomeEl.innerText = 'Toque para escolher arquivo...';
+                if(iconeEl) iconeEl.className = 'fa-solid fa-folder-open text-xl text-slate-400 dark:text-slate-500 group-hover:text-alblue dark:group-hover:text-blue-400 transition-colors';
+
                 mostrarToast("Anexo salvo com sucesso!");
                 
             } catch (error) {
@@ -2578,6 +2949,30 @@
                     iconStatus = '<i class="fa-solid fa-bars-progress text-amber-500"></i>';
                 }
 
+                // ==========================================
+                // TAREFA 75.2a: O ENVELOPE INVISÍVEL NO HISTÓRICO
+                // ==========================================
+                // Aqui eu repito a mágica do checklist, mas agora para a gaveta do Histórico Contínuo, criando o ID único para cada item antigo.
+                const acoes = pend.acoes || [];
+                const temAcoes = acoes.length > 0;
+                let htmlAcoes = `<div id="lista-acoes-hist-${index}" class="space-y-2 mt-2 mb-2">`;
+                if (temAcoes) {
+                    acoes.forEach((acao, idxAcao) => {
+                        htmlAcoes += `
+                        <div class="bg-amber-50 dark:bg-slate-900 border border-amber-200 dark:border-amber-700/50 p-2.5 rounded flex justify-between items-start gap-2 shadow-sm transition-colors">
+                        <div class="flex-1">
+                        <span class="text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded shadow-sm border border-amber-200 dark:border-amber-800"><i class="fa-solid fa-calendar-day"></i> ${acao.data}</span>
+                        <p class="text-xs text-slate-800 dark:text-slate-200 mt-1.5 font-medium leading-tight">${acao.texto}</p>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                        <button onclick="if(typeof editarAcaoHistorico === 'function') editarAcaoHistorico(${index}, ${idxAcao})" class="text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Editar Ação"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                        <button onclick="if(typeof excluirAcaoHistorico === 'function') excluirAcaoHistorico(${index}, ${idxAcao})" class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Excluir Ação"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                        </div>`;
+                    });
+                }
+                htmlAcoes += `</div>`;
+
                 html += `
                 <div class="relative ${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
                     <!-- NOVO: Botões Mágicos do Modo OP -->
@@ -2643,6 +3038,52 @@
                             <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Status da cobrança...">${pend.ultimaAnotacao || ""}</textarea>
                         </div>
                     </div>
+
+                    <!-- TAREFA 64: CAIXA EDITÁVEL DE SOLUÇÃO (Aparece ao marcar resolvido) -->
+                    ${isResolvido ? `
+                    <div class="mt-2 bg-blue-50 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800/50 rounded-lg p-3 shadow-inner transition-colors">
+                        <label class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 mb-1 block flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Solução Adotada (Exibida no Relatório de Hoje)</label>
+                        <textarea onchange="if(typeof atualizarSolucaoHistorico === 'function') atualizarSolucaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-blue-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none shadow-sm transition-colors" placeholder="Descreva de forma concisa como este problema foi resolvido...">${pend.solucao || ""}</textarea>
+                    </div>
+                    ` : ''}
+
+                    <!-- TAREFA 65.5: CAIXA DE AÇÕES (TIMELINE) NO HISTÓRICO -->
+                    ${isAndamento || isResolvido || temAcoes ? `
+                    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors">
+                        <label class="text-xs font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Linha do Tempo / Ações Realizadas</label>
+                        ${htmlAcoes}
+                        ${isAndamento || isResolvido ? `
+                        <div class="flex flex-col sm:flex-row gap-2 mt-2">
+                            <input type="text" id="input-acao-hist-${index}" placeholder="Descreva o que foi feito..." class="flex-1 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm">
+                            <button onclick="if(typeof adicionarAcaoHistorico === 'function') adicionarAcaoHistorico(${index})" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                                <i class="fa-solid fa-plus"></i> Adicionar Ação
+                            </button>
+                        </div>
+                        ` : ''}
+                    </div>
+                    ` : ''}
+
+                    <!-- TAREFA 63.1: ÁREA DE EVIDÊNCIA FOTOGRÁFICA DO HISTÓRICO -->
+                    <div class="mt-3 p-3 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg flex flex-col sm:flex-row items-center gap-4 transition-colors">
+                        <div class="flex-1 w-full">
+                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block flex items-center gap-1"><i class="fa-solid fa-camera text-alblue dark:text-blue-400"></i> Evidência Visual da Tratativa</label>
+                            ${pend.fotoHistorico ? `
+                            <div class="relative inline-block mt-1">
+                                <img src="${pend.fotoHistorico}" class="h-20 w-auto max-w-full rounded border border-slate-300 dark:border-slate-600 shadow-sm object-cover">
+                                <button onclick="if(typeof removerFotoHistorico === 'function') removerFotoHistorico(${index})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border-2 border-white dark:border-slate-800" title="Excluir Foto">
+                                    <i class="fa-solid fa-times text-[10px]"></i>
+                                </button>
+                            </div>
+                            ` : `
+                            <label class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-alblue dark:hover:border-blue-500 text-slate-500 dark:text-slate-400 hover:text-alblue dark:hover:text-blue-400 px-4 py-2.5 rounded-lg cursor-pointer transition-colors shadow-sm active:scale-95">
+                                <i class="fa-solid fa-image"></i>
+                                <span class="text-xs font-bold" id="lbl-foto-hist-${index}">Anexar Foto (Opcional)</span>
+                                <input type="file" accept="image/*" class="hidden" onchange="if(typeof processarFotoHistorico === 'function') processarFotoHistorico(this, ${index})">
+                            </label>
+                            `}
+                        </div>
+                    </div>
+
                 </div>
                 `;
             });
@@ -2669,6 +3110,100 @@
             mostrarToast("Anotação do histórico salva com sucesso!");
         }
 
+        // ==========================================
+        // TAREFA 63.2: O MOTOR DE FOTO DO HISTÓRICO
+        // ==========================================
+        function processarFotoHistorico(input, index) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const lblBotao = document.getElementById(`lbl-foto-hist-${index}`);
+                
+                if (lblBotao) {
+                    lblBotao.innerText = "Comprimindo...";
+                    lblBotao.parentElement.classList.add('animate-pulse');
+                }
+                
+                comprimirImagemBase99(file, (base64) => {
+                    // 1. Salva a versão leve no celular IMEDIATAMENTE (Offline)
+                    historicoPendencias[index].fotoHistorico = base64;
+                    localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                    renderizarHistoricoPendencias(); // Já desenha a miniatura na tela!
+                    
+                    // 2. Tenta mandar para o Google Storage em Segundo Plano (Cloud)
+                    if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                        const hoje = new Date();
+                        const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
+                        const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
+                        const nomeArquivo = `hist_${emailDono}_${index}_${Date.now()}.jpg`;
+                        
+                        const storageRef = storage.ref(`historico_fotos/${pasta}/${nomeArquivo}`);
+                        storageRef.putString(base64, 'data_url').then(() => {
+                            storageRef.getDownloadURL().then((url) => {
+                                // A Mágica: Troca o arquivo local pesado pela URL da Nuvem
+                                historicoPendencias[index].fotoHistorico = url;
+                                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                                mostrarToast("Foto salva no Servidor em Nuvem!");
+                            });
+                        }).catch(error => {
+                            console.error("Erro ao subir pro Storage:", error);
+                            mostrarToast("Foto salva apenas localmente (Offline).");
+                        });
+                    } else {
+                        mostrarToast("Foto salva localmente (Offline).");
+                    }
+                });
+            }
+        }
+
+        function removerFotoHistorico(index) {
+            if (confirm("Tem certeza que deseja excluir a evidência fotográfica deste apontamento?")) {
+                historicoPendencias[index].fotoHistorico = null;
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                renderizarHistoricoPendencias();
+                mostrarToast("Evidência removida do histórico.");
+            }
+        }
+
+        // ==========================================
+        // TAREFA 61.1: A PONTE DE RESGATE PARA A LOUSA DO DIA
+        // ==========================================
+        function injetarNaLousaDoDia(pend, statusApp) {
+            if (isSpyMode) return; // Evita contaminação de dados se estiver apenas visualizando
+            
+            // Injeta ou atualiza a resposta na lousa atual de hoje
+            if (!estadoAtualRonda.respostas[pend.idItem]) {
+                estadoAtualRonda.respostas[pend.idItem] = {
+                    status: statusApp,
+                    observacao: pend.ultimaAnotacao || "Tratativa resgatada do histórico.",
+                    solucao: pend.solucao || "",
+                    fotoBase64: null,
+                    fotos: [], // TAREFA 66.1: Nova estrutura para múltiplas fotos
+                    responsavel: pend.responsavelTratativa || "",
+                    ticket: pend.ticket || "",
+                    acoes: pend.acoes || [] // TAREFA 65.7: Sincroniza as ações para itens novos na lousa
+                };
+            } else {
+                estadoAtualRonda.respostas[pend.idItem].status = statusApp;
+                
+                // TAREFA 64: Sincroniza também os textos que foram digitados dinamicamente no histórico
+                estadoAtualRonda.respostas[pend.idItem].solucao = pend.solucao || estadoAtualRonda.respostas[pend.idItem].solucao || "";
+                estadoAtualRonda.respostas[pend.idItem].observacao = pend.ultimaAnotacao || estadoAtualRonda.respostas[pend.idItem].observacao || "";
+                
+                // TAREFA 65.7: Sincroniza as ações para itens já existentes na lousa
+                if (pend.acoes) {
+                    estadoAtualRonda.respostas[pend.idItem].acoes = pend.acoes;
+                }
+                
+                if (!estadoAtualRonda.respostas[pend.idItem].ticket) {
+                    estadoAtualRonda.respostas[pend.idItem].ticket = pend.ticket || "";
+                }
+            }
+            
+            salvarProgresso();
+            renderizarChecklist(); // Força a aba Ronda a mostrar os botões já clicados
+            calcularEstatisticas(); // Atualiza instantaneamente os contadores e os gráficos do Dashboard
+        }
+
         // NOVO TAREFA 40: Função para alternar o status para "Em Andamento" no Histórico
         function marcarHistoricoAndamento(index) {
             const pend = historicoPendencias[index];
@@ -2677,9 +3212,12 @@
                 // Limpa dados de resolução/SLA caso estivesse marcado como resolvido antes
                 pend.dataResolucao = null;
                 pend.diasParaResolver = null;
+                
+                injetarNaLousaDoDia(pend, 'em_andamento'); // TAREFA 61.1: Puxa o item para os números de hoje
             } else {
                 pend.statusHistorico = "Pendente"; // Clique duplo desfaz e volta a ser Vermelho
             }
+            
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             atualizarGraficos(); // Atualiza os gráficos do Dashboard
             renderizarHistoricoPendencias(); // Re-renderiza a gaveta com o cartão movido
@@ -2692,18 +3230,20 @@
                 if(confirm("Confirmar a resolução desta pendência?\nO tempo de resposta (SLA) será calculado e o item será finalizado no histórico.")) {
                     pend.statusHistorico = "Resolvido";
                     pend.dataResolucao = new Date().toISOString();
-                    
                     // Calcula o SLA exato (Dias para Resolver)
                     const dataPrimeiro = new Date(pend.dataPrimeiroApontamento);
                     const dataRes = new Date(pend.dataResolucao);
                     const diferencaTempo = Math.abs(dataRes - dataPrimeiro);
                     pend.diasParaResolver = Math.ceil(diferencaTempo / (1000 * 60 * 60 * 24));
+                    
+                    injetarNaLousaDoDia(pend, 'resolvido'); // TAREFA 61.1: Puxa a resolução para os números de hoje
                 }
             } else {
                 pend.statusHistorico = "Pendente";
                 pend.dataResolucao = null;
                 pend.diasParaResolver = null;
             }
+            
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             atualizarGraficos(); // NOVO: Atualiza o gráfico de SLA em tempo real
             renderizarHistoricoPendencias();
@@ -2715,6 +3255,123 @@
             localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
             atualizarGraficos(); // NOVO: Atualiza o gráfico de SLA em tempo real
             mostrarToast("Responsáveis / OS vinculados com sucesso!");
+        }
+
+        // ==========================================
+        // TAREFA 64: ATUALIZAR SOLUÇÃO NO HISTÓRICO
+        // ==========================================
+        function atualizarSolucaoHistorico(index, texto) {
+            historicoPendencias[index].solucao = texto;
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+            
+            // Empurra a nova solução imediatamente para a Lousa de Hoje (Ponte de Dados Ativa)
+            if (historicoPendencias[index].statusHistorico === "Resolvido") {
+                injetarNaLousaDoDia(historicoPendencias[index], 'resolvido');
+            }
+            
+            mostrarToast("Solução salva e enviada para o relatório!");
+        }
+
+        // ==========================================
+        // TAREFA 75.2b: O TRADUTOR CIRÚRGICO DA GAVETA
+        // ==========================================
+        // Função para atualizar exclusivamente o quadro amarelo de ações dentro do Histórico
+        function atualizarTimelineHistoricoDOM(index) {
+            const containerAcoes = document.getElementById(`lista-acoes-hist-${index}`);
+            if (!containerAcoes) return;
+            
+            const pend = historicoPendencias[index];
+            const acoes = pend.acoes || [];
+            let htmlAcoes = '';
+            
+            acoes.forEach((acao, idxAcao) => {
+                htmlAcoes += `
+                <div class="bg-amber-50 dark:bg-slate-900 border border-amber-200 dark:border-amber-700/50 p-2.5 rounded flex justify-between items-start gap-2 shadow-sm transition-colors">
+                <div class="flex-1">
+                <span class="text-[9px] font-bold text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded shadow-sm border border-amber-200 dark:border-amber-800"><i class="fa-solid fa-calendar-day"></i> ${acao.data}</span>
+                <p class="text-xs text-slate-800 dark:text-slate-200 mt-1.5 font-medium leading-tight">${acao.texto}</p>
+                </div>
+                <div class="flex gap-2 shrink-0">
+                <button onclick="if(typeof editarAcaoHistorico === 'function') editarAcaoHistorico(${index}, ${idxAcao})" class="text-slate-400 hover:text-blue-500 dark:hover:text-blue-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Editar Ação"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                <button onclick="if(typeof excluirAcaoHistorico === 'function') excluirAcaoHistorico(${index}, ${idxAcao})" class="text-slate-400 hover:text-red-500 dark:hover:text-red-400 transition-colors bg-white dark:bg-slate-800 px-2 py-1 rounded shadow-sm border border-slate-200 dark:border-slate-700 active:scale-95" title="Excluir Ação"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                </div>
+                </div>`;
+            });
+            
+            containerAcoes.innerHTML = htmlAcoes;
+        }
+
+        // ==========================================
+        // TAREFA 65.6 ATUALIZADA: MOTOR DA TIMELINE FLUIDA NO HISTÓRICO
+        // ==========================================
+        function adicionarAcaoHistorico(index) {
+            const input = document.getElementById(`input-acao-hist-${index}`);
+            const textoAcao = input ? input.value.trim() : "";
+            if (!textoAcao) {
+                mostrarToast("Digite qual foi a ação realizada!");
+                return;
+            }
+            // Usa a data oficial do relatório
+            const dataApp = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
+            const dataStr = `${("0"+dataApp.getDate()).slice(-2)}/${("0"+(dataApp.getMonth()+1)).slice(-2)}/${dataApp.getFullYear()}`;
+            if (!historicoPendencias[index].acoes) {
+                historicoPendencias[index].acoes = [];
+            }
+            
+            // Adiciona ao banco do Histórico
+            historicoPendencias[index].acoes.push({
+                data: dataStr,
+                texto: textoAcao
+            });
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+            
+            // Sincronização Dupla. Se este item estiver na lousa de hoje, injeta lá também!
+            if (estadoAtualRonda.respostas[historicoPendencias[index].idItem]) {
+                estadoAtualRonda.respostas[historicoPendencias[index].idItem].acoes = historicoPendencias[index].acoes;
+                salvarProgresso();
+            }
+            
+            // Aqui eu chamo apenas a função silenciosa para atualizar a caixa e limpo o input de texto
+            atualizarTimelineHistoricoDOM(index);
+            if(input) input.value = "";
+            
+            mostrarToast("Ação adicionada ao histórico!");
+        }
+
+        function editarAcaoHistorico(index, idxAcao) {
+            const acoes = historicoPendencias[index].acoes;
+            const novoTexto = prompt("Editar ação:", acoes[idxAcao].texto);
+            if (novoTexto !== null && novoTexto.trim() !== "") {
+                acoes[idxAcao].texto = novoTexto.trim();
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                
+                // Sincronização Dupla
+                if (estadoAtualRonda.respostas[historicoPendencias[index].idItem]) {
+                    estadoAtualRonda.respostas[historicoPendencias[index].idItem].acoes = acoes;
+                    salvarProgresso();
+                }
+                
+                // Atualiza apenas a caixa
+                atualizarTimelineHistoricoDOM(index);
+                mostrarToast("Ação do histórico atualizada!");
+            }
+        }
+
+        function excluirAcaoHistorico(index, idxAcao) {
+            if (confirm("Tem certeza que deseja apagar esta ação do histórico?")) {
+                historicoPendencias[index].acoes.splice(idxAcao, 1);
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                
+                // Sincronização Dupla
+                if (estadoAtualRonda.respostas[historicoPendencias[index].idItem]) {
+                    estadoAtualRonda.respostas[historicoPendencias[index].idItem].acoes = historicoPendencias[index].acoes;
+                    salvarProgresso();
+                }
+                
+                // Atualiza apenas a caixa
+                atualizarTimelineHistoricoDOM(index);
+                mostrarToast("Ação do histórico excluída!");
+            }
         }
 
         // =====================================================
@@ -2882,7 +3539,14 @@
             let detalhes = '';
             if (resp.observacao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Anotação:</b> ${resp.observacao}</p>`;
             if (resp.solucao) detalhes += `<p class="text-sm text-slate-600 dark:text-slate-300 mt-1"><b>Solução:</b> ${resp.solucao}</p>`;
-            if (resp.fotoBase64) detalhes += `<img src="${resp.fotoBase64}" class="mt-2 h-16 w-auto rounded border border-slate-300 dark:border-slate-600">`;
+
+            // TAREFA 66.4: Mural de Fotos nos Cards do Dashboard
+            const arrayFotosDash = (resp.fotos && resp.fotos.length > 0) ? resp.fotos : ((resp.fotoBase64) ? [resp.fotoBase64] : []);
+            if (arrayFotosDash.length > 0) {
+                detalhes += '<div class="mt-2 flex gap-2 overflow-x-auto no-scrollbar">';
+                arrayFotosDash.forEach(img => { detalhes += `<img src="${img}" class="h-16 w-auto rounded border border-slate-300 dark:border-slate-600 shrink-0 object-cover shadow-sm">`; });
+                detalhes += '</div>';
+            }
 
             // Lógica inteligente: puxa o ticket normal OU o ticketAntigo referenciado (NOVO 35)
             const tagTicketValue = (tipo === 'ja_pontuado') ? resp.ticketAntigo : resp.ticket;
@@ -3051,282 +3715,328 @@
             }
         }
 
-        // NOVO MOTOR DE RENDERIZAÇÃO DA PRÉVIA (FILTRO INTELIGENTE)
+        // ==========================================
+        // TAREFA 69 - PARTE 1: INTELIGÊNCIA E PROMOÇÃO
+        // ==========================================
         function renderizarPrevia() {
-            const container = document.getElementById('relatorio-print-container');
-            if (!container) return;
+        const container = document.getElementById('relatorio-print-container');
+        if (!container) return;
 
-            const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
-            const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
-            const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
-            const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 
-                ? estadoAtualRonda.unidadesSelecionadas.join(", ") 
-                : "Não informadas";
-            const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 
-                ? estadoAtualRonda.areasSelecionadas.join(", ") 
-                : "Não informadas";
+        const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
+        const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
+        const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
 
-            let html = `
-            <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
-                <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
-                <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
-            </div>
+        const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0
+        ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
+        const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0
+        ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
 
-            <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
-            <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
-                <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
-                <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
-                <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
-                <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
-            </div>
-            `;
+        let html = `
+        <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
+        <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
+        <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
+        </div>
+        <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
+        <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
+        <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
+        <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
+        <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
+        <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
+        </div>
+        `;
 
-            if (estadoAtualRonda.focoCritico) {
-                html += `
-                <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
-                    <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
-                    <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
-                </div>
-                `;
-            }
-
-            const imgGeral = chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
-            const imgSetores = chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
-
+        if (estadoAtualRonda.focoCritico) {
             html += `
-            <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 break-inside-avoid page-break-inside-avoid">
-                <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center border-b border-slate-200 dark:border-slate-700 pb-2">
-                    <i class="fa-solid fa-chart-pie mr-2 text-alblue"></i> Gráficos Analíticos
-                </h3>
-                <div class="flex flex-col sm:flex-row gap-4 w-full items-center justify-between">
-                    <div class="w-full sm:w-2/5 text-center">
-                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Status Global</h3>
-                        ${imgGeral ? `<img src="${imgGeral}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
-                    </div>
-                    <div class="w-full sm:w-3/5 text-center">
-                        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor</h3>
-                        ${imgSetores ? `<img src="${imgSetores}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
-                    </div>
-                </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
+            <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
+            <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
             </div>
             `;
+        }
 
-            let htmlPontuados = '';
-            let htmlResolvidos = '';
-            let htmlEmAndamento = '';
-            let htmlReincidentes = ''; // NOVO 33.4
-            let htmlConformes = '';
-            let countPontuados = 0;
-            let countResolvidos = 0;
-            let countEmAndamento = 0;
-            let countReincidentes = 0; // NOVO 33.4
-            let countConformes = 0;
+        const imgGeral = chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
+        const imgSetores = chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
+        html += `
+        <div class="mb-8 border border-slate-200 dark:border-slate-700 p-4 rounded-lg bg-slate-50 dark:bg-slate-900/50 break-inside-avoid page-break-inside-avoid">
+        <h3 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-4 text-center border-b border-slate-200 dark:border-slate-700 pb-2">
+        <i class="fa-solid fa-chart-pie mr-2 text-alblue"></i> Gráficos Analíticos
+        </h3>
+        <div class="flex flex-col sm:flex-row gap-4 w-full items-center justify-between">
+        <div class="w-full sm:w-2/5 text-center">
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Status Global</h3>
+        ${imgGeral ? `<img src="${imgGeral}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
+        </div>
+        <div class="w-full sm:w-3/5 text-center">
+        <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2">Desempenho por Setor</h3>
+        ${imgSetores ? `<img src="${imgSetores}" class="max-h-56 max-w-full mx-auto object-contain">` : ''}
+        </div>
+        </div>
+        </div>
+        `;
 
-            moldeAtual.forEach(secao => {
-                secao.itens.forEach(item => {
-                    const resp = estadoAtualRonda.respostas[item.idItem];
-                    if (resp && resp.status === 'pontuado') {
-                        countPontuados++;
-                        htmlPontuados += `
-                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                            <div class="flex justify-between items-start mb-1">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
-                            </div>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. ${item.descricao}</p>
-                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
-                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                        </div>
-                        `;
-                    } else if (resp && resp.status === 'resolvido') {
-                        countResolvidos++;
-                        htmlResolvidos += `
-                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                            <div class="flex justify-between items-start mb-1">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
-                            </div>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countResolvidos}. ${item.descricao}</p>
-                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${resp.observacao}</div>` : ''}
-                            ${resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${resp.solucao}</div>` : ''}
-                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                        </div>
-                        `;
-                    } else if (resp && resp.status === 'em_andamento') {
-                        countEmAndamento++;
-                        htmlEmAndamento += `
-                        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                            <div class="flex justify-between items-start mb-1">
-                                <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                ${resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${resp.ticket}</span>` : ''}
-                            </div>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countEmAndamento}. ${item.descricao}</p>
-                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${resp.observacao}</div>` : ''}
-                            ${resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${resp.responsavel}</div>` : ''}
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                        </div>
-                        `;
-                    } else if (resp && resp.status === 'ja_pontuado') {
-                        countReincidentes++;
-                        htmlReincidentes += `
-                        <div class="mb-3 p-4 bg-purple-50 dark:bg-slate-900 border border-purple-200 dark:border-purple-800/50 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                            <div class="flex justify-between items-start mb-1">
-                                <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                                ${resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${resp.ticketAntigo}</span>` : ''}
-                            </div>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countReincidentes}. ${item.descricao}</p>
-                            ${resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Anotação de Cobrança:</b> ${resp.observacao}</div>` : ''}
-                        </div>
-                        `;
-                    } else if (resp && resp.status === 'ok') {
-                        countConformes++;
-                        htmlConformes += `
-                        <div class="mb-2 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                            <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                            <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countConformes}. ${item.descricao}</p>
-                            <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
-                            ${resp.fotoBase64 ? `<div class="mt-3"><img src="${resp.fotoBase64}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                        </div>
-                        `;
+        // TAREFA 69: SISTEMA INTELIGENTE DE ARRAYS (GAVETAS)
+        let arrResolvidos = [];
+        let arrEmAndamento = [];
+        let arrReincidentes = [];
+        let arrPontuados = [];
+        let arrConformes = [];
+        let arrObsAreas = [];
+
+        // A MÁGICA: Pesca itens do Histórico que tiveram ação hoje e promove para o "Em Andamento"
+        const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
+        historicoNaoResolvido.forEach(pend => {
+            const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
+            
+            // Se ele já estiver na Lousa (Ronda atual), nós não promovemos para não duplicar.
+            const respLousa = estadoAtualRonda.respostas[pend.idItem];
+            const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+            
+            if (teveAcaoHoje && !estaNaLousa) {
+                arrEmAndamento.push({
+                    secao: { tituloCategoria: pend.categoria },
+                    item: { descricao: pend.descricao },
+                    resp: {
+                        status: 'em_andamento',
+                        ticket: pend.ticket,
+                        observacao: pend.ultimaAnotacao,
+                        responsavel: pend.responsavelTratativa,
+                        acoes: pend.acoes,
+                        fotoBase64: pend.fotoHistorico,
+                        fotos: pend.fotoHistorico ? [pend.fotoHistorico] : [],
+                        promovidoDoHistorico: true // Flag secreta para brilhar no PDF
                     }
                 });
+            }
+        });
 
-                const obsArea = estadoAtualRonda.obsAreas[secao.idCategoria];
-                if (obsArea && obsArea.trim() !== '') {
-                    countPontuados++;
-                    htmlPontuados += `
-                    <div class="mb-3 p-4 bg-yellow-50 dark:bg-slate-900 border border-yellow-200 dark:border-yellow-800/50 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-                        <p class="text-[10px] font-bold text-yellow-600 dark:text-yellow-500 mb-1 uppercase tracking-widest">${secao.tituloCategoria}</p>
-                        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${countPontuados}. Observação Geral da Área</p>
-                        <div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Relato:</b> ${obsArea}</div>
-                    </div>
-                    `;
-                }
+        // Colhe os Itens da Ronda Atual
+        moldeAtual.forEach(secao => {
+            secao.itens.forEach(item => {
+                const resp = estadoAtualRonda.respostas[item.idItem];
+                if (!resp) return;
+                
+                const obj = { secao, item, resp };
+                
+                if (resp.status === 'resolvido') arrResolvidos.push(obj);
+                else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
+                else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
+                else if (resp.status === 'pontuado') arrPontuados.push(obj);
+                else if (resp.status === 'ok') arrConformes.push(obj);
             });
 
-            // (O Bloco de Situações Resolvidas da Ronda Atual foi movido para o final do PDF)
-
-            // NOVO TAREFA 31: Situações Resolvidas do Dia inseridas no corpo do relatório
-            if (countResolvidos > 0) {
-                html += `
-                <div class="mb-5">
-                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1">
-                <i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS (Ronda Atual)
-                </h2>
-                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                ${htmlResolvidos}
-                </div>
-                </div>
-                `;
+            const obsArea = estadoAtualRonda.obsAreas[secao.idCategoria];
+            if (obsArea && obsArea.trim() !== '') {
+                arrObsAreas.push({ secao, obsArea });
             }
+        });
 
-            // Estrutura Visual: Em Andamento
-            html += `
-            <div class="mb-5">
-                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-amber-600 dark:text-amber-500 border-b-2 border-amber-200 dark:border-amber-800 mb-3 flex items-center gap-2 pb-1">
-                    <i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO (Tratativas Iniciadas)
-                </h2>
-                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                    ${countEmAndamento > 0 ? htmlEmAndamento : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item em andamento.</p>'}
-                </div>
-            </div>
-            `;
-
-            // NOVO TAREFA 33.4: Estrutura Visual: Reincidências (ROXO)
-            if (countReincidentes > 0) {
-                html += `
-                <div class="mb-5">
-                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-purple-600 dark:text-purple-400 border-b-2 border-purple-200 dark:border-purple-800 mb-3 flex items-center gap-2 pb-1">
-                <i class="fa-solid fa-clock-rotate-left"></i> REINCIDÊNCIAS COBRADAS NESTA RONDA
-                </h2>
-                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                ${htmlReincidentes}
-                </div>
-                </div>
-                `;
+        // Utilitários Visuais
+        const gerarMuralFotosPdf = (resp) => {
+            let htmlFotos = '';
+            const arrayFotosPdf = (resp && resp.fotos && resp.fotos.length > 0) ? resp.fotos : ((resp && resp.fotoBase64) ? [resp.fotoBase64] : []);
+            if (arrayFotosPdf.length > 0) {
+                htmlFotos = '<div class="mt-3 grid grid-cols-2 gap-2">';
+                arrayFotosPdf.forEach(img => { htmlFotos += `<img src="${img}" class="max-h-56 w-full object-contain rounded border border-slate-300 dark:border-slate-600 shadow-sm bg-white dark:bg-slate-800">`; });
+                htmlFotos += '</div>';
             }
+            return htmlFotos;
+        };
 
-            // Estrutura Visual: Itens Pontuados (VERMELHO - VEM DEPOIS)
-            html += `
-            <div class="mb-5">
-                <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)
-                </h2>
-                <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                    ${countPontuados > 0 ? htmlPontuados : '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>'}
-                </div>
-            </div>
-            `;
+        const gerarTimelineAcoesPdf = (resp) => {
+            if (!resp || !resp.acoes || resp.acoes.length === 0) return '';
+            let htmlAcoes = '<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">';
+            resp.acoes.forEach(acao => { htmlAcoes += `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`; });
+            htmlAcoes += '</ul></div>';
+            return htmlAcoes;
+        };
 
-            // Estrutura Visual: Itens Conformes (Trilha de Auditoria - Fluxo Contínuo)
-            if (countConformes > 0) {
+        // TAREFA 69: Ordenação Inteligente "Em Andamento" (Ações de HOJE sobem para o topo)
+        arrEmAndamento.sort((a, b) => {
+            const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+            const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+            return temAcaoB - temAcaoA; // Quem tem 1 vence quem tem 0
+        });
+
+        // ==========================================
+        // TAREFA 74: MOLDURAS PREMIUM NA RONDA DO DIA
+        // ==========================================
+        // Aqui eu aplico o "border-l-4" e a cor correspondente a cada cartão do relatório do dia, garantindo a mesma identidade visual profissional que nós criamos para o Passivo de Auditoria.
+
+        // 1. SITUAÇÕES RESOLVIDAS (Borda Azul)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS (Ronda Atual)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrResolvidos.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item resolvido nesta ronda.</p>';
+        arrResolvidos.forEach((obj, idx) => {
+        html += `
+        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${obj.resp.observacao}</div>` : ''}
+        ${obj.resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${obj.resp.solucao}</div>` : ''}
+        ${gerarTimelineAcoesPdf(obj.resp)}
+        ${obj.resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</div>` : ''}
+        ${gerarMuralFotosPdf(obj.resp)}
+        </div>`;
+        });
+        html += `</div></div>`;
+
+        // 2. EM ANDAMENTO (Borda Âmbar)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-amber-600 dark:text-amber-500 border-b-2 border-amber-200 dark:border-amber-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrEmAndamento.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item em andamento.</p>';
+        arrEmAndamento.forEach((obj, idx) => {
+        // Efeito Visual Arrasador se o item subiu do Passivo, com a moldura base garantida
+        const bordaDestaque = obj.resp.promovidoDoHistorico ? 'border-amber-500 border-2 border-l-4 shadow-md relative mt-5' : 'border-slate-200 dark:border-slate-700 border-l-4 border-l-amber-500';
+        const seloPromo = obj.resp.promovidoDoHistorico ? `<div class="absolute -top-3 left-4 bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black shadow-sm uppercase tracking-wider"><i class="fa-solid fa-bolt"></i> Ação Reportada Hoje</div>` : '';
+
+        html += `
+        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 ${bordaDestaque} rounded-lg break-inside-avoid page-break-inside-avoid">
+        ${seloPromo}
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${obj.resp.observacao}</div>` : ''}
+        ${gerarTimelineAcoesPdf(obj.resp)}
+        ${obj.resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</div>` : ''}
+        ${gerarMuralFotosPdf(obj.resp)}
+        </div>`;
+        });
+        html += `</div></div>`;
+
+        // 3. REINCIDÊNCIAS (Borda Roxa)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-purple-600 dark:text-purple-400 border-b-2 border-purple-200 dark:border-purple-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-clock-rotate-left"></i> REINCIDÊNCIAS DESSA RONDA</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrReincidentes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma reincidência cobrada nesta ronda.</p>';
+        arrReincidentes.forEach((obj, idx) => {
+        html += `
+        <div class="mb-3 p-4 bg-purple-50 dark:bg-slate-900 border border-purple-200 dark:border-purple-800/50 border-l-4 border-l-purple-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        ${obj.resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${obj.resp.ticketAntigo}</span>` : ''}
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Anotação de Cobrança:</b> ${obj.resp.observacao}</div>` : ''}
+        </div>`;
+        });
+        html += `</div></div>`;
+
+        // 4. ITENS PONTUADOS (Borda Vermelha)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrPontuados.length === 0 && arrObsAreas.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>';
+        let contVermelhas = 0;
+        arrPontuados.forEach((obj) => {
+        contVermelhas++;
+        html += `
+        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-red-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${contVermelhas}. ${obj.item.descricao}</p>
+        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${obj.resp.observacao}</div>` : ''}
+        ${obj.resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</div>` : ''}
+        ${gerarMuralFotosPdf(obj.resp)}
+        </div>`;
+        });
+        arrObsAreas.forEach((obj) => {
+        contVermelhas++;
+        html += `
+        <div class="mb-3 p-4 bg-yellow-50 dark:bg-slate-900 border border-yellow-200 dark:border-yellow-800/50 border-l-4 border-l-yellow-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <p class="text-[10px] font-bold text-yellow-600 dark:text-yellow-500 mb-1 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${contVermelhas}. Observação Geral da Área</p>
+        <div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Relato:</b> ${obj.obsArea}</div>
+        </div>`;
+        });
+        html += `</div></div>`;
+
+        // 5. ITENS CONFORMES (Borda Verde)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2"><i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrConformes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item marcado como conforme.</p>';
+        arrConformes.forEach((obj, idx) => {
+        html += `
+        <div class="mb-2 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-green-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
+        ${gerarMuralFotosPdf(obj.resp)}
+        </div>`;
+        });
+        html += `</div></div>`;
+
+        // 6. ANEXOS
+        if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
+            estadoAtualRonda.anexos.forEach((anexo) => {
+                const pagAtual = anexo.paginaAtual || 1;
+                const totalPag = anexo.totalPaginas || 1;
+                const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
                 html += `
-                <div class="mb-5">
-                    <h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2">
-                        <i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)
-                    </h2>
-                    <div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">
-                        ${htmlConformes}
+                <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
+                    <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+                        <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
                     </div>
-                </div>
-                `;
-            }
-
-            // Estrutura Visual: Anexos Documentais Vinculados
-            if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
-                estadoAtualRonda.anexos.forEach((anexo) => {
-                    const pagAtual = anexo.paginaAtual || 1;
-                    const totalPag = anexo.totalPaginas || 1;
-                    const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
-                    
-                    html += `
-                    <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
-                        <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
-                            <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
-                        </div>
-                        <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
-                            <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
-                        </div>
-                        <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
-                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
-                        </div>
+                    <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
+                        <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
                     </div>
-                    `;
-                });
-            }
+                    <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
+                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+                    </div>
+                </div>`;
+            });
+        }
 
-            // Estrutura Visual: Passivo de Auditoria (Histórico Contínuo NÃO Resolvido)
-            const historicoPendente = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
-            if (historicoPendente.length > 0) {
+        // 7. PASSIVO DE AUDITORIA (Exclui quem subiu pro "Em Andamento")
+        if (historicoNaoResolvido.length > 0) {
+            // Filtro Divisor: Se ele teve ação hoje e NÃO estava na Lousa, ele foi promovido lá pra cima, logo, esconde daqui do fundo.
+            const passivoParaExibir = historicoNaoResolvido.filter(p => {
+                const teveAcaoHoje = p.acoes && p.acoes.some(ac => ac.data === dataStr);
+                const respLousa = estadoAtualRonda.respostas[p.idItem];
+                const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+                return !(teveAcaoHoje && !estaNaLousa);
+            });
+
+            if (passivoParaExibir.length > 0) {
                 html += `
                 <div class="w-full pt-6 pb-4">
-                    <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
-                    </h2>
-                    <div class="space-y-4">
-                `;
-                historicoPendente.forEach((pend) => {
-                    const isAssumido = pend.statusHistorico === "Risco Assumido";
-                    const isAndamento = pend.statusHistorico === "Em Andamento"; // NOVO TAREFA 39
+                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
+                <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
+                </h2>
+                <div class="space-y-6">`;
 
+                // 7.1. Separa e Ordena: Em Andamento Antigos
+                const passivoAndamento = passivoParaExibir.filter(p => p.statusHistorico === "Em Andamento");
+                passivoAndamento.sort((a, b) => {
+                    let dataA = a.dataUltimoApontamento ? new Date(a.dataUltimoApontamento).getTime() : 0;
+                    let dataB = b.dataUltimoApontamento ? new Date(b.dataUltimoApontamento).getTime() : 0;
+                    // Se tiver ações, usa a data da última ação para manter os mais "quentes" no topo do bloco
+                    if (a.acoes && a.acoes.length > 0) {
+                        const pDate = a.acoes[a.acoes.length - 1].data.split('/');
+                        if(pDate.length === 3) dataA = new Date(pDate[1], pDate[2]-1, pDate).getTime();
+                    }
+                    if (b.acoes && b.acoes.length > 0) {
+                        const pDate = b.acoes[b.acoes.length - 1].data.split('/');
+                        if(pDate.length === 3) dataB = new Date(pDate[1], pDate[2]-1, pDate).getTime();
+                    }
+                    return dataB - dataA; // Mais recente primeiro
+                });
+
+                // 7.2. Separa: O Resto das Situações Pendentes
+                const passivoPendentes = passivoParaExibir.filter(p => p.statusHistorico !== "Em Andamento");
+
+                const renderCardPassivo = (pend) => {
+                    const isAssumido = pend.statusHistorico === "Risco Assumido";
+                    const isAndamento = pend.statusHistorico === "Em Andamento";
+                    
                     let borderCor = "border-red-400";
                     let bgTag = "bg-red-100 text-red-800";
                     let iconStatus = '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
+                    
+                    if (isAssumido) { borderCor = "border-purple-400"; bgTag = "bg-purple-100 text-purple-800"; iconStatus = '<i class="fa-solid fa-shield-halved"></i> Risco Assumido'; } 
+                    else if (isAndamento) { borderCor = "border-amber-500"; bgTag = "bg-amber-100 text-amber-800"; iconStatus = '<i class="fa-solid fa-bars-progress"></i> Em Andamento'; }
 
-                    if (isAssumido) {
-                        borderCor = "border-purple-400";
-                        bgTag = "bg-purple-100 text-purple-800";
-                        iconStatus = '<i class="fa-solid fa-shield-halved"></i> Risco Assumido';
-                    } else if (isAndamento) {
-                        borderCor = "border-amber-500";
-                        bgTag = "bg-amber-100 text-amber-800";
-                        iconStatus = '<i class="fa-solid fa-bars-progress"></i> Em Andamento';
-                    }
-
-                    html += `
+                    return `
                     <div class="border border-slate-300 border-l-4 ${borderCor} p-4 rounded bg-slate-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm">
                         <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
                             <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
@@ -3341,88 +4051,88 @@
                         </div>
                         ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b>Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
                         ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b>Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
-                    </div>
-                    `;
-                });
-                html += `
-                    </div>
-                </div>
-                `;
-            }
+                        ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
+                        ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
+                    </div>`;
+                };
 
-            // Assinatura
-            html += `
-            <div class="mt-16 pt-8 text-center break-inside-avoid">
-                <p class="text-xs text-slate-500 mb-12 uppercase tracking-widest">Relatório de Vistorias de Campo da Segurança do trabalho.</p>
-                <div class="w-64 mx-auto border-t border-slate-800 dark:border-slate-500 pt-2">
-                    <p class="font-bold text-slate-800 dark:text-slate-200">${inspetor}</p>
-                    <p class="text-xs text-slate-500">SESMT - AL Indústria</p>
-                </div>
-            </div>
-            `;
-
-            // -------------------------------------------------------------------------
-            // TAREFA 27.2 - TODOS OS RESOLVIDOS NO FUNDO (ORDENADOS POR DATA)
-            // -------------------------------------------------------------------------
-            const historicoResolvido = historicoPendencias.filter(p => p.statusHistorico === "Resolvido");
-
-            // ORDENAÇÃO INTELIGENTE (Do mais recente para o mais antigo)
-            historicoResolvido.sort((a, b) => {
-                const dataA = a.dataResolucao ? new Date(a.dataResolucao).getTime() : 0;
-                const dataB = b.dataResolucao ? new Date(b.dataResolucao).getTime() : 0;
-                return dataB - dataA; // Decrescente
-            });
-
-            if (historicoResolvido.length > 0) {
-                html += `<div class="w-full pt-6 pb-4">`;
-
-                // O Bloco de "Situações Resolvidas (Ronda Atual)" foi movido para o corpo principal.
-                
-                // 2. Resolvidos do Histórico (Memorial ordenado)
-                if (historicoResolvido.length > 0) {
-                    html += `
-                    <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
-                    <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Contínuo)
-                    </h2>
-                    <div class="space-y-4">
-                    `;
-                    
-                    historicoResolvido.forEach((pend) => {
-                        const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
-                        const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
-                        const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
-                        
-                        html += `
-                        <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
-                            <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                                <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
-                                <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-100 text-blue-800"><i class="fa-solid fa-check-double"></i> Finalizado em ${dataResolvido}</span>
-                            </div>
-                            
-                            <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">${pend.descricao}</p>
-                            
-                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
-                                <p><b>Criado em:</b> <span class="text-slate-800 dark:text-white">${dataCitado}</span></p>
-                                <p><b>Resolvido em:</b> <span class="text-blue-600 font-bold">${dataResolvido}</span></p>
-                                <p><b>SLA / Resposta:</b> <span class="text-green-600 font-bold">${sla} dia(s)</span></p>
-                                <p><b>Vezes Cobrado:</b> <span class="text-slate-800 dark:text-white">${pend.contagemVezes}x</span></p>
-                            </div>
-                            
-                            ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
-                            ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
-                        </div>
-                        `;
-                    });
-
-                    html += `
-                    </div>
-                    `;
+                if (passivoAndamento.length > 0) {
+                    html += `<div class="mb-4"><h3 class="text-sm font-bold text-amber-600 dark:text-amber-500 mb-3 uppercase border-b border-amber-200 dark:border-amber-800 pb-1">Situações Antigas em Andamento (Ordem Recente)</h3><div class="space-y-4">`;
+                    passivoAndamento.forEach(pend => { html += renderCardPassivo(pend); });
+                    html += `</div></div>`;
                 }
-
-                html += `</div>`;
+                if (passivoPendentes.length > 0) {
+                    html += `<div class="mb-4"><h3 class="text-sm font-bold text-red-600 dark:text-red-400 mb-3 uppercase border-b border-red-200 dark:border-red-800 pb-1">Situações Antigas Pendentes (Sem andamento)</h3><div class="space-y-4">`;
+                    passivoPendentes.forEach(pend => { html += renderCardPassivo(pend); });
+                    html += `</div></div>`;
+                }
+                html += `</div></div>`;
             }
+        }
 
-            container.innerHTML = html;
+        // 8. ASSINATURA OFICIAL
+        html += `
+        <div class="mt-16 pt-8 text-center break-inside-avoid">
+        <p class="text-xs text-slate-500 mb-12 uppercase tracking-widest">Relatório de Vistorias de Campo da Segurança do trabalho.</p>
+        <div class="w-64 mx-auto border-t border-slate-800 dark:border-slate-500 pt-2">
+        <p class="font-bold text-slate-800 dark:text-slate-200">${inspetor}</p>
+        <p class="text-xs text-slate-500">SESMT - AL Indústria</p>
+        </div>
+        </div>
+        `;
+
+        // 9. MEMORIAL DE RESOLUÇÕES
+        const hojeIsoStr = new Date().toISOString().split('T');
+        const historicoResolvido = historicoPendencias.filter(p => {
+            if (p.statusHistorico !== "Resolvido") return false;
+            const resolvidoHoje = p.dataResolucao && p.dataResolucao.split('T') === hojeIsoStr;
+            const estaNaLousa = estadoAtualRonda.respostas[p.idItem] && estadoAtualRonda.respostas[p.idItem].status === 'resolvido';
+            if (resolvidoHoje && estaNaLousa) return false; // Impede duplicar
+            return true;
+        });
+
+        historicoResolvido.sort((a, b) => {
+            const dataA = a.dataResolucao ? new Date(a.dataResolucao).getTime() : 0;
+            const dataB = b.dataResolucao ? new Date(b.dataResolucao).getTime() : 0;
+            return dataB - dataA;
+        });
+
+        if (historicoResolvido.length > 0) {
+            html += `<div class="w-full pt-6 pb-4 break-before-page page-break-before-always">
+            <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
+            <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Antigo)
+            </h2>
+            <div class="space-y-4">`;
+
+            historicoResolvido.forEach((pend) => {
+                const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
+                const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
+                const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
+
+                html += `
+                <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
+                    <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
+                        <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-600 text-white shadow-sm">
+                        <i class="fa-solid fa-check-double"></i> Resolvido em ${dataResolvido}
+                        </span>
+                    </div>
+                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">${pend.descricao}</p>
+                    <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2.5 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
+                        <p><i class="fa-solid fa-calendar-plus opacity-70"></i> Criado em: <span>${dataCitado}</span></p>
+                        <p><i class="fa-solid fa-stopwatch text-green-600"></i> SLA: <b class="text-green-600">${sla} dia(s)</b></p>
+                        <p><i class="fa-solid fa-bullseye text-red-400"></i> Reincidência: <span>${pend.contagemVezes}x</span></p>
+                    </div>
+                    ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
+                    ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+                    ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
+                    ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
+                </div>`;
+            });
+            html += `</div></div>`;
+        }
+
+        container.innerHTML = html;
         }
 
         // MOTOR PROFISSIONAL DE EXPORTAÇÃO PDF (LIMPO, SEGURO E RAIZ)
@@ -3494,7 +4204,7 @@
             }, 500);
         }
 
-        function limparRonda() {
+        function finalizardia() {
             if(confirm("Deseja fechar o dia? Os itens em conformidade serão limpos, mas os apontamentos (N.C) e os itens Resolvidos hoje serão migrados para o Histórico Contínuo.")) {
                 const hoje = new Date();
 
@@ -3545,7 +4255,8 @@
                                 }
                                 if(resp.solucao) pendenciaExistente.solucao = resp.solucao;
                                 if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel;
-                                
+                                if(resp.acoes) pendenciaExistente.acoes = resp.acoes; // TAREFA 65.7: Salva ações da lousa de volta para a gaveta
+
                                 // Atualiza os status no banco de dados
                                 if (resp.status === 'resolvido') {
                                     pendenciaExistente.statusHistorico = "Resolvido";
@@ -3576,7 +4287,8 @@
                                     statusHistorico: resp.status === 'resolvido' ? "Resolvido" : (resp.status === 'em_andamento' ? "Em Andamento" : "Pendente"),
                                     responsavelTratativa: resp.responsavel || "",
                                     dataResolucao: resp.status === 'resolvido' ? hoje.toISOString() : null,
-                                    diasParaResolver: resp.status === 'resolvido' ? 0 : null
+                                    diasParaResolver: resp.status === 'resolvido' ? 0 : null,
+                                    acoes: resp.acoes || [] // TAREFA 65.7: Salva ações da lousa de volta para a gaveta (Item Novo)
                                 });
                             }
                         }
@@ -3585,8 +4297,17 @@
 
                 localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
                 localStorage.removeItem('sgi_vistoria_progresso');
+
+                // ==========================================
+                // TAREFA 72: LIMPEZA TOTAL DA CONFIGURAÇÃO DA RONDA
+                // ==========================================
+                // Aqui eu esvazio as seleções de filiais e áreas vistoriadas na memória RAM para garantir que a tela de Setup amanheça 100% em branco no dia seguinte.
+                estadoAtualRonda.unidadesSelecionadas = [];
+                estadoAtualRonda.areasSelecionadas = [];
+
                 estadoAtualRonda.focoCritico = "";
                 document.getElementById('input-foco').value = "";
+                
                 bootApp();
 
                 // Atualiza a Lousa em branco e o Pote Central Global com as últimas mudanças
@@ -3616,94 +4337,152 @@
             }
         }
 
+        // ==========================================
+        // TAREFA 69 - MÓDULO WHATSAPP (Inteligência Espelhada do PDF)
+        // ==========================================
         function gerarResumoEmail() {
-            const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
-            const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
-            const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
-            const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
-            const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
+        const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
+        const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
+        const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
+        const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
+        const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
 
-            // NOVO TAREFA 37: Título dinâmico com a data (Removida a data redundante abaixo)
-            let texto = `*RESUMO DAS RONDAS DO DIA ${dataStr}*\nFiliais Vistoriadas: ${unidadesStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
+        let texto = `RESUMO DAS RONDAS DO DIA ${dataStr}\nFiliais Vistoriadas: ${unidadesStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
 
-            if(estadoAtualRonda.focoCritico) {
-                texto += `*🎯 FOCO DO DIA:* ${estadoAtualRonda.focoCritico}\n\n`;
-            }
+        if(estadoAtualRonda.focoCritico) {
+            texto += `🎯 FOCO DO DIA: ${estadoAtualRonda.focoCritico}\n\n`;
+        }
 
-            let itensPontuados = "";
-            let itensResolvidos = "";
-            let itensEmAndamento = ""; 
-            let itensReincidentes = ""; // NOVO 33.4
-            let itensConformes = "";
+        // 1. O SISTEMA DE GAVETAS
+        let arrResolvidos = [];
+        let arrEmAndamento = [];
+        let arrReincidentes = [];
+        let arrPontuados = [];
+        let arrConformes = [];
+
+        // 2. A MÁGICA: Promoção de Itens do Histórico
+        const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
+        historicoNaoResolvido.forEach(pend => {
+            const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
+            const respLousa = estadoAtualRonda.respostas[pend.idItem];
+            const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
             
-            let numPontuados = 0;
-            let numResolvidos = 0;
-            let numEmAndamento = 0; 
-            let numReincidentes = 0; // NOVO 33.4
-            let numConformes = 0;
-
-            moldeAtual.forEach(cat => {
-                cat.itens.forEach(item => {
-                    const resp = estadoAtualRonda.respostas[item.idItem];
-                    if (resp && resp.status === 'pontuado') {
-                        numPontuados++;
-                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
-                        itensPontuados += `❌ ${numPontuados}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Obs: ${resp.observacao || 'Sem anotações'}\n\n`;
-                    } else if (resp && resp.status === 'resolvido') {
-                        numResolvidos++;
-                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
-                        itensResolvidos += `✅ ${numResolvidos}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Desvio: ${resp.observacao || 'Não relatado'}\n   ↳ Solução: ${resp.solucao || 'Não relatada'}\n\n`;
-                    } else if (resp && resp.status === 'em_andamento') {
-                        numEmAndamento++;
-                        const tkt = resp.ticket ? ` [🎫 ${resp.ticket}]` : '';
-                        itensEmAndamento += `⏳ ${numEmAndamento}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Tratativa: ${resp.observacao || 'Em andamento'}\n\n`;
-                    } else if (resp && resp.status === 'ja_pontuado') { // NOVO 33.4
-                        numReincidentes++;
-                        const tkt = resp.ticketAntigo ? ` [🎫 ${resp.ticketAntigo}]` : '';
-                        itensReincidentes += `🔄 ${numReincidentes}. [${cat.tituloCategoria}]${tkt} ${item.descricao}\n   ↳ Cobrança: ${resp.observacao || 'Sem anotações'}\n\n`;
-                    } else if (resp && resp.status === 'ok') {
-                        numConformes++;
-                        itensConformes += `✔️ ${numConformes}. [${cat.tituloCategoria}] ${item.descricao}\n   ↳ Status: Inspecionado e validado.\n\n`;
+            if (teveAcaoHoje && !estaNaLousa) {
+                arrEmAndamento.push({
+                    cat: { tituloCategoria: pend.categoria },
+                    item: { descricao: pend.descricao },
+                    resp: {
+                        status: 'em_andamento',
+                        ticket: pend.ticket,
+                        observacao: pend.ultimaAnotacao,
+                        acoes: pend.acoes,
+                        promovidoDoHistorico: true
                     }
                 });
+            }
+        });
 
-                const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
-                if (obsArea && obsArea.trim() !== "") {
-                    numPontuados++;
-                    itensPontuados += `📝 ${numPontuados}. [${cat.tituloCategoria}] Observação Geral da Área:\n   ↳ ${obsArea}\n\n`;
-                }
+        // 3. Colhe os Itens Normais da Ronda Atual
+        moldeAtual.forEach(cat => {
+            cat.itens.forEach(item => {
+                const resp = estadoAtualRonda.respostas[item.idItem];
+                if (!resp) return;
+                const obj = { cat, item, resp };
+                
+                if (resp.status === 'resolvido') arrResolvidos.push(obj);
+                else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
+                else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
+                else if (resp.status === 'pontuado') arrPontuados.push(obj);
+                else if (resp.status === 'ok') arrConformes.push(obj);
             });
 
-            texto += `*✅ SITUAÇÕES RESOLVIDAS:*\n`;
-            if (itensResolvidos === "") { texto += `Nenhuma.\n\n`; } else { texto += `${itensResolvidos}`; }
-
-            texto += `*⏳ EM ANDAMENTO (Tratativas Iniciadas):*\n`;
-            if (itensEmAndamento === "") { texto += `Nenhum item em andamento.\n\n`; } else { texto += `${itensEmAndamento}`; }
-
-            // NOVO 33.4
-            texto += `*🔄 REINCIDÊNCIAS COBRADAS:*\n`;
-            if (itensReincidentes === "") { texto += `Nenhuma reincidência cobrada nesta ronda.\n\n`; } else { texto += `${itensReincidentes}`; }
-
-            texto += `*🚨 ITENS PONTUADOS (Aguardando Ação):*\n`;
-            if (itensPontuados === "") { texto += `Nenhum item pontuado nesta ronda.\n\n`; } else { texto += `${itensPontuados}`; }
-
-            texto += `*✔️ ITENS CONFORMES / AVALIADOS (Auditoria de Área):*\n`;
-            if (itensConformes === "") { texto += `Nenhum item marcado como conforme.\n`; } else { texto += `${itensConformes}`; }
-
-            if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
-                texto += `\n*📎 ANEXOS DOCUMENTAIS VINCULADOS:*\n`;
-                estadoAtualRonda.anexos.forEach(anexo => {
-                    texto += `   ↳ Categoria: ${anexo.categoria} - Arquivo: ${anexo.nomeArquivo}\n`;
+            // Anexação das Observações Gerais
+            const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
+            if (obsArea && obsArea.trim() !== "") {
+                arrPontuados.push({
+                    cat, 
+                    item: { descricao: "Observação Geral da Área" }, 
+                    resp: { status: 'pontuado', observacao: obsArea, isObsArea: true }
                 });
             }
+        });
 
-            const el = document.createElement('textarea');
-            el.value = texto;
-            document.body.appendChild(el);
-            el.select();
-            document.execCommand('copy');
-            document.body.removeChild(el);
-            mostrarToast("Texto copiado para a Área de Transferência!");
+        // 4. Ordenação Inteligente "Em Andamento" (Ação Hoje = Topo)
+        arrEmAndamento.sort((a, b) => {
+            const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+            const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+            return temAcaoB - temAcaoA;
+        });
+
+        // 5. CONSTRUÇÃO DO TEXTO DINÂMICO
+        let itensResolvidos = "";
+        arrResolvidos.forEach((obj, idx) => {
+            const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+            let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
+            itensResolvidos += `✅ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}\n   ↳ Desvio: ${obj.resp.observacao || 'Não relatado'}\n   ↳ Solução: ${obj.resp.solucao || 'Não relatada'}${acoesTexto}\n\n\n`;
+        });
+
+        let itensEmAndamento = "";
+        arrEmAndamento.forEach((obj, idx) => {
+            const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+            const tagHoje = obj.resp.promovidoDoHistorico ? ' [⚡ AÇÃO HOJE]' : '';
+            let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
+            itensEmAndamento += `⏳ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagHoje} ${obj.item.descricao}\n   ↳ Tratativa: ${obj.resp.observacao || 'Em andamento'}${acoesTexto}\n\n\n`;
+        });
+
+        let itensReincidentes = "";
+        arrReincidentes.forEach((obj, idx) => {
+            const tkt = obj.resp.ticketAntigo ? ` [🎫 ${obj.resp.ticketAntigo}]` : '';
+            const linhaCobranca = (obj.resp.observacao && obj.resp.observacao.trim() !== '') ? `\n   ↳ Cobrança: ${obj.resp.observacao}` : '';
+            itensReincidentes += `🔄 ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}${linhaCobranca}\n\n\n`;
+        });
+
+        let itensPontuados = "";
+        arrPontuados.forEach((obj, idx) => {
+            if (obj.resp.isObsArea) {
+                itensPontuados += `📝 ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}:\n   ↳ ${obj.resp.observacao}\n\n\n`;
+            } else {
+                const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+                itensPontuados += `❌ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}\n   ↳ Obs: ${obj.resp.observacao || 'Sem anotações'}\n\n\n`;
+            }
+        });
+
+        let itensConformes = "";
+        arrConformes.forEach((obj, idx) => {
+            itensConformes += `✔️ ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}\n   ↳ Status: Inspecionado e validado.\n\n\n`;
+        });
+
+        // 6. IMPRESSÃO FINAL (SEGUINDO A HIERARQUIA DO PDF)
+        texto += `✅ SITUAÇÕES RESOLVIDAS:\n\n`;
+        if (itensResolvidos === "") { texto += `Nenhuma.\n\n\n`; } else { texto += `${itensResolvidos}`; }
+
+        texto += `⏳ EM ANDAMENTO:\n\n`;
+        if (itensEmAndamento === "") { texto += `Nenhum item em andamento.\n\n\n`; } else { texto += `${itensEmAndamento}`; }
+
+        texto += `🔄 REINCIDÊNCIAS COBRADAS:\n\n`;
+        if (itensReincidentes === "") { texto += `Nenhuma reincidência cobrada nesta ronda.\n\n\n`; } else { texto += `${itensReincidentes}`; }
+
+        texto += `🚨 ITENS PONTUADOS (Aguardando Ação):\n\n`;
+        if (itensPontuados === "") { texto += `Nenhum item pontuado nesta ronda.\n\n\n`; } else { texto += `${itensPontuados}`; }
+
+        texto += `✔️ ITENS CONFORMES / AVALIADOS (Auditoria de Área):\n\n`;
+        if (itensConformes === "") { texto += `Nenhum item marcado como conforme.\n\n\n`; } else { texto += `${itensConformes}`; }
+
+        if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
+            texto += `\n📎 ANEXOS DOCUMENTAIS VINCULADOS:\n\n`;
+            estadoAtualRonda.anexos.forEach(anexo => {
+                texto += `   ↳ Categoria: ${anexo.categoria} - Arquivo: ${anexo.nomeArquivo}\n`;
+            });
+        }
+
+        // 7. DESPACHO PARA ÁREA DE TRANSFERÊNCIA
+        const el = document.createElement('textarea');
+        el.value = texto;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand('copy');
+        document.body.removeChild(el);
+        mostrarToast("Texto Inteligente copiado para colar no WhatsApp!");
         }
 
         // -----------------------------------------------------
