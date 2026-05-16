@@ -51,7 +51,7 @@
             padding-bottom: 0;
         }
         .accordion-content.open {
-            max-height: 3000px;
+            max-height: 25000px;
             opacity: 1;
         }
 
@@ -65,7 +65,7 @@
         }
         .photo-obs-area.open {
             /* Aqui eu aumento o limite da animação de 500px para 3000px. Isso garante que, por mais ações que eu adicione na Linha do Tempo, a moldura vai esticar e não vai engolir meus botões no fundo da tela. */
-            max-height: 3000px;
+            max-height: 25000px;
             opacity: 1;
             margin-top: 0.75rem;
             padding-bottom: 0.5rem;
@@ -285,6 +285,15 @@
             <button onclick="mudarAba('historico')" id="btn-tab-historico" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
                 <i class="fa-solid fa-globe"></i> Histórico Geral
             </button>
+            <!-- ========================================== -->
+            <!-- TAREFA 84.1: NOVAS ABAS DE PENDÊNCIAS E MEMORIAL -->
+            <!-- ========================================== -->
+            <button onclick="mudarAba('pendencias')" id="btn-tab-pendencias" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
+                <i class="fa-solid fa-triangle-exclamation text-red-400"></i> Ação
+            </button>
+            <button onclick="mudarAba('memorial')" id="btn-tab-memorial" class="flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
+                <i class="fa-solid fa-trophy text-blue-400"></i> Arquivo
+            </button>
             <!-- NOVO: Escondido por padrão (hidden) -->
             <button onclick="mudarAba('config')" id="btn-tab-config" class="hidden flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap">
                 <i class="fa-solid fa-code"></i> Motor JSON
@@ -307,7 +316,10 @@
                     <p class="text-sm text-slate-500 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
                 </div>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 no-print">
+                <!-- ========================================== -->
+                <!-- TAREFA 86.3.1A: AJUSTE DO GRID PARA 3 BOTÕES -->
+                <!-- ========================================== -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6 no-print">
                     <!-- BOTÃO GERAR PDF ATIVADO -->
                     <button onclick="gerarRelatorioPDF()" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-alyellow dark:hover:border-alyellow transition-all flex items-center justify-between group">
                         <div class="flex items-center gap-3">
@@ -332,7 +344,23 @@
                                 <p class="text-xs text-slate-500 dark:text-slate-400">Copiar texto para WhatsApp</p>
                             </div>
                         </div>
-                        <i class="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600"></i>
+                        <i class="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 hidden lg:block"></i>
+                    </button>
+
+                    <!-- ========================================== -->
+                    <!-- TAREFA 86.3.1B: INJEÇÃO DO BOTÃO E-MAIL -->
+                    <!-- ========================================== -->
+                    <button onclick="if(typeof gerarEmailExecutivo === 'function') gerarEmailExecutivo(); else mostrarToast('Função em construção! Aguarde a Etapa 4.');" class="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-4 rounded-xl shadow-sm hover:shadow-md hover:border-blue-500 dark:hover:border-blue-500 transition-all flex items-center justify-between group">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                <i class="fa-solid fa-envelope-open-text text-lg"></i>
+                            </div>
+                            <div class="text-left">
+                                <h3 class="font-bold text-slate-700 dark:text-slate-200">E-mail Executivo</h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Copiar relatório com fotos</p>
+                            </div>
+                        </div>
+                        <i class="fa-solid fa-chevron-right text-slate-300 dark:text-slate-600 hidden lg:block"></i>
                     </button>
                 </div>
 
@@ -541,16 +569,9 @@
                     </div>
                 </div>
 
-                <!-- NOVO BLOCO: HISTÓRICO CONTÍNUO DE PENDÊNCIAS (A GAVETA) -->
-                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mt-6 mb-6 no-print transition-colors">
-                    <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2 border-b border-slate-200 dark:border-slate-600 pb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-clock-rotate-left text-alyellow"></i> Histórico Contínuo (Pendências Antigas)
-                    </h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Itens reincidentes ou riscos assumidos migrados de dias anteriores. Eles não são apagados ao "Finalizar o Dia".</p>
-                    <div id="lista-historico-pendencias" class="space-y-4">
-                        <!-- Preenchido dinamicamente pelo JS -->
-                    </div>
-                </div>
+                <!-- ========================================== -->
+                <!-- TAREFA 84.2: O bloco "Histórico Contínuo" foi removido daqui e dividido em abas próprias -->
+                <!-- ========================================== -->
                 
                 <!-- BLOCO DE ASSINATURA (SÓ APARECE NO PDF) -->
                 <div class="hidden pdf-mode-signature mt-12 pt-8 text-center page-break-inside-avoid">
@@ -561,6 +582,36 @@
                     </div>
                 </div>
 
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TAREFA 84.3: NOVA ABA - PENDÊNCIAS EM ABERTO -->
+            <!-- ========================================== -->
+            <section id="aba-pendencias" class="hidden fade-enter">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 no-print transition-colors">
+                    <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2 border-b border-slate-200 dark:border-slate-600 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-red-500"></i> Plano de Ação (Pendências)
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Itens pontuados ou em andamento. Eles aguardam tratativa para serem finalizados e arquivados.</p>
+                    <div id="lista-pendencias-ativas" class="space-y-4">
+                        <!-- JS desenha os itens vermelhos e amarelos aqui -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- TAREFA 84.3: NOVA ABA - MEMORIAL DE RESOLUÇÕES -->
+            <!-- ========================================== -->
+            <section id="aba-memorial" class="hidden fade-enter">
+                <div class="bg-white dark:bg-slate-900 p-5 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 mb-6 no-print transition-colors">
+                    <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-2 border-b border-slate-200 dark:border-slate-600 pb-2 flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-blue-500"></i> Memorial de Resoluções
+                    </h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 mb-5">Arquivo definitivo de todos os itens e pendências que já foram finalizados e resolvidos com sucesso.</p>
+                    <div id="lista-memorial-resolucoes" class="space-y-4">
+                        <!-- JS desenha os itens azuis aqui -->
+                    </div>
+                </div>
             </section>
 
             <!-- ========================================== -->
@@ -634,6 +685,27 @@
     <button id="btn-sair-espiao" onclick="if(typeof sairModoEspiao === 'function') sairModoEspiao()" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full shadow-2xl z-50 font-black tracking-widest items-center gap-2 border-4 border-white transition-transform hover:scale-105">
         <i class="fa-solid fa-user-secret text-xl"></i> SAIR DO MODO ESPIÃO
     </button>
+
+    <!-- ========================================== -->
+    <!-- TAREFA 85.3.1: MODAL DO SUPER JÁ PONTUADO -->
+    <!-- ========================================== -->
+    <div id="modal-super-jp" class="fixed inset-0 bg-slate-900 bg-opacity-80 z-[1] hidden flex-col justify-end sm:justify-center items-center p-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white dark:bg-slate-800 w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[85vh] border border-purple-500">
+            <div class="bg-purple-600 p-4 flex justify-between items-center shrink-0">
+                <h3 class="font-black text-white flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left"></i> Selecionar Pendência Antiga</h3>
+                <button onclick="fecharModal('modal-super-jp')" class="text-white hover:text-purple-200 text-3xl leading-none transition-colors">&times;</button>
+            </div>
+            <div class="p-4 bg-purple-50 dark:bg-purple-900/20 border-b border-purple-100 dark:border-purple-800/50 shrink-0">
+                <p class="text-xs text-purple-800 dark:text-purple-300 font-bold tracking-wide">Selecione abaixo qual problema antigo você está reportando novamente. Isso criará uma conexão direta com o histórico.</p>
+            </div>
+            <div id="lista-opcoes-jp" class="p-4 overflow-y-auto flex-1 space-y-3 no-scrollbar">
+                <!-- Opções geradas via JS -->
+            </div>
+            <div class="p-4 border-t border-slate-200 dark:border-slate-700 shrink-0 bg-slate-50 dark:bg-slate-900/50">
+                <button onclick="fecharModal('modal-super-jp')" class="w-full bg-slate-300 hover:bg-slate-400 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-3 rounded-xl transition-colors shadow-sm active:scale-95">Cancelar Associação</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Modal de Toast (Avisos) -->
     <div id="toast" class="fixed top-5 left-1/2 transform -translate-x-1/2 bg-slate-800 dark:bg-slate-700 text-white px-6 py-3 rounded-full shadow-xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-2 font-semibold border border-slate-700 dark:border-slate-600">
@@ -1051,6 +1123,30 @@
         // NOVO: Array Global para guardar o Histórico Contínuo
         let historicoPendencias = [];
 
+        // ==========================================
+        // TAREFA 80.1: CAIXA DE FERRAMENTAS DO UPLOAD SEGURO
+        // ==========================================
+        // O que faz: Cria o "Freio de Mão" que conta fotos processando, e um motor que tenta subir 5 vezes.
+        // Por que fiz: Evita que o Firestore recuse textos grandes (Base64) e impede perda de fotos por oscilação no 4G.
+        window.uploadsAtivos = 0; 
+
+        async function uploadParaStorageComRetry(base64Data, caminhoStorage, maxTentativas = 5) {
+            for (let tentativa = 1; tentativa <= maxTentativas; tentativa++) {
+                try {
+                    const ref = storage.ref(caminhoStorage);
+                    await ref.putString(base64Data, 'data_url');
+                    return await ref.getDownloadURL();
+                } catch (erro) {
+                    console.warn(`[UPLOAD] Falha na tentativa ${tentativa} de ${maxTentativas}:`, erro);
+                    if (tentativa === maxTentativas) {
+                        alert(`ERRO CRÍTICO NA REDE: Falha ao subir imagem após 5 tentativas. Verifique a internet e anexe novamente.`);
+                        throw erro; 
+                    }
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                }
+            }
+        }
+
         // -----------------------------------------------------
         // 3. FUNÇÕES DE INICIALIZAÇÃO E MESCLAGEM
         // -----------------------------------------------------
@@ -1150,6 +1246,11 @@
                 estadoAtualRonda.itensExtras = [];
             }
             
+            // ==========================================
+            // TAREFA 85.1.1: BASE DE DADOS MULTI-TAGS
+            // ==========================================
+            // O que faz: Adiciona a propriedade 'setores: []' na raiz de memória de todas as perguntas.
+            // Por que fiz: Prepara a estrutura do aplicativo para salvar múltiplos locais num mesmo apontamento, cruzando essas informações com o Histórico Contínuo.
             categorias.forEach(categoria => {
                 obsAreasMescladas[categoria.idCategoria] = "";
                 categoria.itens.forEach(item => {
@@ -1159,7 +1260,8 @@
                         solucao: "",
                         fotoBase64: null,
                         fotos: [], // TAREFA 66.1: Nova estrutura para múltiplas fotos
-                        responsavel: "" // NOVO: Campo no checklist ativo
+                        responsavel: "", // NOVO: Campo no checklist ativo
+                        setores: [] // TAREFA 85.1.1: Array de etiquetas de setor
                     };
                 });
             });
@@ -1233,7 +1335,7 @@
         }
 
         // ==========================================
-        // TAREFA 55 E 57: SINCRONIZAÇÃO COM ESPERA DE UPLOAD
+        // TAREFA 80.5.1: A FECHADURA MAGNA (BLINDAGEM 1MB FIREBASE)
         // ==========================================
         function sincronizarComNuvem(exibirAviso = false) {
             if (typeof auth !== 'undefined' && auth.currentUser) {
@@ -1242,7 +1344,13 @@
                     return;
                 }
 
-                // TAREFA 57: Primeiro varre as fotos pendentes, só depois atualiza o banco de textos
+                // O que faz: Analisa o Freio de Mão. Se for > 0, trava tudo e recusa envio de dados.
+                // Por que fiz: É a única forma de garantir 100% que NENHUM Base64 vá para o Firestore e exploda o documento, exigindo que o usuário espere a Fase 3 terminar para as fotos virarem Links.
+                if (window.uploadsAtivos && window.uploadsAtivos > 0) {
+                    alert(`⏳ AGUARDE: Há ${window.uploadsAtivos} fotos/documentos terminando o upload para a nuvem.\nAguarde o aviso de conclusão para sincronizar.`);
+                    return;
+                }
+
                 processarUploadsPendentes().then(() => {
                     const emailUsuario = auth.currentUser.email;
 
@@ -1418,11 +1526,17 @@
             estadoAtualRonda = dadosAlvo.rascunhoRonda || estadoAtualRonda;
 
             // A MÁGICA 71.3: Aqui eu obrigo o sistema a injetar os clones que o meu colega fez antes de renderizar a tela!
+            // ==========================================
+            // TAREFA 83.1: ATUALIZAR DASHBOARD NO MODO ESPIÃO
+            // ==========================================
+            // O que faz: Adiciona o recálculo das estatísticas ao abrir a lousa de um colega.
+            // Por que fiz: Para que a aba de Dashboard reflita os gráficos e números exatos do colega espiado.
             recarregarMatrizComClones(estadoAtualRonda);
 
             renderizarChecklist();
             renderizarHistoricoPendencias();
             atualizarInputsMetadados();
+            calcularEstatisticas(); // <-- NOVO: Força o Dashboard a atualizar
 
             const nomeInsp = document.getElementById('nome-inspetor');
             const inputInsp = document.getElementById('input-inspetor');
@@ -1453,9 +1567,15 @@
             backupMeuRascunho = null;
             backupMeuHistorico = null;
 
-            // 4. Mando desenhar minha ronda de novo.
+            // ==========================================
+            // TAREFA 83.2: ATUALIZAR DASHBOARD AO SAIR DO ESPIÃO
+            // ==========================================
+            // O que faz: Adiciona o recálculo ao retornar para a própria lousa.
+            // Por que fiz: Evita que o Dashboard fique travado mostrando os dados do colega ou do passado após fechar o modo leitura.
+            // 4. Mando desenhar minha ronda e os gráficos de novo.
             renderizarChecklist();
             renderizarHistoricoPendencias();
+            calcularEstatisticas(); // <-- NOVO: Força o Dashboard a voltar para os seus números
 
             // 5. Restauro o meu nome no topo do relatório.
             if (typeof auth !== 'undefined' && auth.currentUser) {
@@ -1621,10 +1741,16 @@
                         recarregarMatrizComClones(estadoAtualRonda);
                     }
 
-                    // Mando desenhar o passado na tela.
+                    // ==========================================
+                    // TAREFA 83.3: ATUALIZAR DASHBOARD NA MÁQUINA DO TEMPO
+                    // ==========================================
+                    // O que faz: Adiciona a função de recálculo ao carregar um arquivo morto.
+                    // Por que fiz: Para permitir que você analise visualmente os gráficos e indicadores de uma vistoria do passado.
+                    // Mando desenhar o passado na tela e nos gráficos.
                     renderizarChecklist();
                     renderizarHistoricoPendencias();
                     atualizarInputsMetadados();
+                    calcularEstatisticas(); // <-- NOVO: Força o Dashboard a carregar os dados do passado
 
                     // Modifico os nomes para ficar bem claro que estou no Arquivo Morto.
                     const nomeInsp = document.getElementById('nome-inspetor');
@@ -1982,10 +2108,39 @@
                             </div>
                         </div>
 
-                        <!-- NOVO 33.2: Campo Exclusivo do ID do Ticket Anterior -->
+                        <!-- ========================================== -->
+                        <!-- TAREFA 85.3.3: O SUPER JÁ PONTUADO (TELA) -->
+                        <!-- ========================================== -->
                         <div id="box-ticket-${item.idItem}" class="mb-3 ${isJp ? '' : 'hidden'}">
-                            <label class="text-xs font-bold text-purple-600 dark:text-purple-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-tag"></i> ID do Apontamento Anterior (Ex: 20260506-01)</label>
-                            <input type="text" onchange="salvarTicketAntigo('${item.idItem}', this.value)" value="${resposta && resposta.ticketAntigo ? resposta.ticketAntigo : ''}" placeholder="Cole o código do problema já relatado..." class="w-full bg-white dark:bg-slate-800 border border-purple-300 dark:border-purple-700 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-purple-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm font-mono">
+                            <div class="flex justify-between items-center mb-1">
+                                <label class="text-xs font-bold text-purple-600 dark:text-purple-400 flex items-center gap-1"><i class="fa-solid fa-link"></i> Vínculo com o Passado</label>
+                                <button onclick="abrirPopupJaPontuado('${item.idItem}')" class="text-[10px] font-bold text-alblue dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300 underline transition-colors"><i class="fa-solid fa-magnifying-glass"></i> Alterar Vínculo</button>
+                            </div>
+                            <div class="flex gap-2 w-full">
+                                <input type="text" readonly value="${resposta && resposta.ticketAntigo ? resposta.ticketAntigo : ''}" placeholder="Selecione clicando acima ➔" class="flex-1 bg-purple-50 dark:bg-purple-900/20 border border-purple-300 dark:border-purple-700/50 p-2 text-sm rounded focus:outline-none text-purple-800 dark:text-purple-300 font-mono shadow-sm cursor-not-allowed">
+                                <label for="input-foto-passado-${item.idItem}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded shadow transition-colors font-bold flex items-center justify-center active:scale-95 cursor-pointer border border-purple-800" title="Tirar foto atual e enviar direto para o histórico deste problema">
+                                    <i class="fa-solid fa-camera mr-1"></i> Prova
+                                    <input type="file" id="input-foto-passado-${item.idItem}" accept="image/jpeg, image/png, image/jpg" capture="environment" class="hidden" onchange="if(typeof processarFotoPassado === 'function') processarFotoPassado(this, '${item.idItem}')">
+                                </label>
+                            </div>
+                            <p class="text-[9px] font-bold text-slate-500 dark:text-slate-400 mt-1.5"><i class="fa-solid fa-circle-info text-alblue dark:text-blue-400"></i> O botão de "Prova" salva a foto de hoje diretamente no arquivo morto deste problema.</p>
+                        </div>
+
+                        <!-- ========================================== -->
+                        <!-- TAREFA 85.1.4: SETORES ENVOLVIDOS (MULTI-TAGS) -->
+                        <!-- ========================================== -->
+                        <div id="box-setores-${item.idItem}" class="mb-3">
+                            <label class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-1 flex items-center gap-1"><i class="fa-solid fa-map-location-dot text-alblue dark:text-blue-400"></i> Setores Envolvidos</label>
+                            <div class="flex gap-2">
+                                <datalist id="list-setores-${item.idItem}">
+                                    ${(estadoAtualRonda.areasSelecionadas || []).map(area => `<option value="${area}">`).join('')}
+                                </datalist>
+                                <input list="list-setores-${item.idItem}" id="input-setor-${item.idItem}" placeholder="Adicionar setor ao desvio..." class="flex-1 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:border-alblue shadow-sm text-slate-700 dark:text-slate-200 transition-colors" onkeypress="if(event.key === 'Enter') { adicionarSetorTag('${item.idItem}'); event.preventDefault(); }">
+                                <button type="button" onclick="adicionarSetorTag('${item.idItem}')" class="bg-alblue hover:bg-blue-600 text-white px-4 py-2 rounded shadow transition-colors font-bold flex items-center justify-center active:scale-95"><i class="fa-solid fa-plus"></i></button>
+                            </div>
+                            <div id="tags-setores-${item.idItem}" class="flex flex-wrap gap-2 mt-2">
+                                ${(resposta && resposta.setores ? resposta.setores : []).map(st => `<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-300 dark:border-blue-700 flex items-center gap-1 shadow-sm">${st} <button type="button" onclick="removerSetorTag('${item.idItem}', '${st}')" class="hover:text-red-500 transition-colors bg-transparent"><i class="fa-solid fa-times"></i></button></span>`).join('')}
+                            </div>
                         </div>
 
                         <div class="flex flex-col gap-3">
@@ -1998,8 +2153,12 @@
                                 <textarea id="solucao-${item.idItem}" onchange="salvarSolucao('${item.idItem}', this.value)" rows="2" placeholder="Descreva como a situação foi resolvida no local..." class="w-full bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-alblue dark:focus:ring-blue-500 text-slate-700 dark:text-slate-200 transition-all resize-none shadow-sm">${resposta && resposta.solucao ? resposta.solucao : ''}</textarea>
                             </div>
 
-                            <!-- TAREFA 65.2: CAIXA DE AÇÕES (TIMELINE) -->
-                            <div id="box-acoes-${item.idItem}" class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors ${isEa || temAcoes ? '' : 'hidden'}">
+                            <!-- ========================================== -->
+                            <!-- TAREFA 85.4.1: A LINHA DO TEMPO UNIVERSAL -->
+                            <!-- ========================================== -->
+                            <!-- O que faz: Destrava a caixa de ações para todos os status de pendência (Pontuado, Andamento, Resolvido, Já Pontuado). -->
+                            <!-- Por que fiz: Permite registrar histórico e cobranças independente da fase em que o problema se encontra. -->
+                            <div id="box-acoes-${item.idItem}" class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors ${isEa || isSa || isNk || isJp || temAcoes ? '' : 'hidden'}">
                                 <label class="text-xs font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Linha do Tempo / Ações Realizadas</label>
                                 ${htmlAcoes}
                                 <div class="flex flex-col sm:flex-row gap-2 mt-2">
@@ -2123,6 +2282,12 @@
                 moldeAtual = moldeAtual.filter(c => c.idCategoria !== idCat); salvarEAtualizarEstrutura(); mostrarToast("Setor excluído definitivamente.");
             }
         }
+        
+        // ==========================================
+        // TAREFA 85.1.2: BASE DE DADOS MULTI-TAGS NO MODO OP
+        // ==========================================
+        // O que faz: Adiciona a propriedade 'setores: []' na raiz dos novos itens criados dinamicamente.
+        // Por que fiz: Garante que perguntas recém-criadas pelo Modo OP já estejam compatíveis com o novo motor de cruzamento de dados.
         function adicionarNovoItem(idCategoria) {
             const descricao = prompt("Digite a descrição da nova pergunta/item:"); if (!descricao || descricao.trim() === "") return;
             const categoria = moldeAtual.find(c => c.idCategoria === idCategoria); if (!categoria) return;
@@ -2134,13 +2299,15 @@
                 solucao: "",
                 fotoBase64: null,
                 fotos: [], // TAREFA 66.1: Nova estrutura para múltiplas fotos
-                responsavel: "" // NOVO: Campo no checklist ativo
+                responsavel: "", // NOVO: Campo no checklist ativo
+                setores: [] // TAREFA 85.1.2: Array de etiquetas de setor
             };
             
             salvarEAtualizarEstrutura();
             const conteudo = document.getElementById(`content-${idCategoria}`); const icone = document.getElementById(`icon-${idCategoria}`);
             if (conteudo) { conteudo.classList.add('open'); icone.style.transform = 'rotate(180deg)'; } mostrarToast("Pergunta adicionada!");
         }
+
         function editarItem(idCat, idItem) {
             const categoria = moldeAtual.find(c => c.idCategoria === idCat); if (!categoria) return;
             const item = categoria.itens.find(i => i.idItem === idItem); if (!item) return;
@@ -2174,6 +2341,11 @@
             // Aqui eu adiciono a etiqueta "(Adicional)" para eu bater o olho no PDF e saber que fui eu que clonei na hora
             novoItem.descricao = novoItem.descricao + " (Adicional)";
 
+            // ==========================================
+            // TAREFA 85.1.3: BASE DE DADOS MULTI-TAGS NOS CLONES
+            // ==========================================
+            // O que faz: Adiciona a propriedade 'setores: []' na raiz dos itens clonados (fantasmas).
+            // Por que fiz: Garante que os apontamentos extras criados no momento da vistoria também suportem múltiplas áreas.
             // Aqui eu preparo o espaço em branco na memória para receber as anotações, status e fotos que eu vou colocar nesse clone
             estadoAtualRonda.respostas[novoItem.idItem] = {
                 status: null,
@@ -2182,7 +2354,8 @@
                 fotoBase64: null,
                 fotos: [],
                 responsavel: "",
-                acoes: []
+                acoes: [],
+                setores: [] // TAREFA 85.1.3: Suporte a multi-tags para o clone
             };
 
             // Aqui eu guardo esse clone na minha "Gaveta da Ronda" (itensExtras). É isso que garante que ele não vai sumir se eu recarregar a página
@@ -2213,20 +2386,29 @@
         // -----------------------------------------------------
         // 6. LÓGICA DE INTERAÇÃO BÁSICA (TELA)
         // -----------------------------------------------------
+        // ==========================================
+        // TAREFA 84.4: ATUALIZAR NAVEGAÇÃO DE ABAS
+        // ==========================================
+        // O que faz: Adiciona as duas novas abas ao sistema de navegação.
+        // Por que fiz: Para ocultar e exibir as telas exclusivas de Pendências e Memorial.
         function mudarAba(abaId) {
             document.getElementById('aba-dashboard').classList.add('hidden');
             document.getElementById('aba-checklist').classList.add('hidden');
             document.getElementById('aba-previa').classList.add('hidden');
-            document.getElementById('aba-historico').classList.add('hidden'); 
+            document.getElementById('aba-historico').classList.add('hidden');
             document.getElementById('aba-config').classList.add('hidden');
+            document.getElementById('aba-pendencias').classList.add('hidden');
+            document.getElementById('aba-memorial').classList.add('hidden');
             
             const classesInativas = "flex-1 py-3 px-3 rounded-t-lg font-bold text-xs sm:text-sm transition-colors flex justify-center items-center gap-2 bg-alblue_light text-slate-300 hover:text-white hover:bg-alblue whitespace-nowrap";
             
             document.getElementById('btn-tab-dashboard').className = classesInativas;
             document.getElementById('btn-tab-checklist').className = classesInativas;
             document.getElementById('btn-tab-previa').className = classesInativas;
-            document.getElementById('btn-tab-historico').className = classesInativas; 
+            document.getElementById('btn-tab-historico').className = classesInativas;
             document.getElementById('btn-tab-config').className = classesInativas;
+            document.getElementById('btn-tab-pendencias').className = classesInativas;
+            document.getElementById('btn-tab-memorial').className = classesInativas;
 
             // NOVO: Trava para manter o Motor JSON invisível se não estiver no Modo OP
             if (!isModoOp && abaId !== 'config') {
@@ -2283,17 +2465,20 @@
             return `${prefixo}-${proximoNum}`;
         }
 
+        // ==========================================
+        // TAREFA 85.4.2: O DESTRAVAMENTO DO CLIQUE (LINHA DO TEMPO UNIVERSAL)
+        // ==========================================
+        // O que faz: Garante que os status "Pontuado" e "Já Pontuado" forcem a exibição da Caixa de Ações ao invés de escondê-la.
         function marcarStatus(itemId, status) {
             const statusAtual = estadoAtualRonda.respostas[itemId].status;
             const novoStatus = (statusAtual === status) ? null : status;
             estadoAtualRonda.respostas[itemId].status = novoStatus;
-
+            
             if (novoStatus === 'pontuado' || novoStatus === 'resolvido' || novoStatus === 'em_andamento') {
                 if (!estadoAtualRonda.respostas[itemId].ticket) {
                     estadoAtualRonda.respostas[itemId].ticket = gerarTicketDoDia();
                 }
             }
-
             salvarProgresso();
             
             const btnOk = document.getElementById(`btn-ok-${itemId}`);
@@ -2327,7 +2512,9 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
+                // O item OK esconde a linha do tempo se não houver ações prévias
                 if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
+
             } else if (novoStatus === 'pontuado') {
                 if (btnNk) btnNk.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-red-500 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
@@ -2335,7 +2522,8 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
-                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // DESTRAVADO
+
             } else if (novoStatus === 'resolvido') {
                 if (btnSa) btnSa.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-blue-500 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.remove('hidden');
@@ -2343,7 +2531,8 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
-                if (boxAcoes) boxAcoes.classList.remove('hidden'); // TAREFA 65.4: Mantém ações visíveis em resolvido
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // DESTRAVADO
+
             } else if (novoStatus === 'em_andamento') {
                 if (btnEa) btnEa.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-amber-500 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
@@ -2351,7 +2540,8 @@
                 if (boxTicket) boxTicket.classList.add('hidden');
                 if (containerFoto) containerFoto.classList.remove('hidden');
                 if (btnCamera) btnCamera.classList.remove('hidden');
-                if (boxAcoes) boxAcoes.classList.remove('hidden'); // TAREFA 65.4: MOSTRA A TIMELINE IMEDIATAMENTE
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // DESTRAVADO
+
             } else if (novoStatus === 'ja_pontuado') {
                 if (btnJp) btnJp.className = "flex flex-col items-center justify-center p-2 rounded-lg border-2 transition-all border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 font-bold shadow-sm";
                 if (lblObs) lblObs.classList.add('hidden');
@@ -2359,7 +2549,13 @@
                 if (boxTicket) boxTicket.classList.remove('hidden');
                 if (containerFoto) containerFoto.classList.add('hidden');
                 if (btnCamera) btnCamera.classList.add('hidden');
-                if (boxAcoes && (!estadoAtualRonda.respostas[itemId].acoes || estadoAtualRonda.respostas[itemId].acoes.length === 0)) boxAcoes.classList.add('hidden');
+                if (boxAcoes) boxAcoes.classList.remove('hidden'); // DESTRAVADO
+
+                // GATILHO AUTOMÁTICO DO POP-UP
+                if (typeof abrirPopupJaPontuado === 'function' && !estadoAtualRonda.respostas[itemId].ticketAntigo) {
+                    setTimeout(() => abrirPopupJaPontuado(itemId), 100);
+                }
+
             } else {
                 if (lblObs) lblObs.classList.add('hidden');
                 if (boxSolucao) boxSolucao.classList.add('hidden');
@@ -2374,13 +2570,17 @@
             const temNota = resp && resp.observacao.trim() !== "";
             const temSolucao = resp && resp.solucao && resp.solucao.trim() !== "";
             const temTicket = resp && resp.ticketAntigo && resp.ticketAntigo.trim() !== "";
-            
             const deveEstarAberto = (novoStatus === 'pontuado' || novoStatus === 'resolvido' || novoStatus === 'em_andamento' || novoStatus === 'ja_pontuado' || temFoto || temNota || temSolucao || temTicket);
-            
+
             if (deveEstarAberto) {
                 areaObs.classList.add('open');
             } else {
                 areaObs.classList.remove('open');
+            }
+
+            // GATILHO DO RADAR SILENCIOSO
+            if (typeof verificarPendenciasAntigas === 'function') {
+                verificarPendenciasAntigas(itemId);
             }
         }
 
@@ -2530,6 +2730,149 @@
             }
         }
 
+        // ==========================================
+        // TAREFA 85.1.5: ADICIONAR TAG DE SETOR
+        // ==========================================
+        // O que faz: Lê o setor digitado, adiciona ao array da pergunta, atualiza o HTML e salva o progresso.
+        // Por que fiz: É o motor que cria a etiqueta visual (chip) e guarda a inteligência de múltipla escolha.
+        function adicionarSetorTag(itemId) {
+            const input = document.getElementById(`input-setor-${itemId}`);
+            if (!input) return;
+            const setor = input.value.trim().toUpperCase();
+            if (!setor) return;
+
+            if (!estadoAtualRonda.respostas[itemId].setores) {
+                estadoAtualRonda.respostas[itemId].setores = [];
+            }
+
+            if (estadoAtualRonda.respostas[itemId].setores.includes(setor)) {
+                mostrarToast("Este setor já foi adicionado.");
+                input.value = '';
+                return;
+            }
+
+            estadoAtualRonda.respostas[itemId].setores.push(setor);
+            salvarProgresso();
+
+            // Atualiza apenas a div de tags visualmente para não piscar a tela
+            const divTags = document.getElementById(`tags-setores-${itemId}`);
+            if (divTags) {
+                divTags.innerHTML += `<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-300 dark:border-blue-700 flex items-center gap-1 shadow-sm">${setor} <button type="button" onclick="removerSetorTag('${itemId}', '${setor}')" class="hover:text-red-500 transition-colors bg-transparent"><i class="fa-solid fa-times"></i></button></span>`;
+            }
+            input.value = '';
+            mostrarToast("Setor vinculado ao apontamento!");
+
+            // Chamará a função da Tarefa 85.2 (Radar Silencioso) depois que ela for implantada
+            if (typeof verificarPendenciasAntigas === 'function') {
+                verificarPendenciasAntigas(itemId);
+            }
+        }
+
+        // ==========================================
+        // TAREFA 85.1.6: REMOVER TAG DE SETOR
+        // ==========================================
+        // O que faz: Remove a etiqueta visual do HTML e apaga o setor da memória do apontamento.
+        // Por que fiz: Permite que o inspetor corrija erros se adicionar a área errada por engano.
+        function removerSetorTag(itemId, setorParaRemover) {
+            if (!estadoAtualRonda.respostas[itemId].setores) return;
+
+            estadoAtualRonda.respostas[itemId].setores = estadoAtualRonda.respostas[itemId].setores.filter(s => s !== setorParaRemover);
+            salvarProgresso();
+
+            // Renderiza novamente apenas a caixa de tags
+            const divTags = document.getElementById(`tags-setores-${itemId}`);
+            if (divTags) {
+                divTags.innerHTML = estadoAtualRonda.respostas[itemId].setores.map(st => `<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-400 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-300 dark:border-blue-700 flex items-center gap-1 shadow-sm">${st} <button type="button" onclick="removerSetorTag('${itemId}', '${st}')" class="hover:text-red-500 transition-colors bg-transparent"><i class="fa-solid fa-times"></i></button></span>`).join('');
+            }
+        }
+
+        // ==========================================
+        // TAREFA 85.3.2: O CÉREBRO DO POP-UP (SUPER JÁ PONTUADO)
+        // ==========================================
+        // O que faz: Filtra o histórico cruzando a Pergunta atual com as Tags de Setor e exibe as opções no modal.
+        // Por que fiz: Facilita a vida do inspetor exibindo botões clicáveis ao invés de forçar a digitação cega de um ID.
+        function abrirPopupJaPontuado(itemId) {
+            const resp = estadoAtualRonda.respostas[itemId];
+            const setoresAtuais = resp.setores || [];
+            const container = document.getElementById('lista-opcoes-jp');
+
+            let pendenciasItem = historicoPendencias.filter(p => p.idItem === itemId && p.statusHistorico !== "Resolvido");
+
+            if (pendenciasItem.length === 0) {
+                container.innerHTML = '<div class="text-center p-6 border-2 border-dashed border-purple-300 dark:border-purple-700 rounded-xl"><i class="fa-solid fa-check-circle text-4xl text-purple-300 dark:text-purple-600 mb-3"></i><p class="text-sm font-bold text-purple-600 dark:text-purple-400">Nenhuma pendência em aberto para esta pergunta no histórico global.</p></div>';
+            } else {
+                // Ordena: Primeiro os que batem com os setores atuais, depois os demais
+                pendenciasItem.sort((a, b) => {
+                    const aTemSetor = (a.setores && a.setores.some(s => setoresAtuais.includes(s))) ? 1 : 0;
+                    const bTemSetor = (b.setores && b.setores.some(s => setoresAtuais.includes(s))) ? 1 : 0;
+                    return bTemSetor - aTemSetor;
+                });
+
+                let html = '';
+                pendenciasItem.forEach(p => {
+                    const bateSetor = (p.setores && p.setores.some(s => setoresAtuais.includes(s)));
+                    const corBorda = bateSetor ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/30' : 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800';
+                    const badgeExtra = bateSetor ? '<span class="text-[9px] bg-purple-600 text-white px-2 py-0.5 rounded shadow-sm"><i class="fa-solid fa-location-dot"></i> Mesmo Setor</span>' : '';
+
+                    html += `
+                    <button onclick="selecionarPendenciaJaPontuado('${itemId}', '${p.ticket}')" class="w-full text-left p-3 rounded-xl border-2 ${corBorda} hover:border-purple-400 dark:hover:border-purple-500 transition-colors shadow-sm flex flex-col gap-2 relative group active:scale-95">
+                        <div class="flex justify-between items-center w-full">
+                            <span class="text-xs font-black text-slate-700 dark:text-slate-300 bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag text-purple-500"></i> ${p.ticket}</span>
+                            ${badgeExtra}
+                        </div>
+                        <p class="text-sm font-bold text-slate-700 dark:text-slate-200 leading-tight">${p.descricao}</p>
+                        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mt-1"><i class="fa-solid fa-map-location-dot text-alblue dark:text-blue-400"></i> Cadastrado em: ${(p.setores || []).join(', ') || 'Nenhum Setor'}</p>
+                    </button>`;
+                });
+                container.innerHTML = html;
+            }
+
+            const modal = document.getElementById('modal-super-jp');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // ==========================================
+        // TAREFA 85.6.1: UX - MANTER SANFONA ABERTA NO JÁ PONTUADO
+        // ==========================================
+        // O que faz: Vincula a pendência antiga, renderiza a tela e reabre automaticamente a categoria que o inspetor estava usando.
+        // Por que fiz: Evita que o inspetor perca tempo procurando a pergunta de novo após o aplicativo redesenhar a tela inteira.
+        function selecionarPendenciaJaPontuado(itemId, ticketAntigo) {
+            estadoAtualRonda.respostas[itemId].ticketAntigo = ticketAntigo;
+            salvarProgresso();
+            fecharModal('modal-super-jp');
+
+            // 1. Descobre a qual categoria este item pertence
+            let idCategoriaAberta = null;
+            if (typeof moldeAtual !== 'undefined') {
+                for (let cat of moldeAtual) {
+                    if (cat.itens && cat.itens.find(i => i.idItem === itemId)) {
+                        idCategoriaAberta = cat.idCategoria;
+                        break;
+                    }
+                }
+            }
+
+            // 2. Atualiza o visual
+            renderizarChecklist();
+
+            // 3. Reabre a sanfona correta e foca no item
+            if (idCategoriaAberta) {
+                setTimeout(() => {
+                    const conteudo = document.getElementById(`content-${idCategoriaAberta}`);
+                    const icone = document.getElementById(`icon-${idCategoriaAberta}`);
+                    if (conteudo) conteudo.classList.add('open');
+                    if (icone) icone.style.transform = 'rotate(180deg)';
+
+                    // Desliza a tela suavemente para a caixa do ticket atualizado
+                    const boxItem = document.getElementById(`box-ticket-${itemId}`);
+                    if (boxItem) boxItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }, 150);
+            }
+
+            mostrarToast("Problema antigo vinculado com sucesso!");
+        }
+
         function salvarObservacaoArea(idCategoria, texto) {
             estadoAtualRonda.obsAreas[idCategoria] = texto;
             salvarProgresso();
@@ -2540,7 +2883,54 @@
         }
 
         // ==========================================
-        // TAREFA 48.1: COMPRESSOR DE IMAGENS "BASE 99"
+        // TAREFA 85.2.1: O RADAR SILENCIOSO (Varredura Inteligente)
+        // ==========================================
+        // O que faz: Analisa o histórico de fundo. Se a pergunta atual tiver pendências abertas nos setores marcados, exibe o alerta.
+        // Por que fiz: Cruza os dados no exato milissegundo do preenchimento, blindando a rastreabilidade.
+        function verificarPendenciasAntigas(itemId) {
+            const resp = estadoAtualRonda.respostas[itemId];
+            if (!resp) return;
+
+            // Só dispara se estiver pontuado (NC) ou em andamento e tiver pelo menos 1 setor
+            const isAtivo = resp.status === 'pontuado' || resp.status === 'em_andamento';
+            const setoresAtuais = resp.setores || [];
+
+            // Busca ou cria o container visual do aviso
+            let avisoDiv = document.getElementById(`aviso-radar-${itemId}`);
+            if (!avisoDiv) {
+                const boxSetores = document.getElementById(`box-setores-${itemId}`);
+                if (!boxSetores) return;
+                avisoDiv = document.createElement('div');
+                avisoDiv.id = `aviso-radar-${itemId}`;
+                boxSetores.appendChild(avisoDiv);
+            }
+
+            if (!isAtivo || setoresAtuais.length === 0 || !historicoPendencias || historicoPendencias.length === 0) {
+                avisoDiv.innerHTML = '';
+                return;
+            }
+
+            // Faz a varredura no Histórico Contínuo
+            const pendenciasEncontradas = historicoPendencias.filter(p => {
+                if (p.idItem === itemId && p.statusHistorico !== "Resolvido") {
+                    if (p.setores && p.setores.length > 0) {
+                        return p.setores.some(s => setoresAtuais.includes(s));
+                    }
+                    return true; // Legado: se não tem setor salvo, alerta por precaução
+                }
+                return false;
+            });
+
+            if (pendenciasEncontradas.length > 0) {
+                const codigos = pendenciasEncontradas.map(p => p.ticket || 'Sem ID').join(', ');
+                avisoDiv.innerHTML = `<div class="mt-2 text-[10px] font-bold text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-2 rounded border border-red-200 dark:border-red-800 flex items-start gap-1 shadow-sm fade-enter"><i class="fa-solid fa-triangle-exclamation mt-0.5"></i> <span>Atenção: Há ${pendenciasEncontradas.length} pendência(s) antiga(s) nas áreas marcadas. Códigos: ${codigos}</span></div>`;
+            } else {
+                avisoDiv.innerHTML = '';
+            }
+        }
+
+        // ==========================================
+        // TAREFA 80.1.2: SUPER COMPRESSOR WEBP E TRAVA DE SUPORTE
         // ==========================================
         function comprimirImagemBase99(file, callback) {
             const reader = new FileReader();
@@ -2549,8 +2939,10 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
+                    // O que faz: Reduz resolução para 600px e converte para formato WebP, checando compatibilidade.
+                    // Por que fiz: O WebP com 600px gera um Base64 até 50% mais leve que o JPEG, e a checagem evita que navegadores antigos estoirem a memória com PNGs gigantes.
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // Resolução otimizada para o chão de fábrica
+                    const MAX_WIDTH = 600; 
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
@@ -2558,77 +2950,79 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                     
-                    // Compressão agressiva (Fica leve em torno de 100kb a 200kb)
-                    const base64Comprimida = canvas.toDataURL('image/jpeg', 0.7);
+                    let base64Comprimida = canvas.toDataURL('image/webp', 0.8);
+                    
+                    if (!base64Comprimida.startsWith('data:image/webp')) {
+                       console.warn("Navegador não suporta WebP. Usando JPEG como segurança.");
+                       base64Comprimida = canvas.toDataURL('image/jpeg', 0.6);
+                    }
+                    
                     callback(base64Comprimida);
                 }
             };
         }
 
         // ==========================================
-        // TAREFA 66.3: MOTOR MULTIMÍDIA EM LOTE (MÁX 4 FOTOS)
+        // TAREFA 80.2.1: MURAL DE RONDAS COM FASES VISUAIS E RETRY
         // ==========================================
         function processarImagemLote(input, itemId) {
             if (input.files && input.files.length > 0) {
                 const resposta = estadoAtualRonda.respostas[itemId];
                 if (!resposta.fotos) resposta.fotos = [];
-
-                // Retrocompatibilidade
-                if (resposta.fotoBase64) {
-                    resposta.fotos.push(resposta.fotoBase64);
-                    resposta.fotoBase64 = null;
-                }
+                if (resposta.fotoBase64) { resposta.fotos.push(resposta.fotoBase64); resposta.fotoBase64 = null; }
 
                 const arquivosPendentes = Array.from(input.files);
                 const espacoLivre = 4 - resposta.fotos.length;
                 const arquivosPermitidos = arquivosPendentes.slice(0, espacoLivre);
 
-                if (arquivosPendentes.length > espacoLivre) {
-                    mostrarToast(`Atenção: Apenas ${espacoLivre} foto(s) pôde(ram) ser adicionada(s) pelo limite de 4.`);
-                }
+                if (arquivosPendentes.length > espacoLivre) mostrarToast(`Atenção: Limite de 4 fotos.`);
                 if (arquivosPermitidos.length === 0) return;
 
                 const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
-                if (lblBotao) {
-                    lblBotao.innerText = "Comprimindo...";
-                    lblBotao.parentElement.classList.add('animate-pulse');
-                }
-
                 let arquivosProcessados = 0;
+
                 arquivosPermitidos.forEach((file) => {
-                    comprimirImagemBase99(file, (base64) => {
+                    // O que faz: Aciona o Freio de Mão e avisa o usuário do início da compressão.
+                    // Por que fiz: Garante que o relatório não seja enviado incompleto e dá feedback real da lentidão do celular vs internet.
+                    window.uploadsAtivos++; 
+                    if (lblBotao) { lblBotao.innerText = "Fase 1: Comprimindo..."; lblBotao.parentElement.classList.add('animate-pulse', 'bg-yellow-500'); }
+
+                    comprimirImagemBase99(file, async (base64) => {
                         resposta.fotos.push(base64);
                         const indexDestaFoto = resposta.fotos.length - 1;
-
                         salvarProgresso();
-                        atualizarMuralDOM(itemId); // Atualiza sem fechar a sanfona!
-                        mostrarToast("Processando evidência na tela...");
-
-                        arquivosProcessados++;
-                        if (arquivosProcessados === arquivosPermitidos.length && lblBotao) {
-                            lblBotao.parentElement.classList.remove('animate-pulse');
-                        }
-
-                        // Upload Dinâmico
+                        atualizarMuralDOM(itemId); 
+                        
                         if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                            if (lblBotao) lblBotao.innerText = "Fase 2: Enviando (0/5)...";
                             const hoje = new Date();
                             const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
-                            const emailDono = auth.currentUser.email.split('@')[0];
+                            const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
                             const nomeArquivo = `${emailDono}_${itemId}_LOTE_${Date.now()}_${indexDestaFoto}.jpg`;
-                            const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
-                            storageRef.putString(base64, 'data_url').then(() => {
-                                storageRef.getDownloadURL().then((url) => {
-                                    estadoAtualRonda.respostas[itemId].fotos[indexDestaFoto] = url;
-                                    salvarProgresso();
-                                    if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
-                                });
-                            }).catch(error => console.error(error));
-                        } else {
-                            if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
+                            
+                            try {
+                                const urlLimpa = await uploadParaStorageComRetry(base64, `vistorias_fotos/${pasta}/${nomeArquivo}`);
+                                
+                                // O que faz: Troca o textão Base64 pela URL na memória assim que a Fase 3 é concluída.
+                                // Por que fiz: O Firebase Firestore tem limite de 1MB por documento. Substituir a foto pelo Link elimina esse risco totalmente.
+                                estadoAtualRonda.respostas[itemId].fotos[indexDestaFoto] = urlLimpa;
+                                salvarProgresso();
+                                atualizarMuralDOM(itemId); 
+                                mostrarToast("Fase 3: Foto convertida em Link com Sucesso!");
+                            } catch (error) {
+                                mostrarToast("Erro de Rede após 5 tentativas. Foto salva apenas no celular.");
+                            }
+                        }
+
+                        arquivosProcessados++;
+                        window.uploadsAtivos--; // Solta o freio
+                        
+                        if (arquivosProcessados === arquivosPermitidos.length && lblBotao) {
+                            lblBotao.innerText = resposta.fotos.length + ' Foto(s)';
+                            lblBotao.parentElement.classList.remove('animate-pulse', 'bg-yellow-500');
                         }
                     });
                 });
-
                 input.value = "";
             }
         }
@@ -2644,9 +3038,16 @@
                 if (containerMural) containerMural.classList.remove('hidden');
                 let html = '<div class="grid grid-cols-2 gap-2 mt-2">';
                 arrayFotos.forEach((img, idx) => {
+                    // O que faz: Verifica se a imagem é link ou texto (Base64) e atribui o Hover de segurança e um Link Clicável.
+                    // Por que fiz: Garante a prova real visual para o inspetor de que a foto chegou no banco, além de permitir ampliação da imagem.
+                    const isLinkSeguro = img.startsWith('http');
+                    const tituloHover = isLinkSeguro ? `✅ Link Seguro (Nuvem):\n${img}` : `⏳ Fase 1 OK (Base64).\nAguardando Nuvem...`;
+                    
                     html += `
                     <div class="relative inline-block w-full text-center">
-                        <img src="${img}" class="h-24 w-full object-cover rounded border border-slate-300 dark:border-slate-600 shadow-sm">
+                        <a href="${img}" target="_blank" class="block w-full cursor-pointer" title="${tituloHover}">
+                            <img src="${img}" class="h-24 w-full object-cover rounded border ${isLinkSeguro ? 'border-green-500 border-2' : 'border-slate-300'} shadow-sm">
+                        </a>
                         <button onclick="if(typeof removerFotoLote === 'function') removerFotoLote('${itemId}', ${idx})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border border-white dark:border-slate-800" title="Excluir">
                             <i class="fa-solid fa-times text-[10px]"></i>
                         </button>
@@ -2682,6 +3083,60 @@
                     mostrarToast("Evidência removida com sucesso!");
                 }
             }
+        }
+
+        // ==========================================
+        // TAREFA 85.3.4: A MÁQUINA DO TEMPO FOTOGRÁFICA
+        // ==========================================
+        // O que faz: Tira uma foto hoje e envia a URL via Freio de Mão direto para o Prontuário do Histórico.
+        // Por que fiz: Garante a prova visual de que o problema reincidente continua na fábrica.
+        function processarFotoPassado(input, itemId) {
+            if (!input.files || input.files.length === 0) return;
+            const file = input.files[0];
+
+            const resp = estadoAtualRonda.respostas[itemId];
+            if (!resp || !resp.ticketAntigo) {
+                alert("Nenhum problema vinculado! Selecione um ID do passado primeiro.");
+                input.value = "";
+                return;
+            }
+
+            const pendenciaIndex = historicoPendencias.findIndex(p => p.ticket === resp.ticketAntigo);
+            if (pendenciaIndex === -1) {
+                alert("Falha: Este ID não foi encontrado no Banco Global.");
+                input.value = "";
+                return;
+            }
+
+            window.uploadsAtivos++;
+            mostrarToast("Fase 1: Preparando a Máquina do Tempo...");
+
+            comprimirImagemBase99(file, async (base64) => {
+                // Salva IMEDIATAMENTE offline para garantir
+                historicoPendencias[pendenciaIndex].fotoHistorico = base64;
+                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+
+                if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                    mostrarToast("Fase 2: Enviando Evidência para a Nuvem...");
+                    const hoje = new Date();
+                    const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
+                    const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
+                    const nomeArquivo = `viagem_tempo_${emailDono}_${resp.ticketAntigo}_${Date.now()}.jpg`;
+
+                    try {
+                        const urlLimpa = await uploadParaStorageComRetry(base64, `historico_fotos/${pasta}/${nomeArquivo}`);
+                        historicoPendencias[pendenciaIndex].fotoHistorico = urlLimpa;
+                        localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                        mostrarToast("Fase 3: Viagem no Tempo Concluída (Link Seguro)!");
+                    } catch (error) {
+                        mostrarToast("Falha de rede (5 Tentativas). Foto do passado salva Offline.");
+                    }
+                } else {
+                    mostrarToast("Prova salva no Histórico (Modo Offline).");
+                }
+                window.uploadsAtivos--;
+            });
+            input.value = "";
         }
 
         // =====================================================
@@ -2728,102 +3183,67 @@
             });
         }
 
-        // ATUALIZADO (Etapa 9.2): Salva múltiplas páginas se for PDF, ou item único se for Foto
+        // ==========================================
+        // TAREFA 80.4.1: ANEXOS BLINDADOS (PDFs)
+        // ==========================================
         async function adicionarAnexo() {
             const selectCategoria = document.getElementById('categoria-anexo');
             const inputArquivo = document.getElementById('arquivo-anexo');
-            
             const categoria = selectCategoria.value;
-            const file = inputArquivo.files[0]; // Arquivo selecionado
+            const file = inputArquivo.files[0];
             
-            if (!categoria) {
-                alert("Por favor, selecione uma Categoria para o anexo.");
-                return;
-            }
-            if (!file) {
-                alert("Por favor, selecione um arquivo (PDF ou Imagem) para anexar.");
-                return;
-            }
+            if (!categoria || !file) { alert("Categoria ou arquivo faltantes."); return; }
             
-            mostrarToast("A processar anexo... Isto pode levar alguns segundos.");
+            // O que faz: Adiciona trava de Sincronização. Impede envios de Relatório enquanto o PDF estiver sendo processado.
+            // Por que fiz: Páginas de PDF são pesadas. Enviá-las no formato Base64 seria a receita certa para explodir o limite do Firestore.
+            window.uploadsAtivos++;
+            mostrarToast("Fase 1: Preparando documento...");
             
             try {
-                let dadosConvertidos;
-                
-                // Inteligência de Roteamento: PDF vs Imagem Comum
-                if (file.type === "application/pdf" || file.type.includes("pdf")) {
-                    // O nosso motor agora retorna um ARRAY de imagens (uma para cada página)
-                    dadosConvertidos = await converterPDFParaImagemBase64(file);
-                } else {
-                    dadosConvertidos = await new Promise((resolve, reject) => {
-                        const reader = new FileReader();
-                        reader.onload = e => resolve(e.target.result);
-                        reader.onerror = e => reject(e);
-                        reader.readAsDataURL(file);
-                    });
-                }
+                let dadosConvertidos = (file.type.includes("pdf")) ? await converterPDFParaImagemBase64(file) : await new Promise((res, rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(file); });
+                let arrayBase64 = Array.isArray(dadosConvertidos) ? dadosConvertidos : [dadosConvertidos];
+                let indicesAdicionados = [];
 
-                // O SEGREDO: Salvar corretamente na memória do App
-                if (Array.isArray(dadosConvertidos)) {
-                    // Se for PDF (Array), cria um anexo independente para cada página
-                    const totalPaginas = dadosConvertidos.length;
-                    dadosConvertidos.forEach((paginaBase64, index) => {
-                        estadoAtualRonda.anexos.push({
-                            categoria: categoria,
-                            nomeArquivo: file.name, // Mantemos o nome original para referência
-                            paginaAtual: index + 1,
-                            totalPaginas: totalPaginas,
-                            tipo: "image/jpeg", // As páginas do PDF agora são imagens JPEG renderizadas
-                            dadosBase64: paginaBase64
-                        });
-                    });
-                } else {
-                    // Se for Imagem Comum (Item único)
-                    estadoAtualRonda.anexos.push({
-                        categoria: categoria,
-                        nomeArquivo: file.name,
-                        paginaAtual: 1,
-                        totalPaginas: 1,
-                        tipo: file.type,
-                        dadosBase64: dadosConvertidos
-                    });
-                }
-                
+                arrayBase64.forEach((paginaBase64, index) => {
+                    estadoAtualRonda.anexos.push({ categoria, nomeArquivo: file.name, paginaAtual: index + 1, totalPaginas: arrayBase64.length, tipo: "image/jpeg", dadosBase64: paginaBase64 });
+                    indicesAdicionados.push(estadoAtualRonda.anexos.length - 1);
+                });
+
                 salvarProgresso();
-
-                // TAREFA 46.3: Gatilho de Mídia (Sincroniza ao anexar arquivos e PDFs externos)
-                if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
-
                 renderizarListaAnexos();
-                
-                // Limpa os campos para o próximo upload
-                selectCategoria.value = "";
-                inputArquivo.value = "";
+                mostrarToast(`Fase 2: Enviando ${arrayBase64.length} folha(s) para nuvem...`);
 
-                // TAREFA 62.1: Reseta a área customizada visual
+                if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
+                    const pasta = `${new Date().getFullYear()}/${("0"+(new Date().getMonth()+1)).slice(-2)}/${("0"+new Date().getDate()).slice(-2)}`;
+                    const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
+
+                    for (let i = 0; i < arrayBase64.length; i++) {
+                        const idxReal = indicesAdicionados[i];
+                        const nomeArquivoStorage = `sync_anexo_${emailDono}_${Date.now()}_${i}.jpg`;
+                        try {
+                            const urlLimpa = await uploadParaStorageComRetry(arrayBase64[i], `vistorias_anexos/${pasta}/${nomeArquivoStorage}`);
+                            estadoAtualRonda.anexos[idxReal].dadosBase64 = urlLimpa;
+                        } catch(err) { console.error("Falha Anexo:", err); }
+                    }
+                    salvarProgresso();
+                    renderizarListaAnexos();
+                    mostrarToast("Fase 3: Documento linkado com sucesso!");
+                }
+
+                selectCategoria.value = ""; inputArquivo.value = "";
                 const nomeEl = document.getElementById('nome-arquivo-selecionado');
                 const iconeEl = document.getElementById('icone-arquivo-anexo');
                 if(nomeEl) nomeEl.innerText = 'Toque para escolher arquivo...';
-                if(iconeEl) iconeEl.className = 'fa-solid fa-folder-open text-xl text-slate-400 dark:text-slate-500 group-hover:text-alblue dark:group-hover:text-blue-400 transition-colors';
-
-                mostrarToast("Anexo salvo com sucesso!");
+                if(iconeEl) iconeEl.className = 'fa-solid fa-folder-open text-xl text-slate-400 dark:text-slate-500 transition-colors';
                 
             } catch (error) {
-                console.error(error);
-                alert("Ocorreu um erro ao tentar processar o arquivo. Tente novamente.");
+                alert("Erro ao processar o arquivo.");
+            } finally {
+                window.uploadsAtivos--; // Solta a trava independentemente de sucesso ou falha
             }
         }
 
-        function removerAnexo(index) {
-            if (confirm("Tem certeza que deseja excluir este anexo do relatório?")) {
-                estadoAtualRonda.anexos.splice(index, 1);
-                salvarProgresso();
-                renderizarListaAnexos();
-                mostrarToast("Anexo removido.");
-            }
-        }
-
-        // ATUALIZADO: Agora exibe a miniatura visual gerada (thumbnail)
+        // ATUALIZADO: Agora exibe a miniatura visual gerada (thumbnail) e o link seguro
         function renderizarListaAnexos() {
             const container = document.getElementById('lista-anexos-adicionados');
             if (!container) return;
@@ -2838,16 +3258,25 @@
                 const isPdf = anexo.tipo.includes('pdf');
                 const icone = isPdf ? 'fa-file-pdf text-red-500' : 'fa-file-image text-blue-500';
                 
+                // O que faz: Adiciona a tag de link <a> e a checagem visual para os Anexos.
+                // Por que fiz: Garante que os inspetores possam ler páginas de PDF em tela cheia e conferir rapidamente quais documentos já subiram com segurança (Link) e quais ainda estão pendentes.
+                const hoverTexto = (anexo.dadosBase64 && anexo.dadosBase64.startsWith('http')) ? `✅ Link Seguro da Nuvem:\n${anexo.dadosBase64}` : `⏳ Aguardando Nuvem...`;
+
                 html += `
                     <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-3 rounded-lg shadow-sm transition-colors gap-3">
                         <div class="flex items-start gap-3 overflow-hidden w-full">
                             <div class="shrink-0 text-center">
                                 <i class="fa-solid ${icone} text-2xl mb-1 block"></i>
-                                <img src="${anexo.dadosBase64}" class="thumb-anexo" alt="Miniatura do documento">
+                                <a href="${anexo.dadosBase64}" target="_blank" class="block cursor-pointer" title="${hoverTexto}">
+                                    <img src="${anexo.dadosBase64}" class="thumb-anexo border ${anexo.dadosBase64 && anexo.dadosBase64.startsWith('http') ? 'border-green-500 border-2' : 'border-slate-300'}" alt="Miniatura">
+                                </a>
                             </div>
                             <div class="truncate mt-1 w-full">
                                 <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${anexo.categoria}</p>
                                 <p class="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate" title="${anexo.nomeArquivo}">${anexo.nomeArquivo}</p>
+                                <p class="text-[9px] mt-1 font-bold ${anexo.dadosBase64 && anexo.dadosBase64.startsWith('http') ? 'text-green-500' : 'text-amber-500'}">
+                                    <i class="fa-solid ${anexo.dadosBase64 && anexo.dadosBase64.startsWith('http') ? 'fa-cloud-check' : 'fa-spinner fa-spin'}"></i> ${anexo.dadosBase64 && anexo.dadosBase64.startsWith('http') ? 'Documento Linkado' : 'Processando Arquivo...'}
+                                </p>
                             </div>
                         </div>
                         <button onclick="removerAnexo(${index})" class="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/30 p-2 rounded transition-colors shrink-0 border border-transparent hover:border-red-200 dark:hover:border-red-800 w-full sm:w-auto mt-2 sm:mt-0 flex justify-center items-center gap-2">
@@ -2863,69 +3292,75 @@
         // =====================================================
         // NOVO MÓDULO: RENDERIZAÇÃO DO HISTÓRICO CONTÍNUO
         // =====================================================
+        // =====================================================
+        // TAREFA 84.5: RENDERIZAÇÃO DO HISTÓRICO DIVIDIDO (AÇÃO VS ARQUIVO)
+        // =====================================================
         function renderizarHistoricoPendencias() {
-            const container = document.getElementById('lista-historico-pendencias');
-            if (!container) return;
-            
+            const containerPendencias = document.getElementById('lista-pendencias-ativas');
+            const containerMemorial = document.getElementById('lista-memorial-resolucoes');
+
+            // Fallback de segurança caso os contêineres não existam na tela
+            if (!containerPendencias && !containerMemorial) return;
+
             if (!historicoPendencias || historicoPendencias.length === 0) {
-                container.innerHTML = '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded">Nenhum histórico pendente acumulado.</p>';
+                if(containerPendencias) containerPendencias.innerHTML = '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded bg-slate-50 dark:bg-slate-800">Nenhuma pendência na fila de ação.</p>';
+                if(containerMemorial) containerMemorial.innerHTML = '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded bg-slate-50 dark:bg-slate-800">Nenhum registro arquivado.</p>';
                 return;
             }
 
-            // ORDENAÇÃO INTELIGENTE DA TELA (Pendente -> Em Andamento -> Resolvido no fundo)
+            // ORDENAÇÃO INTELIGENTE DA TELA (Pendente -> Em Andamento -> Resolvido)
             historicoPendencias.sort((a, b) => {
                 const getPeso = (status) => {
                     if (status === "Em Andamento") return 2; // Meio
                     if (status === "Resolvido") return 3;    // Fundo
                     return 1;                                // Pendente/Risco Assumido (Topo)
                 };
-                
                 const pesoA = getPeso(a.statusHistorico);
                 const pesoB = getPeso(b.statusHistorico);
-                
                 if (pesoA !== pesoB) return pesoA - pesoB;
-                
                 // Se for o mesmo status, ordena pela data (mais recente no topo)
                 const dataA = a.dataPrimeiroApontamento ? new Date(a.dataPrimeiroApontamento).getTime() : 0;
                 const dataB = b.dataPrimeiroApontamento ? new Date(b.dataPrimeiroApontamento).getTime() : 0;
                 return dataB - dataA;
             });
 
-            let html = '';
+            let htmlPendencias = '';
+            let htmlMemorial = '';
             let grupoAtual = 0; // Rastreador de Setor Visual
-            
+
             historicoPendencias.forEach((pend, index) => {
                 const isAssumido = pend.statusHistorico === "Risco Assumido";
                 const isResolvido = pend.statusHistorico === "Resolvido";
                 const isAndamento = pend.statusHistorico === "Em Andamento";
-                
+
                 // Define o peso deste item para o agrupamento
                 let pesoDesteItem = 1;
                 if (isAndamento) pesoDesteItem = 2;
                 if (isResolvido) pesoDesteItem = 3;
 
                 // INJEÇÃO DOS TÍTULOS DIVISORES VISUAIS
+                let headerHtml = '';
                 if (pesoDesteItem !== grupoAtual) {
                     if (pesoDesteItem === 1) {
-                        html += `
+                        headerHtml = `
                         <div class="mt-2 mb-3 border-b-2 border-red-200 dark:border-red-800 pb-2">
-                            <h3 class="text-md font-bold text-red-600 dark:text-red-400 flex items-center gap-2 uppercase tracking-wide">
-                                <i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)
-                            </h3>
+                        <h3 class="text-md font-bold text-red-600 dark:text-red-400 flex items-center gap-2 uppercase tracking-wide">
+                        <i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)
+                        </h3>
                         </div>`;
                     } else if (pesoDesteItem === 2) {
-                        html += `
+                        headerHtml = `
                         <div class="mt-8 mb-3 border-b-2 border-amber-200 dark:border-amber-800 pb-2">
-                            <h3 class="text-md font-bold text-amber-600 dark:text-amber-500 flex items-center gap-2 uppercase tracking-wide">
-                                <i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO (Tratativas Iniciadas)
-                            </h3>
+                        <h3 class="text-md font-bold text-amber-600 dark:text-amber-500 flex items-center gap-2 uppercase tracking-wide">
+                        <i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO (Tratativas Iniciadas)
+                        </h3>
                         </div>`;
                     } else if (pesoDesteItem === 3) {
-                        html += `
-                        <div class="mt-8 mb-3 border-b-2 border-blue-200 dark:border-blue-800 pb-2">
-                            <h3 class="text-md font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2 uppercase tracking-wide">
-                                <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Contínuo)
-                            </h3>
+                        headerHtml = `
+                        <div class="mt-2 mb-3 border-b-2 border-blue-200 dark:border-blue-800 pb-2">
+                        <h3 class="text-md font-bold text-blue-700 dark:text-blue-400 flex items-center gap-2 uppercase tracking-wide">
+                        <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Arquivo)
+                        </h3>
                         </div>`;
                     }
                     grupoAtual = pesoDesteItem;
@@ -2934,7 +3369,7 @@
                 let borderCor = "border-red-500";
                 let bgCor = "bg-slate-50 dark:bg-slate-800";
                 let iconStatus = '<i class="fa-solid fa-triangle-exclamation text-red-500"></i>';
-                
+
                 if (isAssumido) {
                     borderCor = "border-purple-500";
                     bgCor = "bg-purple-50 dark:bg-purple-900/20";
@@ -2949,10 +3384,6 @@
                     iconStatus = '<i class="fa-solid fa-bars-progress text-amber-500"></i>';
                 }
 
-                // ==========================================
-                // TAREFA 75.2a: O ENVELOPE INVISÍVEL NO HISTÓRICO
-                // ==========================================
-                // Aqui eu repito a mágica do checklist, mas agora para a gaveta do Histórico Contínuo, criando o ID único para cada item antigo.
                 const acoes = pend.acoes || [];
                 const temAcoes = acoes.length > 0;
                 let htmlAcoes = `<div id="lista-acoes-hist-${index}" class="space-y-2 mt-2 mb-2">`;
@@ -2973,122 +3404,132 @@
                 }
                 htmlAcoes += `</div>`;
 
-                html += `
-                <div class="relative ${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700">
-                    <!-- NOVO: Botões Mágicos do Modo OP -->
-                    ${isModoOp ? `
-                    <div class="no-print absolute top-2 right-2 flex gap-1 z-10">
-                        <button title="Editar Descrição do Histórico" onclick="editarItemHistorico(${index})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 bg-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
-                            <i class="fa-solid fa-pen text-[10px]"></i>
-                        </button>
-                        <button title="Excluir Definitivamente do Banco" onclick="excluirItemHistorico(${index})" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 bg-white hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
-                            <i class="fa-solid fa-trash text-[10px]"></i>
-                        </button>
-                    </div>
-                    ` : ''}
-                    
-                    <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
-                        <div class="flex-1 ${isModoOp ? 'pr-16' : ''}"> <!-- Espaço para não encavalar nos botões OP -->
-                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                                ${pend.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-black mr-1 border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${pend.ticket}</span>` : ''}
-                                ${iconStatus} ${pend.categoria}
-                            </span>
-                            <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
-                        </div>
-                        
-                        <div class="flex flex-wrap gap-2 shrink-0">
-                            <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
-                                ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : 'Risco Assumido'}
-                            </button>
-                            <!-- NOVO TAREFA 40: Botão Em Andamento -->
-                            <button onclick="marcarHistoricoAndamento(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAndamento ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800'}">
-                                ${isAndamento ? '<i class="fa-solid fa-bars-progress mr-1"></i> Em Andamento' : 'Andamento'}
-                            </button>
-                            <button onclick="marcarHistoricoResolvido(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isResolvido ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 border border-blue-300 dark:border-blue-800'}">
-                                ${isResolvido ? '<i class="fa-solid fa-check-double mr-1"></i> Resolvido' : 'Marcar Resolvido'}
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mb-3 bg-white dark:bg-slate-900 p-2.5 rounded shadow-inner border border-slate-200 dark:border-slate-700 transition-colors">
-                        <!-- NOVO: Data de Criação Visível -->
-                        <span>
-                            <i class="fa-solid fa-calendar-plus text-blue-500 mr-1"></i> Criado em: <b class="text-slate-800 dark:text-white text-sm">${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</b>
-                        </span>
-                        <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-calendar-days text-alyellow mr-1"></i> Dias em aberto: <b class="text-slate-800 dark:text-white text-sm">${pend.diasAberto}</b>
-                        </span>
-                        <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-bullseye text-red-500 dark:text-red-400 mr-1"></i> Reincidência: <b class="text-slate-800 dark:text-white text-sm">${pend.contagemVezes}x</b>
-                        </span>
-                        ${isResolvido && pend.diasParaResolver !== null ? `
-                        <span title="Resolvido em: ${new Date(pend.dataResolucao).toLocaleDateString('pt-BR')}">
-                            <i class="fa-solid fa-stopwatch text-green-500 mr-1"></i> SLA: <b class="text-green-600 dark:text-green-400 text-sm">${pend.diasParaResolver} dia(s)</b>
-                        </span>
-                        ` : ''}
-                    </div>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Responsáveis / OS (separe com ;)</label>
-                            <input type="text" onchange="atualizarResponsaveisHistorico(${index}, this.value)" value="${pend.responsavelTratativa || ''}" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue shadow-sm transition-colors" placeholder="Ex: Manutenção; OS-1234; Compras">
-                        </div>
-                        <div>
-                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
-                            <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Status da cobrança...">${pend.ultimaAnotacao || ""}</textarea>
-                        </div>
-                    </div>
-
-                    <!-- TAREFA 64: CAIXA EDITÁVEL DE SOLUÇÃO (Aparece ao marcar resolvido) -->
-                    ${isResolvido ? `
-                    <div class="mt-2 bg-blue-50 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800/50 rounded-lg p-3 shadow-inner transition-colors">
-                        <label class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 mb-1 block flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Solução Adotada (Exibida no Relatório de Hoje)</label>
-                        <textarea onchange="if(typeof atualizarSolucaoHistorico === 'function') atualizarSolucaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-blue-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none shadow-sm transition-colors" placeholder="Descreva de forma concisa como este problema foi resolvido...">${pend.solucao || ""}</textarea>
-                    </div>
-                    ` : ''}
-
-                    <!-- TAREFA 65.5: CAIXA DE AÇÕES (TIMELINE) NO HISTÓRICO -->
-                    ${isAndamento || isResolvido || temAcoes ? `
-                    <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors">
-                        <label class="text-xs font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Linha do Tempo / Ações Realizadas</label>
-                        ${htmlAcoes}
-                        ${isAndamento || isResolvido ? `
-                        <div class="flex flex-col sm:flex-row gap-2 mt-2">
-                            <input type="text" id="input-acao-hist-${index}" placeholder="Descreva o que foi feito..." class="flex-1 bg-white dark:bg-slate-900 border border-amber-300 dark:border-amber-700 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-700 dark:text-slate-200 transition-all shadow-sm">
-                            <button onclick="if(typeof adicionarAcaoHistorico === 'function') adicionarAcaoHistorico(${index})" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
-                                <i class="fa-solid fa-plus"></i> Adicionar Ação
-                            </button>
-                        </div>
-                        ` : ''}
-                    </div>
-                    ` : ''}
-
-                    <!-- TAREFA 63.1: ÁREA DE EVIDÊNCIA FOTOGRÁFICA DO HISTÓRICO -->
-                    <div class="mt-3 p-3 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg flex flex-col sm:flex-row items-center gap-4 transition-colors">
-                        <div class="flex-1 w-full">
-                            <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block flex items-center gap-1"><i class="fa-solid fa-camera text-alblue dark:text-blue-400"></i> Evidência Visual da Tratativa</label>
-                            ${pend.fotoHistorico ? `
-                            <div class="relative inline-block mt-1">
-                                <img src="${pend.fotoHistorico}" class="h-20 w-auto max-w-full rounded border border-slate-300 dark:border-slate-600 shadow-sm object-cover">
-                                <button onclick="if(typeof removerFotoHistorico === 'function') removerFotoHistorico(${index})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border-2 border-white dark:border-slate-800" title="Excluir Foto">
-                                    <i class="fa-solid fa-times text-[10px]"></i>
-                                </button>
-                            </div>
-                            ` : `
-                            <label class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-alblue dark:hover:border-blue-500 text-slate-500 dark:text-slate-400 hover:text-alblue dark:hover:text-blue-400 px-4 py-2.5 rounded-lg cursor-pointer transition-colors shadow-sm active:scale-95">
-                                <i class="fa-solid fa-image"></i>
-                                <span class="text-xs font-bold" id="lbl-foto-hist-${index}">Anexar Foto (Opcional)</span>
-                                <input type="file" accept="image/*" class="hidden" onchange="if(typeof processarFotoHistorico === 'function') processarFotoHistorico(this, ${index})">
-                            </label>
-                            `}
-                        </div>
-                    </div>
-
+                let itemCardHtml = `
+                <div class="relative ${bgCor} border-l-4 ${borderCor} p-4 rounded-r-lg shadow-sm transition-colors border-y border-r border-slate-200 dark:border-slate-700 mb-4">
+                ${isModoOp ? `
+                <div class="no-print absolute top-2 right-2 flex gap-1 z-10">
+                <button title="Editar Descrição do Histórico" onclick="editarItemHistorico(${index})" class="text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 bg-white hover:bg-blue-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
+                <i class="fa-solid fa-pen text-[10px]"></i>
+                </button>
+                <button title="Excluir Definitivamente do Banco" onclick="excluirItemHistorico(${index})" class="text-slate-400 hover:text-red-600 dark:hover:text-red-400 bg-white hover:bg-red-50 dark:bg-slate-800 dark:hover:bg-slate-700 w-7 h-7 rounded flex items-center justify-center transition border border-slate-200 dark:border-slate-600 shadow-sm">
+                <i class="fa-solid fa-trash text-[10px]"></i>
+                </button>
+                </div>
+                ` : ''}
+                <div class="flex flex-col sm:flex-row justify-between items-start gap-3 mb-3">
+                <div class="flex-1 ${isModoOp ? 'pr-16' : ''}"> 
+                <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest flex items-center gap-1">
+                ${pend.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded text-[9px] font-black mr-1 border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${pend.ticket}</span>` : ''}
+                ${iconStatus} ${pend.categoria}
+                </span>
+                <h4 class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 pr-2">${pend.descricao}</h4>
+                <!-- ========================================== -->
+                <!-- TAREFA 85.8.1: EDIÇÃO DE MULTI-TAGS NO HISTÓRICO -->
+                <!-- ========================================== -->
+                ${pend.setores && pend.setores.length > 0 ? `<div class="flex flex-wrap gap-1 mt-1.5">${pend.setores.map(st => `<span class="bg-blue-50 dark:bg-blue-900/20 text-alblue dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 px-1.5 py-0.5 rounded text-[9px] font-bold shadow-sm flex items-center gap-1"><i class="fa-solid fa-location-dot"></i> ${st} <button type="button" onclick="if(typeof removerSetorHistorico === 'function') removerSetorHistorico(${index}, '${st}')" class="hover:text-red-500 transition-colors bg-transparent"><i class="fa-solid fa-times"></i></button></span>`).join('')}</div>` : ''}
+                
+                <div class="mt-2 flex gap-2 w-full max-w-sm">
+                <datalist id="list-hist-setores-${index}">
+                ${(estadoAtualRonda.areasSelecionadas || []).map(area => `<option value="${area}">`).join('')}
+                </datalist>
+                <input list="list-hist-setores-${index}" id="input-hist-setor-${index}" placeholder="Adicionar setor..." class="flex-1 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 p-1.5 text-[10px] rounded focus:outline-none focus:border-alblue shadow-sm text-slate-700 dark:text-slate-200 transition-colors" onkeypress="if(event.key === 'Enter') { if(typeof adicionarSetorHistorico === 'function') adicionarSetorHistorico(${index}); event.preventDefault(); }">
+                <button type="button" onclick="if(typeof adicionarSetorHistorico === 'function') adicionarSetorHistorico(${index})" class="bg-alblue hover:bg-blue-600 text-white px-3 py-1 rounded shadow transition-colors font-bold flex items-center justify-center active:scale-95"><i class="fa-solid fa-plus text-[10px]"></i></button>
+                </div>
+                
+                </div>
+                <div class="flex flex-wrap gap-2 shrink-0">
+                <button onclick="alternarStatusHistorico(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAssumido ? 'bg-purple-600 hover:bg-purple-700 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300 hover:bg-slate-300 dark:hover:bg-slate-600 border border-slate-300 dark:border-slate-600'}">
+                ${isAssumido ? '<i class="fa-solid fa-shield-halved mr-1"></i> Risco Assumido' : 'Risco Assumido'}
+                </button>
+                <button onclick="marcarHistoricoAndamento(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isAndamento ? 'bg-amber-500 hover:bg-amber-600 text-white' : 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900/50 border border-amber-300 dark:border-amber-800'}">
+                ${isAndamento ? '<i class="fa-solid fa-bars-progress mr-1"></i> Em Andamento' : 'Andamento'}
+                </button>
+                <button onclick="marcarHistoricoResolvido(${index})" class="text-[10px] px-3 py-1.5 rounded font-bold uppercase tracking-wider transition-colors shadow-sm ${isResolvido ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 hover:bg-blue-200 dark:hover:bg-blue-900/50 border border-blue-300 dark:border-blue-800'}">
+                ${isResolvido ? '<i class="fa-solid fa-check-double mr-1"></i> Resolvido' : 'Marcar Resolvido'}
+                </button>
+                </div>
+                </div>
+                <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-300 mb-3 bg-white dark:bg-slate-900 p-2.5 rounded shadow-inner border border-slate-200 dark:border-slate-700 transition-colors">
+                <span>
+                <i class="fa-solid fa-calendar-plus text-blue-500 mr-1"></i> Criado em: <b class="text-slate-800 dark:text-white text-sm">${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</b>
+                </span>
+                <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
+                <i class="fa-solid fa-calendar-days text-alyellow mr-1"></i> Dias em aberto: <b class="text-slate-800 dark:text-white text-sm">${pend.diasAberto}</b>
+                </span>
+                <span title="Última vez visto: ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}">
+                <i class="fa-solid fa-bullseye text-red-500 dark:text-red-400 mr-1"></i> Reincidência: <b class="text-slate-800 dark:text-white text-sm">${pend.contagemVezes}x</b>
+                </span>
+                ${isResolvido && pend.diasParaResolver !== null ? `
+                <span title="Resolvido em: ${new Date(pend.dataResolucao).toLocaleDateString('pt-BR')}">
+                <i class="fa-solid fa-stopwatch text-green-500 mr-1"></i> SLA: <b class="text-green-600 dark:text-green-400 text-sm">${pend.diasParaResolver} dia(s)</b>
+                </span>
+                ` : ''}
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
+                <div>
+                <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Responsáveis / OS (separe com ;)</label>
+                <input type="text" onchange="atualizarResponsaveisHistorico(${index}, this.value)" value="${pend.responsavelTratativa || ''}" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alblue shadow-sm transition-colors" placeholder="Ex: Manutenção; OS-1234; Compras">
+                </div>
+                <div>
+                <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-1 block">Anotação / Atualização do Dia</label>
+                <textarea onchange="atualizarAnotacaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-alyellow resize-none shadow-sm transition-colors" placeholder="Status da cobrança...">${pend.ultimaAnotacao || ""}</textarea>
+                </div>
+                </div>
+                ${isResolvido ? `
+                <div class="mt-2 bg-blue-50 dark:bg-slate-900/80 border border-blue-200 dark:border-blue-800/50 rounded-lg p-3 shadow-inner transition-colors">
+                <label class="text-[10px] uppercase font-bold text-blue-600 dark:text-blue-400 mb-1 block flex items-center gap-1"><i class="fa-solid fa-check-double"></i> Solução Adotada (Exibida no Relatório de Hoje)</label>
+                <textarea onchange="if(typeof atualizarSolucaoHistorico === 'function') atualizarSolucaoHistorico(${index}, this.value)" rows="1" class="w-full bg-white dark:bg-slate-900 border border-blue-300 dark:border-slate-600 rounded p-2 text-sm text-slate-700 dark:text-slate-200 focus:outline-none focus:border-blue-500 resize-none shadow-sm transition-colors" placeholder="Descreva de forma concisa como este problema foi resolvido...">${pend.solucao || ""}</textarea>
+                </div>
+                ` : ''}
+                ${isAndamento || isResolvido || isAssumido || temAcoes ? `
+                <div class="mt-2 p-3 bg-amber-50/50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/50 rounded-lg shadow-inner transition-colors">
+                <label class="text-xs font-bold text-amber-700 dark:text-amber-500 mb-2 flex items-center gap-1"><i class="fa-solid fa-list-check"></i> Linha do Tempo / Ações Realizadas</label>
+                ${htmlAcoes}
+                ${isAndamento || isAssumido || isResolvido ? `
+                <div class="flex flex-col sm:flex-row gap-2 mt-3">
+                <input type="text" id="input-acao-hist-${index}" placeholder="Nova ação para o histórico..." class="flex-1 bg-white dark:bg-slate-800 border border-amber-300 dark:border-amber-700/50 p-2 text-sm rounded focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-700 dark:text-slate-200 shadow-sm">
+                <button onclick="if(typeof adicionarAcaoHistorico === 'function') adicionarAcaoHistorico(${index})" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded text-xs font-bold shadow-sm transition-colors flex items-center justify-center gap-2 whitespace-nowrap active:scale-95">
+                <i class="fa-solid fa-plus"></i> Adicionar Ação
+                </button>
+                </div>
+                ` : ''}
+                </div>
+                ` : ''}
+                <div class="mt-3 p-3 bg-slate-100 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg flex flex-col sm:flex-row items-center gap-4 transition-colors">
+                <div class="flex-1 w-full">
+                <label class="text-[10px] uppercase font-bold text-slate-500 dark:text-slate-400 mb-2 block flex items-center gap-1"><i class="fa-solid fa-camera text-alblue dark:text-blue-400"></i> Evidência Visual da Tratativa</label>
+                ${pend.fotoHistorico ? `
+                <div class="relative inline-block mt-1">
+                <a href="${pend.fotoHistorico}" target="_blank" class="block cursor-pointer" title="${pend.fotoHistorico.startsWith('http') ? '✅ Link Seguro (Nuvem):\n' + pend.fotoHistorico : '⏳ Fase 1 OK (Base64).\nAguardando Link...'}">
+                <img src="${pend.fotoHistorico}" class="h-20 w-auto max-w-full rounded border ${pend.fotoHistorico.startsWith('http') ? 'border-green-500 border-2' : 'border-slate-300'} shadow-sm object-cover">
+                </a>
+                <button onclick="if(typeof removerFotoHistorico === 'function') removerFotoHistorico(${index})" class="no-print absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center shadow-md hover:bg-red-600 transition-transform active:scale-95 border-2 border-white dark:border-slate-800" title="Excluir Foto">
+                <i class="fa-solid fa-times text-[10px]"></i>
+                </button>
+                </div>
+                ` : `
+                <label class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-white dark:bg-slate-800 border-2 border-dashed border-slate-300 dark:border-slate-600 hover:border-alblue dark:hover:border-blue-500 text-slate-500 dark:text-slate-400 hover:text-alblue dark:hover:text-blue-400 px-4 py-2.5 rounded-lg cursor-pointer transition-colors shadow-sm active:scale-95">
+                <i class="fa-solid fa-image"></i>
+                <span class="text-xs font-bold" id="lbl-foto-hist-${index}">Anexar Foto (Opcional)</span>
+                <input type="file" accept="image/*" class="hidden" onchange="if(typeof processarFotoHistorico === 'function') processarFotoHistorico(this, ${index})">
+                </label>
+                `}
+                </div>
+                </div>
                 </div>
                 `;
+
+                // A grande mágica da divisão das Abas
+                if (pesoDesteItem === 3) {
+                    htmlMemorial += headerHtml + itemCardHtml;
+                } else {
+                    htmlPendencias += headerHtml + itemCardHtml;
+                }
             });
-            
-            container.innerHTML = html;
+
+            // Entrega os dados separados para cada tela
+            if (containerPendencias) containerPendencias.innerHTML = htmlPendencias || '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded bg-slate-50 dark:bg-slate-800">Nenhuma pendência na fila de ação.</p>';
+            if (containerMemorial) containerMemorial.innerHTML = htmlMemorial || '<p class="text-sm text-slate-400 italic py-4 text-center border border-dashed border-slate-600 rounded bg-slate-50 dark:bg-slate-800">Nenhum registro arquivado.</p>';
         }
 
         function alternarStatusHistorico(index) {
@@ -3111,46 +3552,98 @@
         }
 
         // ==========================================
-        // TAREFA 63.2: O MOTOR DE FOTO DO HISTÓRICO
+        // TAREFA 85.8.2: MOTOR DE INSERÇÃO DE TAGS NO HISTÓRICO
+        // ==========================================
+        // O que faz: Adiciona um novo setor na memória da pendência arquivada e recarrega a tela.
+        // Por que fiz: Permite organizar dados retrospectivamente sem precisar voltar para a vistoria.
+        function adicionarSetorHistorico(index) {
+            const input = document.getElementById(`input-hist-setor-${index}`);
+            if (!input) return;
+            const setor = input.value.trim().toUpperCase();
+            if (!setor) return;
+
+            if (!historicoPendencias[index].setores) {
+                historicoPendencias[index].setores = [];
+            }
+
+            if (historicoPendencias[index].setores.includes(setor)) {
+                mostrarToast("Este setor já foi adicionado.");
+                input.value = '';
+                return;
+            }
+
+            historicoPendencias[index].setores.push(setor);
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+
+            // Sincronização Dupla: Injeta na lousa do dia se o item estiver aberto hoje
+            const idItem = historicoPendencias[index].idItem;
+            if (estadoAtualRonda.respostas[idItem]) {
+                estadoAtualRonda.respostas[idItem].setores = historicoPendencias[index].setores;
+                salvarProgresso();
+            }
+
+            renderizarHistoricoPendencias();
+            mostrarToast("Setor adicionado ao histórico!");
+        }
+
+        // ==========================================
+        // TAREFA 85.8.3: MOTOR DE REMOÇÃO DE TAGS NO HISTÓRICO
+        // ==========================================
+        // O que faz: Remove a tag do setor da memória e recarrega o cartão.
+        // Por que fiz: Para permitir correções rápidas de erros de digitação diretamente pelo arquivo morto.
+        function removerSetorHistorico(index, setorParaRemover) {
+            if (!historicoPendencias[index].setores) return;
+
+            historicoPendencias[index].setores = historicoPendencias[index].setores.filter(s => s !== setorParaRemover);
+            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+
+            // Sincronização Dupla
+            const idItem = historicoPendencias[index].idItem;
+            if (estadoAtualRonda.respostas[idItem]) {
+                estadoAtualRonda.respostas[idItem].setores = historicoPendencias[index].setores;
+                salvarProgresso();
+            }
+
+            renderizarHistoricoPendencias();
+            mostrarToast("Setor removido do histórico!");
+        }
+
+        // ==========================================
+        // TAREFA 80.3.1: MOTOR VISUAL DO HISTÓRICO (FASES E RETRY)
         // ==========================================
         function processarFotoHistorico(input, index) {
             if (input.files && input.files[0]) {
                 const file = input.files[0];
                 const lblBotao = document.getElementById(`lbl-foto-hist-${index}`);
                 
-                if (lblBotao) {
-                    lblBotao.innerText = "Comprimindo...";
-                    lblBotao.parentElement.classList.add('animate-pulse');
-                }
+                window.uploadsAtivos++; 
+                if (lblBotao) { lblBotao.innerText = "Fase 1: Comprimindo..."; lblBotao.parentElement.classList.add('animate-pulse', 'bg-yellow-100'); }
                 
-                comprimirImagemBase99(file, (base64) => {
-                    // 1. Salva a versão leve no celular IMEDIATAMENTE (Offline)
+                comprimirImagemBase99(file, async (base64) => {
                     historicoPendencias[index].fotoHistorico = base64;
                     localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
-                    renderizarHistoricoPendencias(); // Já desenha a miniatura na tela!
+                    renderizarHistoricoPendencias(); 
                     
-                    // 2. Tenta mandar para o Google Storage em Segundo Plano (Cloud)
                     if (typeof storage !== 'undefined' && typeof auth !== 'undefined' && auth.currentUser && navigator.onLine) {
                         const hoje = new Date();
                         const pasta = `${hoje.getFullYear()}/${("0"+(hoje.getMonth()+1)).slice(-2)}/${("0"+hoje.getDate()).slice(-2)}`;
                         const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
                         const nomeArquivo = `hist_${emailDono}_${index}_${Date.now()}.jpg`;
                         
-                        const storageRef = storage.ref(`historico_fotos/${pasta}/${nomeArquivo}`);
-                        storageRef.putString(base64, 'data_url').then(() => {
-                            storageRef.getDownloadURL().then((url) => {
-                                // A Mágica: Troca o arquivo local pesado pela URL da Nuvem
-                                historicoPendencias[index].fotoHistorico = url;
-                                localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
-                                mostrarToast("Foto salva no Servidor em Nuvem!");
-                            });
-                        }).catch(error => {
-                            console.error("Erro ao subir pro Storage:", error);
-                            mostrarToast("Foto salva apenas localmente (Offline).");
-                        });
-                    } else {
-                        mostrarToast("Foto salva localmente (Offline).");
+                        try {
+                            // O que faz: Reutiliza o motor de 5 tentativas do Histórico para blindar a anexação.
+                            // Por que fiz: Garante que fotos adicionadas a pendências do passado sigam a mesma regra restrita da vistoria de hoje.
+                            const urlLimpa = await uploadParaStorageComRetry(base64, `historico_fotos/${pasta}/${nomeArquivo}`);
+                            
+                            historicoPendencias[index].fotoHistorico = urlLimpa;
+                            localStorage.setItem('sgi_historico_pendencias', JSON.stringify(historicoPendencias));
+                            renderizarHistoricoPendencias(); 
+                            mostrarToast("Fase 3: Foto do Histórico agora é um Link Seguro!");
+                        } catch (error) {
+                            mostrarToast("Falha de rede após 5 tentativas. Foto salva offline.");
+                        }
                     }
+                    window.uploadsAtivos--;
                 });
             }
         }
@@ -3721,16 +4214,13 @@
         function renderizarPrevia() {
         const container = document.getElementById('relatorio-print-container');
         if (!container) return;
-
         const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
         const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
         const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
-
         const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0
         ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
         const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0
         ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
-
         let html = `
         <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
         <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
@@ -3744,16 +4234,14 @@
         <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
         </div>
         `;
-
         if (estadoAtualRonda.focoCritico) {
-            html += `
-            <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
-            <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
-            <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
-            </div>
-            `;
+        html += `
+        <div class="bg-yellow-50 dark:bg-yellow-900/20 border-l-4 border-alyellow p-4 mb-8 rounded shadow-sm break-inside-avoid">
+        <h3 class="font-bold text-yellow-800 dark:text-yellow-400 text-sm uppercase tracking-wider mb-1"><i class="fa-solid fa-triangle-exclamation"></i> Foco Crítico do Dia</h3>
+        <p class="text-sm text-slate-700 dark:text-slate-200">${estadoAtualRonda.focoCritico}</p>
+        </div>
+        `;
         }
-
         const imgGeral = chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
         const imgSetores = chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
         html += `
@@ -3773,7 +4261,6 @@
         </div>
         </div>
         `;
-
         // TAREFA 69: SISTEMA INTELIGENTE DE ARRAYS (GAVETAS)
         let arrResolvidos = [];
         let arrEmAndamento = [];
@@ -3781,87 +4268,84 @@
         let arrPontuados = [];
         let arrConformes = [];
         let arrObsAreas = [];
-
         // A MÁGICA: Pesca itens do Histórico que tiveram ação hoje e promove para o "Em Andamento"
         const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
         historicoNaoResolvido.forEach(pend => {
-            const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
-            
-            // Se ele já estiver na Lousa (Ronda atual), nós não promovemos para não duplicar.
-            const respLousa = estadoAtualRonda.respostas[pend.idItem];
-            const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
-            
-            if (teveAcaoHoje && !estaNaLousa) {
-                arrEmAndamento.push({
-                    secao: { tituloCategoria: pend.categoria },
-                    item: { descricao: pend.descricao },
-                    resp: {
-                        status: 'em_andamento',
-                        ticket: pend.ticket,
-                        observacao: pend.ultimaAnotacao,
-                        responsavel: pend.responsavelTratativa,
-                        acoes: pend.acoes,
-                        fotoBase64: pend.fotoHistorico,
-                        fotos: pend.fotoHistorico ? [pend.fotoHistorico] : [],
-                        promovidoDoHistorico: true // Flag secreta para brilhar no PDF
-                    }
-                });
-            }
+        const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
+        // Se ele já estiver na Lousa (Ronda atual), nós não promovemos para não duplicar.
+        const respLousa = estadoAtualRonda.respostas[pend.idItem];
+        const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+        if (teveAcaoHoje && !estaNaLousa) {
+        arrEmAndamento.push({
+        secao: { tituloCategoria: pend.categoria },
+        item: { descricao: pend.descricao },
+        resp: {
+        status: 'em_andamento',
+        ticket: pend.ticket,
+        observacao: pend.ultimaAnotacao,
+        responsavel: pend.responsavelTratativa,
+        acoes: pend.acoes,
+        fotoBase64: pend.fotoHistorico,
+        fotos: pend.fotoHistorico ? [pend.fotoHistorico] : [],
+        promovidoDoHistorico: true // Flag secreta para brilhar no PDF
+        }
         });
-
+        }
+        });
         // Colhe os Itens da Ronda Atual
         moldeAtual.forEach(secao => {
-            secao.itens.forEach(item => {
-                const resp = estadoAtualRonda.respostas[item.idItem];
-                if (!resp) return;
-                
-                const obj = { secao, item, resp };
-                
-                if (resp.status === 'resolvido') arrResolvidos.push(obj);
-                else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
-                else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
-                else if (resp.status === 'pontuado') arrPontuados.push(obj);
-                else if (resp.status === 'ok') arrConformes.push(obj);
-            });
-
-            const obsArea = estadoAtualRonda.obsAreas[secao.idCategoria];
-            if (obsArea && obsArea.trim() !== '') {
-                arrObsAreas.push({ secao, obsArea });
-            }
+        secao.itens.forEach(item => {
+        const resp = estadoAtualRonda.respostas[item.idItem];
+        if (!resp) return;
+        const obj = { secao, item, resp };
+        if (resp.status === 'resolvido') arrResolvidos.push(obj);
+        else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
+        else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
+        else if (resp.status === 'pontuado') arrPontuados.push(obj);
+        else if (resp.status === 'ok') arrConformes.push(obj);
         });
-
+        const obsArea = estadoAtualRonda.obsAreas[secao.idCategoria];
+        if (obsArea && obsArea.trim() !== '') {
+        arrObsAreas.push({ secao, obsArea });
+        }
+        });
         // Utilitários Visuais
         const gerarMuralFotosPdf = (resp) => {
-            let htmlFotos = '';
-            const arrayFotosPdf = (resp && resp.fotos && resp.fotos.length > 0) ? resp.fotos : ((resp && resp.fotoBase64) ? [resp.fotoBase64] : []);
-            if (arrayFotosPdf.length > 0) {
-                htmlFotos = '<div class="mt-3 grid grid-cols-2 gap-2">';
-                arrayFotosPdf.forEach(img => { htmlFotos += `<img src="${img}" class="max-h-56 w-full object-contain rounded border border-slate-300 dark:border-slate-600 shadow-sm bg-white dark:bg-slate-800">`; });
-                htmlFotos += '</div>';
-            }
-            return htmlFotos;
+        let htmlFotos = '';
+        const arrayFotosPdf = (resp && resp.fotos && resp.fotos.length > 0) ? resp.fotos : ((resp && resp.fotoBase64) ? [resp.fotoBase64] : []);
+        if (arrayFotosPdf.length > 0) {
+        htmlFotos = '<div class="mt-3 grid grid-cols-2 gap-2">';
+        arrayFotosPdf.forEach(img => { htmlFotos += `<img src="${img}" class="max-h-56 w-full object-contain rounded border border-slate-300 dark:border-slate-600 shadow-sm bg-white dark:bg-slate-800">`; });
+        htmlFotos += '</div>';
+        }
+        return htmlFotos;
+        };
+        const gerarTimelineAcoesPdf = (resp) => {
+        if (!resp || !resp.acoes || resp.acoes.length === 0) return '';
+        let htmlAcoes = '<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">';
+        resp.acoes.forEach(acao => { htmlAcoes += `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`; });
+        htmlAcoes += '</ul></div>';
+        return htmlAcoes;
         };
 
-        const gerarTimelineAcoesPdf = (resp) => {
-            if (!resp || !resp.acoes || resp.acoes.length === 0) return '';
-            let htmlAcoes = '<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">';
-            resp.acoes.forEach(acao => { htmlAcoes += `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`; });
-            htmlAcoes += '</ul></div>';
-            return htmlAcoes;
+        // ==========================================
+        // TAREFA 86.2.1: UTILITÁRIO DE TAGS (SETORES) NO PDF
+        // ==========================================
+        const gerarTagsSetoresPdf = (setoresArray) => {
+        if (!setoresArray || setoresArray.length === 0) return '';
+        return `<div class="flex flex-wrap gap-1 mt-1.5 mb-2">${setoresArray.map(st => `<span class="bg-blue-50 dark:bg-blue-900/20 text-alblue dark:text-blue-400 border border-blue-200 dark:border-blue-800/50 px-1.5 py-0.5 rounded text-[9px] font-bold shadow-sm flex items-center gap-1"><i class="fa-solid fa-location-dot"></i> ${st}</span>`).join('')}</div>`;
         };
 
         // TAREFA 69: Ordenação Inteligente "Em Andamento" (Ações de HOJE sobem para o topo)
         arrEmAndamento.sort((a, b) => {
-            const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
-            const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
-            return temAcaoB - temAcaoA; // Quem tem 1 vence quem tem 0
+        const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        return temAcaoB - temAcaoA; // Quem tem 1 vence quem tem 0
         });
-
         // ==========================================
         // TAREFA 74: MOLDURAS PREMIUM NA RONDA DO DIA
         // ==========================================
         // Aqui eu aplico o "border-l-4" e a cor correspondente a cada cartão do relatório do dia, garantindo a mesma identidade visual profissional que nós criamos para o Passivo de Auditoria.
-
         // 1. SITUAÇÕES RESOLVIDAS (Borda Azul)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-blue-600 dark:text-blue-400 border-b-2 border-blue-200 dark:border-blue-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-check-double"></i> SITUAÇÕES RESOLVIDAS (Ronda Atual)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrResolvidos.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item resolvido nesta ronda.</p>';
@@ -3872,7 +4356,8 @@
         <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
         ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
         </div>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
         ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${obj.resp.observacao}</div>` : ''}
         ${obj.resp.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Solução Adotada:</b> ${obj.resp.solucao}</div>` : ''}
         ${gerarTimelineAcoesPdf(obj.resp)}
@@ -3881,7 +4366,6 @@
         </div>`;
         });
         html += `</div></div>`;
-
         // 2. EM ANDAMENTO (Borda Âmbar)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-amber-600 dark:text-amber-500 border-b-2 border-amber-200 dark:border-amber-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-bars-progress"></i> EM ANDAMENTO</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrEmAndamento.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item em andamento.</p>';
@@ -3889,7 +4373,6 @@
         // Efeito Visual Arrasador se o item subiu do Passivo, com a moldura base garantida
         const bordaDestaque = obj.resp.promovidoDoHistorico ? 'border-amber-500 border-2 border-l-4 shadow-md relative mt-5' : 'border-slate-200 dark:border-slate-700 border-l-4 border-l-amber-500';
         const seloPromo = obj.resp.promovidoDoHistorico ? `<div class="absolute -top-3 left-4 bg-amber-500 text-white px-2 py-0.5 rounded text-[10px] font-black shadow-sm uppercase tracking-wider"><i class="fa-solid fa-bolt"></i> Ação Reportada Hoje</div>` : '';
-
         html += `
         <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 ${bordaDestaque} rounded-lg break-inside-avoid page-break-inside-avoid">
         ${seloPromo}
@@ -3897,7 +4380,8 @@
         <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
         ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
         </div>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
         ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Tratativa:</b> ${obj.resp.observacao}</div>` : ''}
         ${gerarTimelineAcoesPdf(obj.resp)}
         ${obj.resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</div>` : ''}
@@ -3905,7 +4389,6 @@
         </div>`;
         });
         html += `</div></div>`;
-
         // 3. REINCIDÊNCIAS (Borda Roxa)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-purple-600 dark:text-purple-400 border-b-2 border-purple-200 dark:border-purple-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-clock-rotate-left"></i> REINCIDÊNCIAS DESSA RONDA</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrReincidentes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma reincidência cobrada nesta ronda.</p>';
@@ -3916,12 +4399,12 @@
         <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
         ${obj.resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${obj.resp.ticketAntigo}</span>` : ''}
         </div>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
         ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Anotação de Cobrança:</b> ${obj.resp.observacao}</div>` : ''}
         </div>`;
         });
         html += `</div></div>`;
-
         // 4. ITENS PONTUADOS (Borda Vermelha)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrPontuados.length === 0 && arrObsAreas.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>';
@@ -3934,7 +4417,8 @@
         <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
         ${obj.resp.ticket ? `<span class="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-slate-300 dark:border-slate-600"><i class="fa-solid fa-tag"></i> ${obj.resp.ticket}</span>` : ''}
         </div>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${contVermelhas}. ${obj.item.descricao}</p>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${contVermelhas}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
         ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Desvio / Obs:</b> ${obj.resp.observacao}</div>` : ''}
         ${obj.resp.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</div>` : ''}
         ${gerarMuralFotosPdf(obj.resp)}
@@ -3950,126 +4434,118 @@
         </div>`;
         });
         html += `</div></div>`;
-
         // 5. ITENS CONFORMES (Borda Verde)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2"><i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
-        if (arrConformes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item marcado como conforme.</p>';
+        if (arrConformes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item avaliado como conforme.</p>';
         arrConformes.forEach((obj, idx) => {
         html += `
-        <div class="mb-2 p-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-green-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-2">${idx + 1}. ${obj.item.descricao}</p>
+        <div class="mb-3 p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 border-l-4 border-l-green-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
         <div class="text-xs text-green-600 dark:text-green-500 mb-1"><b>Status:</b> <i class="fa-solid fa-check"></i> Inspecionado e validado (Conforme)</div>
         ${gerarMuralFotosPdf(obj.resp)}
         </div>`;
         });
         html += `</div></div>`;
-
         // 6. ANEXOS
         if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
-            estadoAtualRonda.anexos.forEach((anexo) => {
-                const pagAtual = anexo.paginaAtual || 1;
-                const totalPag = anexo.totalPaginas || 1;
-                const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
-                html += `
-                <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
-                    <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
-                        <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
-                    </div>
-                    <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
-                        <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
-                    </div>
-                    <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
-                    </div>
-                </div>`;
-            });
+        estadoAtualRonda.anexos.forEach((anexo) => {
+        const pagAtual = anexo.paginaAtual || 1;
+        const totalPag = anexo.totalPaginas || 1;
+        const etiquetaLegenda = `- Anexo: ${anexo.nomeArquivo} - Página ${pagAtual} de ${totalPag} -`;
+        html += `
+        <div style="page-break-before: always; break-before: page; page-break-inside: avoid; break-inside: avoid;" class="w-full flex flex-col justify-between pt-8 pb-4">
+        <div class="text-center border-b-2 border-slate-300 dark:border-slate-700 pb-2 mb-6 w-full">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+        <p class="text-[10px] text-slate-400 mt-1 uppercase">Categoria: ${anexo.categoria}</p>
+        </div>
+        <div class="flex-1 flex items-center justify-center w-full my-auto px-4">
+        <img src="${anexo.dadosBase64}" style="max-height: 220mm; max-width: 100%; object-fit: contain; margin: 0 auto;" class="rounded border border-slate-200 dark:border-slate-700 shadow-sm" alt="Documento Anexado">
+        </div>
+        <div class="text-center border-t-2 border-slate-300 dark:border-slate-700 pt-2 mt-6 w-full">
+        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">${etiquetaLegenda}</p>
+        </div>
+        </div>`;
+        });
         }
-
         // 7. PASSIVO DE AUDITORIA (Exclui quem subiu pro "Em Andamento")
         if (historicoNaoResolvido.length > 0) {
-            // Filtro Divisor: Se ele teve ação hoje e NÃO estava na Lousa, ele foi promovido lá pra cima, logo, esconde daqui do fundo.
-            const passivoParaExibir = historicoNaoResolvido.filter(p => {
-                const teveAcaoHoje = p.acoes && p.acoes.some(ac => ac.data === dataStr);
-                const respLousa = estadoAtualRonda.respostas[p.idItem];
-                const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
-                return !(teveAcaoHoje && !estaNaLousa);
-            });
-
-            if (passivoParaExibir.length > 0) {
-                html += `
-                <div class="w-full pt-6 pb-4">
-                <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
-                </h2>
-                <div class="space-y-6">`;
-
-                // 7.1. Separa e Ordena: Em Andamento Antigos
-                const passivoAndamento = passivoParaExibir.filter(p => p.statusHistorico === "Em Andamento");
-                passivoAndamento.sort((a, b) => {
-                    let dataA = a.dataUltimoApontamento ? new Date(a.dataUltimoApontamento).getTime() : 0;
-                    let dataB = b.dataUltimoApontamento ? new Date(b.dataUltimoApontamento).getTime() : 0;
-                    // Se tiver ações, usa a data da última ação para manter os mais "quentes" no topo do bloco
-                    if (a.acoes && a.acoes.length > 0) {
-                        const pDate = a.acoes[a.acoes.length - 1].data.split('/');
-                        if(pDate.length === 3) dataA = new Date(pDate[1], pDate[2]-1, pDate).getTime();
-                    }
-                    if (b.acoes && b.acoes.length > 0) {
-                        const pDate = b.acoes[b.acoes.length - 1].data.split('/');
-                        if(pDate.length === 3) dataB = new Date(pDate[1], pDate[2]-1, pDate).getTime();
-                    }
-                    return dataB - dataA; // Mais recente primeiro
-                });
-
-                // 7.2. Separa: O Resto das Situações Pendentes
-                const passivoPendentes = passivoParaExibir.filter(p => p.statusHistorico !== "Em Andamento");
-
-                const renderCardPassivo = (pend) => {
-                    const isAssumido = pend.statusHistorico === "Risco Assumido";
-                    const isAndamento = pend.statusHistorico === "Em Andamento";
-                    
-                    let borderCor = "border-red-400";
-                    let bgTag = "bg-red-100 text-red-800";
-                    let iconStatus = '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
-                    
-                    if (isAssumido) { borderCor = "border-purple-400"; bgTag = "bg-purple-100 text-purple-800"; iconStatus = '<i class="fa-solid fa-shield-halved"></i> Risco Assumido'; } 
-                    else if (isAndamento) { borderCor = "border-amber-500"; bgTag = "bg-amber-100 text-amber-800"; iconStatus = '<i class="fa-solid fa-bars-progress"></i> Em Andamento'; }
-
-                    return `
-                    <div class="border border-slate-300 border-l-4 ${borderCor} p-4 rounded bg-slate-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm">
-                        <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                            <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
-                            <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${bgTag}">${iconStatus}</span>
-                        </div>
-                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-2">${pend.descricao}</p>
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-2">
-                            <p><b>Dias Aberto:</b> <span class="text-red-500 font-bold">${pend.diasAberto}</span></p>
-                            <p><b>Cobrado:</b> ${pend.contagemVezes}x</p>
-                            <p><b>Criado:</b> ${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</p>
-                            <p><b>Visto Últ:</b> ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                        ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b>Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
-                        ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b>Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
-                        ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
-                        ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                    </div>`;
-                };
-
-                if (passivoAndamento.length > 0) {
-                    html += `<div class="mb-4"><h3 class="text-sm font-bold text-amber-600 dark:text-amber-500 mb-3 uppercase border-b border-amber-200 dark:border-amber-800 pb-1">Situações Antigas em Andamento (Ordem Recente)</h3><div class="space-y-4">`;
-                    passivoAndamento.forEach(pend => { html += renderCardPassivo(pend); });
-                    html += `</div></div>`;
-                }
-                if (passivoPendentes.length > 0) {
-                    html += `<div class="mb-4"><h3 class="text-sm font-bold text-red-600 dark:text-red-400 mb-3 uppercase border-b border-red-200 dark:border-red-800 pb-1">Situações Antigas Pendentes (Sem andamento)</h3><div class="space-y-4">`;
-                    passivoPendentes.forEach(pend => { html += renderCardPassivo(pend); });
-                    html += `</div></div>`;
-                }
-                html += `</div></div>`;
-            }
+        // Filtro Divisor: Se ele teve ação hoje e NÃO estava na Lousa, ele foi promovido lá pra cima, logo, esconde daqui do fundo.
+        const passivoParaExibir = historicoNaoResolvido.filter(p => {
+        const teveAcaoHoje = p.acoes && p.acoes.some(ac => ac.data === dataStr);
+        const respLousa = estadoAtualRonda.respostas[p.idItem];
+        const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+        return !(teveAcaoHoje && !estaNaLousa);
+        });
+        if (passivoParaExibir.length > 0) {
+        html += `
+        <div class="w-full pt-6 pb-4">
+        <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 border-b-2 border-slate-800 dark:border-slate-500 pb-2 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-clock-rotate-left"></i> PASSIVO DE AUDITORIA (Pendências Antigas em Aberto)
+        </h2>
+        <div class="space-y-6">`;
+        // 7.1. Separa e Ordena: Em Andamento Antigos
+        const passivoAndamento = passivoParaExibir.filter(p => p.statusHistorico === "Em Andamento");
+        passivoAndamento.sort((a, b) => {
+        let dataA = a.dataUltimoApontamento ? new Date(a.dataUltimoApontamento).getTime() : 0;
+        let dataB = b.dataUltimoApontamento ? new Date(b.dataUltimoApontamento).getTime() : 0;
+        // Se tiver ações, usa a data da última ação para manter os mais "quentes" no topo do bloco
+        if (a.acoes && a.acoes.length > 0) {
+        const pDate = a.acoes[a.acoes.length - 1].data.split('/');
+        if(pDate.length === 3) dataA = new Date(pDate[1], pDate[2]-1, pDate).getTime();
         }
-
+        if (b.acoes && b.acoes.length > 0) {
+        const pDate = b.acoes[b.acoes.length - 1].data.split('/');
+        if(pDate.length === 3) dataB = new Date(pDate[1], pDate[2]-1, pDate).getTime();
+        }
+        return dataB - dataA; // Mais recente primeiro
+        });
+        // 7.2. Separa: O Resto das Situações Pendentes
+        const passivoPendentes = passivoParaExibir.filter(p => p.statusHistorico !== "Em Andamento");
+        const renderCardPassivo = (pend) => {
+        const isAssumido = pend.statusHistorico === "Risco Assumido";
+        const isAndamento = pend.statusHistorico === "Em Andamento";
+        let borderCor = "border-red-400";
+        let bgTag = "bg-red-100 text-red-800";
+        let iconStatus = '<i class="fa-solid fa-triangle-exclamation"></i> Pendente';
+        if (isAssumido) { borderCor = "border-purple-400"; bgTag = "bg-purple-100 text-purple-800"; iconStatus = '<i class="fa-solid fa-shield-halved"></i> Risco Assumido'; }
+        else if (isAndamento) { borderCor = "border-amber-500"; bgTag = "bg-amber-100 text-amber-800"; iconStatus = '<i class="fa-solid fa-bars-progress"></i> Em Andamento'; }
+        return `
+        <div class="border border-slate-300 border-l-4 ${borderCor} p-4 rounded bg-slate-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm">
+        <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
+        <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider ${bgTag}">${iconStatus}</span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">${pend.descricao}</p>
+        ${gerarTagsSetoresPdf(pend.setores)}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2 border border-slate-200 dark:border-slate-700 rounded mb-2">
+        <p><b>Dias Aberto:</b> <span class="text-red-500 font-bold">${pend.diasAberto}</span></p>
+        <p><b>Cobrado:</b> ${pend.contagemVezes}x</p>
+        <p><b>Criado:</b> ${new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR')}</p>
+        <p><b>Visto Últ:</b> ${new Date(pend.dataUltimoApontamento).toLocaleDateString('pt-BR')}</p>
+        </div>
+        ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b>Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
+        ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b>Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+        ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
+        ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
+        </div>`;
+        };
+        if (passivoAndamento.length > 0) {
+        html += `<div class="mb-4"><h3 class="text-sm font-bold text-amber-600 dark:text-amber-500 mb-3 uppercase border-b border-amber-200 dark:border-amber-800 pb-1">Situações Antigas em Andamento (Ordem Recente)</h3><div class="space-y-4">`;
+        passivoAndamento.forEach(pend => { html += renderCardPassivo(pend); });
+        html += `</div></div>`;
+        }
+        if (passivoPendentes.length > 0) {
+        html += `<div class="mb-4"><h3 class="text-sm font-bold text-red-600 dark:text-red-400 mb-3 uppercase border-b border-red-200 dark:border-red-800 pb-1">Situações Antigas Pendentes (Sem andamento)</h3><div class="space-y-4">`;
+        passivoPendentes.forEach(pend => { html += renderCardPassivo(pend); });
+        html += `</div></div>`;
+        }
+        html += `</div></div>`;
+        }
+        }
         // 8. ASSINATURA OFICIAL
         html += `
         <div class="mt-16 pt-8 text-center break-inside-avoid">
@@ -4080,58 +4556,53 @@
         </div>
         </div>
         `;
-
         // 9. MEMORIAL DE RESOLUÇÕES
         const hojeIsoStr = new Date().toISOString().split('T');
         const historicoResolvido = historicoPendencias.filter(p => {
-            if (p.statusHistorico !== "Resolvido") return false;
-            const resolvidoHoje = p.dataResolucao && p.dataResolucao.split('T') === hojeIsoStr;
-            const estaNaLousa = estadoAtualRonda.respostas[p.idItem] && estadoAtualRonda.respostas[p.idItem].status === 'resolvido';
-            if (resolvidoHoje && estaNaLousa) return false; // Impede duplicar
-            return true;
+        if (p.statusHistorico !== "Resolvido") return false;
+        const resolvidoHoje = p.dataResolucao && p.dataResolucao.split('T') === hojeIsoStr;
+        const estaNaLousa = estadoAtualRonda.respostas[p.idItem] && estadoAtualRonda.respostas[p.idItem].status === 'resolvido';
+        if (resolvidoHoje && estaNaLousa) return false; // Impede duplicar
+        return true;
         });
-
         historicoResolvido.sort((a, b) => {
-            const dataA = a.dataResolucao ? new Date(a.dataResolucao).getTime() : 0;
-            const dataB = b.dataResolucao ? new Date(b.dataResolucao).getTime() : 0;
-            return dataB - dataA;
+        const dataA = a.dataResolucao ? new Date(a.dataResolucao).getTime() : 0;
+        const dataB = b.dataResolucao ? new Date(b.dataResolucao).getTime() : 0;
+        return dataB - dataA;
         });
-
         if (historicoResolvido.length > 0) {
-            html += `<div class="w-full pt-6 pb-4 break-before-page page-break-before-always">
-            <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
-            <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Antigo)
-            </h2>
-            <div class="space-y-4">`;
-
-            historicoResolvido.forEach((pend) => {
-                const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
-                const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
-                const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
-
-                html += `
-                <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
-                    <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
-                        <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-600 text-white shadow-sm">
-                        <i class="fa-solid fa-check-double"></i> Resolvido em ${dataResolvido}
-                        </span>
-                    </div>
-                    <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-3">${pend.descricao}</p>
-                    <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2.5 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
-                        <p><i class="fa-solid fa-calendar-plus opacity-70"></i> Criado em: <span>${dataCitado}</span></p>
-                        <p><i class="fa-solid fa-stopwatch text-green-600"></i> SLA: <b class="text-green-600">${sla} dia(s)</b></p>
-                        <p><i class="fa-solid fa-bullseye text-red-400"></i> Reincidência: <span>${pend.contagemVezes}x</span></p>
-                    </div>
-                    ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
-                    ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
-                    ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
-                    ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
-                </div>`;
-            });
-            html += `</div></div>`;
+        html += `<div class="w-full pt-6 pb-4 break-before-page page-break-before-always">
+        <h2 class="text-xl font-bold text-blue-700 dark:text-blue-400 border-b-2 border-blue-700 dark:border-blue-500 pb-2 mb-6 flex items-center gap-2">
+        <i class="fa-solid fa-trophy"></i> MEMORIAL DE RESOLUÇÕES (Histórico Antigo)
+        </h2>
+        <div class="space-y-4">`;
+        historicoResolvido.forEach((pend) => {
+        const dataCitado = pend.dataPrimeiroApontamento ? new Date(pend.dataPrimeiroApontamento).toLocaleDateString('pt-BR') : '--/--/----';
+        const dataResolvido = pend.dataResolucao ? new Date(pend.dataResolucao).toLocaleDateString('pt-BR') : '--/--/----';
+        const sla = pend.diasParaResolver !== null ? pend.diasParaResolver : '0';
+        html += `
+        <div class="border border-slate-300 border-l-4 border-blue-500 p-4 rounded bg-blue-50 dark:bg-slate-800 break-inside-avoid page-break-inside-avoid shadow-sm transition-colors">
+        <div class="flex justify-between items-start mb-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+        <p class="text-xs font-bold text-slate-500 uppercase tracking-widest">${pend.categoria}</p>
+        <span class="text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider bg-blue-600 text-white shadow-sm">
+        <i class="fa-solid fa-check-double"></i> Resolvido em ${dataResolvido}
+        </span>
+        </div>
+        <p class="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1">${pend.descricao}</p>
+        ${gerarTagsSetoresPdf(pend.setores)}
+        <div class="flex flex-wrap gap-4 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 p-2.5 border border-slate-200 dark:border-slate-700 rounded mb-3 shadow-inner">
+        <p><i class="fa-solid fa-calendar-plus opacity-70"></i> Criado em: <span>${dataCitado}</span></p>
+        <p><i class="fa-solid fa-stopwatch text-green-600"></i> SLA: <b class="text-green-600">${sla} dia(s)</b></p>
+        <p><i class="fa-solid fa-bullseye text-red-400"></i> Reincidência: <span>${pend.contagemVezes}x</span></p>
+        </div>
+        ${pend.responsavelTratativa ? `<p class="text-sm text-slate-700 dark:text-slate-300 mb-1"><b><i class="fa-solid fa-users-gear text-slate-400 mr-1"></i> Responsáveis / OS:</b> ${pend.responsavelTratativa}</p>` : ''}
+        ${pend.ultimaAnotacao ? `<p class="text-sm text-slate-700 dark:text-slate-300"><b><i class="fa-solid fa-clipboard-check text-slate-400 mr-1"></i> Solução / Anotação:</b> ${pend.ultimaAnotacao}</p>` : ''}
+        ${pend.acoes && pend.acoes.length > 0 ? `<div class="mt-2 mb-1 p-2 bg-amber-50 dark:bg-slate-800 rounded border border-amber-200 dark:border-slate-600"><p class="text-[10px] font-bold text-amber-700 dark:text-amber-500 uppercase mb-1">Linha do Tempo de Tratativas:</p><ul class="space-y-1">${pend.acoes.map(acao => `<li class="text-xs text-slate-700 dark:text-slate-300"><span class="font-bold text-slate-500">[${acao.data}]</span> ${acao.texto}</li>`).join('')}</ul></div>` : ''}
+        ${pend.fotoHistorico ? `<div class="mt-3"><img src="${pend.fotoHistorico}" class="max-h-60 rounded object-cover border border-slate-300 dark:border-slate-600 shadow-sm mx-auto"></div>` : ''}
+        </div>`;
+        });
+        html += `</div></div>`;
         }
-
         container.innerHTML = html;
         }
 
@@ -4256,6 +4727,12 @@
                                 if(resp.solucao) pendenciaExistente.solucao = resp.solucao;
                                 if(resp.responsavel) pendenciaExistente.responsavelTratativa = resp.responsavel;
                                 if(resp.acoes) pendenciaExistente.acoes = resp.acoes; // TAREFA 65.7: Salva ações da lousa de volta para a gaveta
+                                // ==========================================
+                                // TAREFA 85.2.3: ATUALIZAR SETORES ENVOLVIDOS (TROCA 1)
+                                // ==========================================
+                                // O que faz: Atualiza o array de setores de uma pendência antiga se ele for modificado.
+                                // Por que fiz: Garante que as novas áreas vinculadas não se percam no encerramento do dia.
+                                if(resp.setores) pendenciaExistente.setores = resp.setores;
 
                                 // Atualiza os status no banco de dados
                                 if (resp.status === 'resolvido') {
@@ -4288,7 +4765,13 @@
                                     responsavelTratativa: resp.responsavel || "",
                                     dataResolucao: resp.status === 'resolvido' ? hoje.toISOString() : null,
                                     diasParaResolver: resp.status === 'resolvido' ? 0 : null,
-                                    acoes: resp.acoes || [] // TAREFA 65.7: Salva ações da lousa de volta para a gaveta (Item Novo)
+                                    acoes: resp.acoes || [], // TAREFA 65.7: Salva ações da lousa de volta para a gaveta (Item Novo)
+                                    // ==========================================
+                                    // TAREFA 85.2.4: IMORTALIZAR NOVAS PENDÊNCIAS COM SETORES (TROCA 2)
+                                    // ==========================================
+                                    // O que faz: Adiciona a gravação da tag "setores" na criação de um novo defeito.
+                                    // Por que fiz: Previne perda de dados e viabiliza a busca múltipla do radar no mês seguinte.
+                                    setores: resp.setores || [] 
                                 });
                             }
                         }
@@ -4313,19 +4796,27 @@
                 // Atualiza a Lousa em branco e o Pote Central Global com as últimas mudanças
                 if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
 
-                // TAREFA 54.3: O COFRE DE FECHAMENTO COM CORREÇÃO DE FUSO HORÁRIO
+                // ==========================================
+                // TAREFA 82.1: ARQUIVO MORTO COM DATA DO RELATÓRIO
+                // ==========================================
+                // O que faz: Extrai a data oficial do relatório (dataRonda) e usa como chave e dataArquivo no Firestore, ignorando o relógio do sistema.
+                // Por que fiz: Garante que relatórios finalizados com atraso (ex: no dia seguinte) fiquem arquivados na pasta correspondente ao dia real da vistoria.
                 if (typeof auth !== 'undefined' && auth.currentUser) {
                     const emailUsuario = auth.currentUser.email;
-                    
-                    // Corrige o fuso horário para o Brasil (Impede que vistorias noturnas caiam no dia seguinte do UTC)
-                    const tzOffset = hoje.getTimezoneOffset() * 60000;
-                    const dataLocal = new Date(hoje - tzOffset);
-                    const dataIsoString = dataLocal.toISOString().split('T')[0];
+                    // Puxa a data do cabeçalho do relatório. Se falhar, usa a data atual com correção de fuso BR.
+                    let dataIsoString = "";
+                    if (estadoAtualRonda.dataRonda) {
+                        dataIsoString = estadoAtualRonda.dataRonda.split('T')[0];
+                    } else {
+                        const tzOffset = hoje.getTimezoneOffset() * 60000;
+                        const dataLocal = new Date(hoje - tzOffset);
+                        dataIsoString = dataLocal.toISOString().split('T')[0];
+                    }
                     
                     db.collection('historico_arquivado').doc(`${emailUsuario}_${dataIsoString}`).set({
                         dono: emailUsuario,
                         dataArquivo: dataIsoString,
-                        timestampGeracao: firebase.firestore.FieldValue.serverTimestamp(),
+                        timestampGeracao: firebase.firestore.FieldValue.serverTimestamp(), // Mantém o carimbo original de quando foi salvo
                         rascunhoRonda: fotografiaDoDia,
                         historico: historicoPendencias
                     }).then(() => {
@@ -4415,26 +4906,32 @@
         });
 
         // 5. CONSTRUÇÃO DO TEXTO DINÂMICO
+        // ==========================================
+        // TAREFA 86.1.1: INJEÇÃO DE SETORES NO WHATSAPP
+        // ==========================================
         let itensResolvidos = "";
         arrResolvidos.forEach((obj, idx) => {
             const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
             let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
-            itensResolvidos += `✅ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}\n   ↳ Desvio: ${obj.resp.observacao || 'Não relatado'}\n   ↳ Solução: ${obj.resp.solucao || 'Não relatada'}${acoesTexto}\n\n\n`;
+            itensResolvidos += `✅ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Desvio: ${obj.resp.observacao || 'Não relatado'}\n   ↳ Solução: ${obj.resp.solucao || 'Não relatada'}${acoesTexto}\n\n\n`;
         });
 
         let itensEmAndamento = "";
         arrEmAndamento.forEach((obj, idx) => {
             const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
             const tagHoje = obj.resp.promovidoDoHistorico ? ' [⚡ AÇÃO HOJE]' : '';
+            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
             let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
-            itensEmAndamento += `⏳ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagHoje} ${obj.item.descricao}\n   ↳ Tratativa: ${obj.resp.observacao || 'Em andamento'}${acoesTexto}\n\n\n`;
+            itensEmAndamento += `⏳ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagHoje}${tagSetores} ${obj.item.descricao}\n   ↳ Tratativa: ${obj.resp.observacao || 'Em andamento'}${acoesTexto}\n\n\n`;
         });
 
         let itensReincidentes = "";
         arrReincidentes.forEach((obj, idx) => {
             const tkt = obj.resp.ticketAntigo ? ` [🎫 ${obj.resp.ticketAntigo}]` : '';
+            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
             const linhaCobranca = (obj.resp.observacao && obj.resp.observacao.trim() !== '') ? `\n   ↳ Cobrança: ${obj.resp.observacao}` : '';
-            itensReincidentes += `🔄 ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}${linhaCobranca}\n\n\n`;
+            itensReincidentes += `🔄 ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}${linhaCobranca}\n\n\n`;
         });
 
         let itensPontuados = "";
@@ -4443,7 +4940,8 @@
                 itensPontuados += `📝 ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}:\n   ↳ ${obj.resp.observacao}\n\n\n`;
             } else {
                 const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
-                itensPontuados += `❌ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt} ${obj.item.descricao}\n   ↳ Obs: ${obj.resp.observacao || 'Sem anotações'}\n\n\n`;
+                const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
+                itensPontuados += `❌ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Obs: ${obj.resp.observacao || 'Sem anotações'}\n\n\n`;
             }
         });
 
@@ -4483,6 +4981,222 @@
         document.execCommand('copy');
         document.body.removeChild(el);
         mostrarToast("Texto Inteligente copiado para colar no WhatsApp!");
+        }
+
+        // ==========================================
+        // TAREFA 87.1.1: NOVO MOTOR DE CÓPIA RICA (CLIPBOARD API)
+        // ==========================================
+        async function copiarParaAreaTransferenciaRichText(htmlString) {
+        try {
+        const blobHtml = new Blob([htmlString], { type: "text/html" });
+        const blobText = new Blob([htmlString.replace(/<[^>]*>?/gm, '')], { type: "text/plain" }); 
+
+        const data = [new ClipboardItem({
+        "text/html": blobHtml,
+        "text/plain": blobText
+        })];
+
+        await navigator.clipboard.write(data);
+        mostrarToast("Relatório Visual copiado! Abra o e-mail (Outlook/Gmail) e cole.");
+
+        } catch (err) {
+        console.warn("Navegador não suporta a API moderna. Usando Fallback... ", err);
+
+        const tempDiv = document.createElement("div");
+        tempDiv.innerHTML = htmlString;
+        tempDiv.style.position = "absolute";
+        tempDiv.style.left = "-9999px";
+        document.body.appendChild(tempDiv);
+
+        const selection = window.getSelection();
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+        document.execCommand("copy");
+        mostrarToast("Relatório copiado (Modo de Compatibilidade).");
+        } catch (e) {
+        console.error("Erro ao copiar HTML no fallback: ", e);
+        mostrarToast("Erro crítico ao acessar a área de transferência.");
+        }
+
+        selection.removeAllRanges();
+        document.body.removeChild(tempDiv);
+        }
+        }
+
+        // ==========================================
+        // TAREFA 88.3: A TABELA INTELIGENTE (QUADRADOS + LINKS)
+        // ==========================================
+        // O que faz: Desenha o cartão em Tabelas (pro Outlook não quebrar) e verifica se a foto é um Link Seguro antes de renderizar.
+        // Por que fiz: Garante que os quadrados fiquem perfeitos, mas impede o Outlook de bloquear as fotos offline (Base64).
+        function gerarCartaoEmailItem(obj, index, corBordaHex) {
+        const tkt = obj.resp.ticket ? `<span style="background:#e2e8f0; color:#475569; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold; margin-left:5px;">🎫 ${obj.resp.ticket}</span>` : '';
+        const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? `<span style="font-size:11px; color:#0055a4; font-weight:bold; margin-left:5px;">📍 ${obj.resp.setores.join(', ')}</span>` : '';
+        const tagPromo = obj.resp.promovidoDoHistorico ? `<span style="font-size:10px; background:#f59e0b; color:#fff; padding:2px 6px; border-radius:4px; font-weight:bold; margin-left:5px;">⚡ AÇÃO HOJE</span>` : '';
+
+        // Troca da Div externa por uma Tabela Blindada
+        let html = `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 15px; font-family: Arial, sans-serif;">
+        <tr>
+        <td width="4" style="background-color: ${corBordaHex}; font-size: 1px; line-height: 1px;">&nbsp;</td>
+        <td style="background-color: #f8fafc; padding: 12px; border: 1px solid #e2e8f0; border-left: none; border-radius: 0 6px 6px 0;">`;
+
+        html += `<div style="margin-bottom: 8px;">
+        <span style="font-size:10px; font-weight:bold; color:#64748b; text-transform:uppercase;">${obj.cat.tituloCategoria}</span>
+        ${tkt} ${tagPromo} ${tagSetores}
+        </div>`;
+
+        html += `<h4 style="margin: 0 0 8px 0; font-size: 14px; color: #0f172a;">${index}. ${obj.item.descricao}</h4>`;
+
+        if (obj.resp.observacao) html += `<p style="margin: 4px 0; font-size: 12px; color: #475569;"><b>Anotação / Desvio:</b> ${obj.resp.observacao}</p>`;
+        if (obj.resp.solucao) html += `<p style="margin: 4px 0; font-size: 12px; color: #475569;"><b>Solução Adotada:</b> ${obj.resp.solucao}</p>`;
+        if (obj.resp.responsavel) html += `<p style="margin: 4px 0; font-size: 12px; color: #475569;"><b>Responsáveis / OS:</b> ${obj.resp.responsavel}</p>`;
+
+        if (obj.resp.acoes && obj.resp.acoes.length > 0) {
+        html += `<div style="margin-top: 8px; padding: 8px; background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 4px;">`;
+        html += `<p style="margin:0 0 4px 0; font-size: 10px; font-weight: bold; color: #b45309; text-transform:uppercase;">Linha do Tempo:</p>`;
+        html += `<ul style="margin: 0; padding-left: 20px; font-size: 11px; color: #475569;">`;
+        obj.resp.acoes.forEach(a => {
+        html += `<li style="margin-bottom: 3px;"><b>[${a.data}]</b> ${a.texto}</li>`;
+        });
+        html += `</ul></div>`;
+        }
+
+        const arrayFotos = (obj.resp.fotos && obj.resp.fotos.length > 0) ? obj.resp.fotos : ((obj.resp.fotoBase64) ? [obj.resp.fotoBase64] : []);
+        if (arrayFotos.length > 0) {
+        // Nova Galeria Retrô (Tabela interna para alinhar as fotos perfeitamente)
+        html += `<table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top: 10px;"><tr>`;
+        arrayFotos.forEach(img => {
+        html += `<td width="150" valign="top" style="padding-right: 8px; padding-bottom: 8px;">`;
+
+        const isLink = img.startsWith('http');
+        if (isLink) {
+            html += `<a href="${img}" target="_blank" style="text-decoration: none;">
+                     <img src="${img}" width="140" height="140" style="width: 140px; height: 140px; border-radius: 4px; border: 1px solid #cbd5e1; object-fit: cover; display: block;">
+                     </a>`;
+        } else {
+            // Mantém o mesmo quadrado de 140x140, mas desenhado em CSS para pedir sincronização
+            html += `<div style="width: 140px; height: 140px; border-radius: 4px; border: 1px dashed #94a3b8; background-color: #f1f5f9; color: #64748b; font-size: 11px; text-align: center; padding-top: 35px; box-sizing: border-box; font-family: Arial, sans-serif;">
+                     <span style="font-size: 20px; display: block; margin-bottom: 5px;">☁️</span>
+                     <b>Foto Local</b><br>Sincronize o app.</div>`;
+        }
+
+        html += `</td>`;
+        });
+        html += `</tr></table>`;
+        }
+
+        html += `</td></tr></table>`;
+        return html;
+        }
+
+        // ==========================================
+        // TAREFA 86.4: MOTOR DO E-MAIL (TRIAGEM E LAYOUT)
+        // ==========================================
+        function gerarEmailExecutivo() {
+        const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
+        const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
+        const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
+
+        let arrResolvidos = [];
+        let arrEmAndamento = [];
+        let arrReincidentes = [];
+        let arrPontuados = [];
+
+        const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
+        historicoNaoResolvido.forEach(pend => {
+        const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
+        const respLousa = estadoAtualRonda.respostas[pend.idItem];
+        const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+
+        if (teveAcaoHoje && !estaNaLousa) {
+        arrEmAndamento.push({
+        cat: { tituloCategoria: pend.categoria },
+        item: { descricao: pend.descricao },
+        resp: {
+        status: 'em_andamento',
+        ticket: pend.ticket,
+        observacao: pend.ultimaAnotacao,
+        acoes: pend.acoes,
+        fotoBase64: pend.fotoHistorico,
+        fotos: pend.fotoHistorico ? [pend.fotoHistorico] : [],
+        promovidoDoHistorico: true,
+        setores: pend.setores
+        }
+        });
+        }
+        });
+
+        moldeAtual.forEach(cat => {
+        cat.itens.forEach(item => {
+        const resp = estadoAtualRonda.respostas[item.idItem];
+        if (!resp) return;
+        const obj = { cat, item, resp };
+
+        if (resp.status === 'resolvido') arrResolvidos.push(obj);
+        else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
+        else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
+        else if (resp.status === 'pontuado') arrPontuados.push(obj);
+        });
+        });
+
+        arrEmAndamento.sort((a, b) => {
+        const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        return temAcaoB - temAcaoA;
+        });
+
+        let emailHtml = `<div style="max-width: 680px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">`;
+
+        emailHtml += `
+        <div style="background-color: #003366; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; color: white;">
+        <h1 style="margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px;">SGI - Relatório de Vistoria e Ações</h1>
+        <p style="margin: 5px 0 0 0; font-size: 12px; color: #93c5fd;">AL INDÚSTRIA - SEGURANÇA DO TRABALHO</p>
+        </div>
+        <div style="background-color: #f1f5f9; padding: 15px; border-bottom: 2px solid #cbd5e1; font-size: 13px; color: #475569;">
+        <p style="margin: 3px 0;"><b>Data da Ronda:</b> ${dataStr}</p>
+        <p style="margin: 3px 0;"><b>Inspetor Responsável:</b> ${inspetor}</p>
+        ${estadoAtualRonda.focoCritico ? `<p style="margin: 10px 0 0 0; padding: 10px; background-color: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; font-size: 12px;"><b>Foco do Dia:</b> ${estadoAtualRonda.focoCritico}</p>` : ''}
+        </div>
+        <div style="padding: 20px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; background-color: #ffffff;">
+        `;
+
+        if (arrResolvidos.length > 0) {
+        emailHtml += `<h3 style="color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 5px; margin-top: 0;">✅ RESOLVIDAS NESTA RONDA (${arrResolvidos.length})</h3>`;
+        arrResolvidos.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#3b82f6'); });
+        }
+
+        if (arrEmAndamento.length > 0) {
+        emailHtml += `<h3 style="color: #d97706; border-bottom: 2px solid #fde68a; padding-bottom: 5px; margin-top: 25px;">⏳ EM ANDAMENTO (${arrEmAndamento.length})</h3>`;
+        arrEmAndamento.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#f59e0b'); });
+        }
+
+        if (arrReincidentes.length > 0) {
+        emailHtml += `<h3 style="color: #7c3aed; border-bottom: 2px solid #e9d5ff; padding-bottom: 5px; margin-top: 25px;">🔄 REINCIDÊNCIAS COBRADAS (${arrReincidentes.length})</h3>`;
+        arrReincidentes.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#a855f7'); });
+        }
+
+        if (arrPontuados.length > 0) {
+        emailHtml += `<h3 style="color: #dc2626; border-bottom: 2px solid #fecaca; padding-bottom: 5px; margin-top: 25px;">🚨 PONTUADOS E PENDENTES (${arrPontuados.length})</h3>`;
+        arrPontuados.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#ef4444'); });
+        }
+
+        if (arrResolvidos.length === 0 && arrEmAndamento.length === 0 && arrReincidentes.length === 0 && arrPontuados.length === 0) {
+        emailHtml += `
+        <div style="text-align: center; padding: 40px 20px; background-color: #f0fdf4; color: #166534; border-radius: 8px; border: 2px dashed #86efac;">
+        <h2 style="margin: 0; font-size: 24px;">Tudo Conforme! 🎉</h2>
+        <p style="margin: 10px 0 0 0; font-size: 14px;">Nenhum desvio, pendência ou não conformidade foi registrado na vistoria de hoje.</p>
+        </div>`;
+        }
+
+        emailHtml += `
+        </div>
+        <p style="text-align: center; font-size: 10px; color: #94a3b8; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;">Documento gerado automaticamente pelo SGI Vistoria App</p>
+        </div>`;
+
+        copiarParaAreaTransferenciaRichText(emailHtml);
         }
 
         // -----------------------------------------------------
@@ -4644,6 +5358,19 @@
                 event.target.value = ""; 
             };
             reader.readAsText(file);
+        }
+
+        // ==========================================
+        // TAREFA 85.5: DICIONÁRIO DE MODAIS
+        // ==========================================
+        // O que faz: Ensina o sistema a fechar qualquer pop-up/modal.
+        // Por que fiz: O aplicativo da Ronda não possuía essa função nativa, o que causava travamento no botão Cancelar e ao selecionar pendências do passado.
+        function fecharModal(id) {
+            const m = document.getElementById(id);
+            if(m) {
+                m.classList.add('hidden');
+                m.classList.remove('flex');
+            }
         }
 
         function mostrarToast(msg) {
