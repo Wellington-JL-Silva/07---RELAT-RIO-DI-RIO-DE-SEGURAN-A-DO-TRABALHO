@@ -4984,29 +4984,53 @@
         }
 
         // ==========================================
-        // TAREFA 87.1.1: NOVO MOTOR DE CÓPIA RICA (CLIPBOARD API)
+        // TAREFA 88.6: EXPORTADOR COM MINIATURAS ADAPTADAS
         // ==========================================
+        // O que faz: Cria um elemento Canvas, gera uma miniatura das fotos e as converte em formato JPEG para a área de transferência. O banco de dados do App e os links clicáveis permanecem inalterados.
+        // Por que fiz: Melhora a compatibilidade visual no momento da colagem no cliente de e-mail, mantendo o HTML leve e usando URLs padrão.
         async function copiarParaAreaTransferenciaRichText(htmlString) {
-        try {
-        const blobHtml = new Blob([htmlString], { type: "text/html" });
-        const blobText = new Blob([htmlString.replace(/<[^>]*>?/gm, '')], { type: "text/plain" }); 
-
-        const data = [new ClipboardItem({
-        "text/html": blobHtml,
-        "text/plain": blobText
-        })];
-
-        await navigator.clipboard.write(data);
-        mostrarToast("Relatório Visual copiado! Abra o e-mail (Outlook/Gmail) e cole.");
-
-        } catch (err) {
-        console.warn("Navegador não suporta a API moderna. Usando Fallback... ", err);
-
+        mostrarToast("Gerando miniaturas visuais... Aguarde.");
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = htmlString;
         tempDiv.style.position = "absolute";
         tempDiv.style.left = "-9999px";
+        tempDiv.style.top = "0";
         document.body.appendChild(tempDiv);
+
+        // Processa os links e gera a miniatura visual
+        const imagens = tempDiv.querySelectorAll('img');
+        const promessasImagem = Array.from(imagens).map(img => {
+        return new Promise(resolve => {
+        const isLink = img.src.startsWith('http');
+        if (!isLink) { resolve(); return; }
+
+        const imgTemp = new Image();
+        imgTemp.crossOrigin = "Anonymous"; // Permissão de leitura de origem cruzada
+        imgTemp.onload = () => {
+        try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 140;
+        canvas.height = 140;
+        const ctx = canvas.getContext('2d');
+        // Centraliza a imagem no canvas (escala proporcional)
+        const scale = Math.max(canvas.width / imgTemp.width, canvas.height / imgTemp.height);
+        const x = (canvas.width / 2) - (imgTemp.width / 2) * scale;
+        const y = (canvas.height / 2) - (imgTemp.height / 2) * scale;
+        ctx.drawImage(imgTemp, x, y, imgTemp.width * scale, imgTemp.height * scale);
+        // Ajuste de exibição: Altera o src da miniatura para JPEG a 70%, mantendo a Tag <a> intacta
+        img.src = canvas.toDataURL('image/jpeg', 0.7);
+        } catch(e) {
+        console.warn("Restrição de CORS ao gerar miniatura. Mantendo URL original.", e);
+        }
+        resolve();
+        };
+        imgTemp.onerror = resolve; // Continua o fluxo em caso de falha
+        imgTemp.src = img.src;
+        });
+        });
+
+        await Promise.all(promessasImagem);
+        await new Promise(r => setTimeout(r, 200));
 
         const selection = window.getSelection();
         const range = document.createRange();
@@ -5016,15 +5040,14 @@
 
         try {
         document.execCommand("copy");
-        mostrarToast("Relatório copiado (Modo de Compatibilidade).");
+        mostrarToast("E-mail EXECUTIVO copiado! Cole no Outlook (Ctrl+V).");
         } catch (e) {
-        console.error("Erro ao copiar HTML no fallback: ", e);
-        mostrarToast("Erro crítico ao acessar a área de transferência.");
+        console.error("Erro ao exportar o formato: ", e);
+        mostrarToast("Erro ao acessar a área de transferência.");
         }
 
         selection.removeAllRanges();
         document.body.removeChild(tempDiv);
-        }
         }
 
         // ==========================================
@@ -5363,7 +5386,7 @@
         // ==========================================
         // TAREFA 85.5: DICIONÁRIO DE MODAIS
         // ==========================================
-        // O que faz: Ensina o sistema a fechar qualquer pop-up/modal.
+        // O que faz: Ensina o sistema a fechar qualquer pop-up/modal....
         // Por que fiz: O aplicativo da Ronda não possuía essa função nativa, o que causava travamento no botão Cancelar e ao selecionar pendências do passado.
         function fecharModal(id) {
             const m = document.getElementById(id);
