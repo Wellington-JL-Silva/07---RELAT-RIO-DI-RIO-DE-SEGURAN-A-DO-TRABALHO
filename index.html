@@ -364,6 +364,16 @@
                     </button>
                 </div>
 
+                <!-- ========================================== -->
+                <!-- TAREFA 59.3: CONTAINER DO BOTÃO DE SINCRONIZAÇÃO OFFLINE -->
+                <!-- ========================================== -->
+                <div id="container-sync-offline" class="hidden mb-6 page-break-inside-avoid">
+                <button onclick="if(typeof sincronizarFotosOfflineDash === 'function') sincronizarFotosOfflineDash()" class="w-full bg-blue-600 hover:bg-blue-500 animate-pulse text-white font-black py-4 rounded-xl shadow-lg border-2 border-blue-400 flex flex-col items-center justify-center gap-1 transition active:scale-95">
+                <span class="text-lg"><i class="fa-solid fa-cloud-arrow-up"></i> Sincronizar Fotos Pendentes (<span id="count-fotos-offline">0</span>)</span>
+                <span class="text-[10px] font-normal uppercase tracking-widest text-blue-200">Toque aqui com Wi-Fi para enviar as provas para a nuvem</span>
+                </button>
+                </div>
+
                 <!-- Estatísticas Simples -->
                 <h2 class="text-lg font-bold text-slate-700 dark:text-slate-200 mb-3 border-b border-slate-200 dark:border-slate-700 pb-2"><i class="fa-solid fa-chart-simple text-alblue dark:text-blue-400 mr-2"></i> Indicadores da Ronda</h2>
                 <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
@@ -417,8 +427,8 @@
                         </div>
                     </div>
                     
-                    <!-- NOVO: Gráfico 3: SLA / Ranking de Tempo de Resposta -->
-                    <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors flex flex-col items-center lg:col-span-3">
+                    <!-- NOVO: Gráfico 3: SLA / Ranking de Tempo de Resposta (OCULTADO TAREFA 59.1) -->
+                    <div class="hidden bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700 transition-colors flex flex-col items-center lg:col-span-3">
                         <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mb-2"><i class="fa-solid fa-stopwatch text-purple-500 mr-2"></i>SLA: Tempo Médio de Resolução por Responsável / OS</h3>
                         <div class="relative w-full h-64 flex justify-center">
                             <canvas id="chartSla"></canvas>
@@ -967,7 +977,15 @@
                         { idItem: "chk_emerg_1", descricao: "Os extintores de incêndio estão desobstruídos, devidamente sinalizados e com o lacre/manômetro conformes?", permite_foto: true, campo_observacao_dinamico: true },
                         { idItem: "chk_emerg_2", descricao: "As caixas de hidrantes contêm todos os acessórios (mangueira, esguicho, chave) e o acesso está desobstruído?", permite_foto: true, campo_observacao_dinamico: true },
                         { idItem: "chk_emerg_3", descricao: "As portas de emergência e rotas de fuga estão destrancadas e a sinalização fotoluminescente visível?", permite_foto: true, campo_observacao_dinamico: true },
-                        { idItem: "chk_emerg_4", descricao: "As placas de sinalização de emergência estão inteiras, limpas, perfeitamente visíveis e instaladas no lugar correto?", permite_foto: true, campo_observacao_dinamico: true }
+                        { idItem: "chk_emerg_4", descricao: "As placas de sinalização de emergência estão inteiras, limpas, perfeitamente visíveis e instaladas no lugar correto?", permite_foto: true, campo_observacao_dinamico: true },
+                    // ==========================================
+                    // TAREFA 92.1: INJEÇÃO DOS MAPAS DE RISCO
+                    // ==========================================
+                    // O que faz: Adiciona perguntas específicas sobre Mapas de Risco na aba de Emergência.
+                    // Por que fiz: Garante a percepção de risco e o cumprimento de NR-5 sem precisar criar uma categoria nova inteira, mantendo a interface enxuta.
+                       { idItem: "chk_emerg_5", descricao: "O Mapa de Risco do setor está afixado em local visível, legível e em bom estado de conservação?", permite_foto: true, campo_observacao_dinamico: true },
+                       { idItem: "chk_emerg_6", descricao: "A data de validade/revisão do Mapa de Risco (CIPA/SESMT) está atualizada e vigente?", permite_foto: true, campo_observacao_dinamico: true },
+                       { idItem: "chk_emerg_7", descricao: "Os riscos apontados (físicos, químicos, biológicos, ergonômicos, acidentes) condizem com as operações, máquinas e layout atuais do setor?", permite_foto: true, campo_observacao_dinamico: true }
                     ]
                 },
                 {
@@ -1035,7 +1053,14 @@
                     itens: [
                         { idItem: "chk_foc_1", descricao: "Identificado algum desvio crítico ou risco grave e iminente não contemplado nos itens anteriores?", permite_foto: true, campo_observacao_dinamico: true },
                         { idItem: "chk_foc_2", descricao: "Observada alguma anomalia de comportamento inseguro sistêmico que requer ação imediata da Liderança?", permite_foto: true, campo_observacao_dinamico: true },
-                        { idItem: "chk_foc_3", descricao: "Relato de outras necessidades de reparos gerais, vazamentos pontuais ou desvios ambientais atípicos?", permite_foto: true, campo_observacao_dinamico: true }
+                        { idItem: "chk_foc_3", descricao: "Relato de outras necessidades de reparos gerais, vazamentos pontuais ou desvios ambientais atípicos?", permite_foto: true, campo_observacao_dinamico: true },
+                // ==========================================
+                // TAREFA 95: INJEÇÃO DO PLANO DE ACIDENTES
+                // ==========================================
+                // O que faz: Adiciona a verificação de preparo para acidentes de trabalho na aba de Foco Crítico.
+                // Por que fiz: Garante que os colaboradores saibam como agir (primeiros socorros e comunicação) em caso de lesões no setor.
+                         { idItem: "chk_foc_4", descricao: "Existe um plano de emergência/atendimento (Primeiros Socorros, Contatos, Fluxo) claro e de conhecimento da equipe caso algum funcionário se acidentar no setor?", permite_foto: true, campo_observacao_dinamico: true },
+                         { idItem: "chk_foc_5", descricao: "Houve relato ou registro de acidentes, lesões (machucados) ou quase-acidentes recentes no dia de hoje?", permite_foto: true, campo_observacao_dinamico: true }
                     ]
                 },
                 // ==========================================
@@ -1298,11 +1323,11 @@
         }
 
         // ==========================================
-        // TAREFA 57: MOTOR DE UPLOAD RETARDADO (BASE64 -> STORAGE)
+        // TAREFA 59.3: MOTOR DE UPLOAD RETARDADO ATUALIZADO (MÚLTIPLAS FOTOS)
         // ==========================================
+        // O que faz: Lê as fotos estagnadas no celular (Base64) e as transforma em Links HTTP Seguros.
         async function processarUploadsPendentes() {
             if (typeof storage === 'undefined' || typeof auth === 'undefined' || !auth.currentUser || !navigator.onLine) return;
-            
             let houveMudanca = false;
             const emailDono = auth.currentUser.email.split('@')[0].toUpperCase();
             const hoje = new Date();
@@ -1311,24 +1336,34 @@
             // Varre todas as respostas procurando por códigos Base64 gigantes
             for (const itemId in estadoAtualRonda.respostas) {
                 const resp = estadoAtualRonda.respostas[itemId];
+
+                // 1. Checa foto avulsa (Retrocompatibilidade)
                 if (resp.fotoBase64 && resp.fotoBase64.startsWith('data:image')) {
                     try {
-                        mostrarToast("Despachando fotos offline para a Nuvem...");
+                        mostrarToast("Despachando foto pendente...");
                         const nomeArquivo = `offline_sync_${emailDono}_${itemId}_${Date.now()}.jpg`;
-                        const storageRef = storage.ref(`vistorias_fotos/${pasta}/${nomeArquivo}`);
-                        
-                        await storageRef.putString(resp.fotoBase64, 'data_url');
-                        const url = await storageRef.getDownloadURL();
-                        
-                        // Mágica: Troca o texto pesado de 200kb pelo Link Curto do Google
+                        const url = await uploadParaStorageComRetry(resp.fotoBase64, `vistorias_fotos/${pasta}/${nomeArquivo}`);
                         estadoAtualRonda.respostas[itemId].fotoBase64 = url;
                         houveMudanca = true;
-                    } catch (e) {
-                        console.error(`Erro ao despachar foto offline do item ${itemId}:`, e);
+                    } catch (e) { console.error(e); }
+                }
+
+                // 2. Checa o Mural de Múltiplas Fotos
+                if (resp.fotos && resp.fotos.length > 0) {
+                    for (let i = 0; i < resp.fotos.length; i++) {
+                        if (resp.fotos[i].startsWith('data:image')) {
+                            try {
+                                mostrarToast(`Despachando foto ${i+1} do mural...`);
+                                const nomeArquivo = `offline_mural_${emailDono}_${itemId}_${Date.now()}_${i}.jpg`;
+                                const url = await uploadParaStorageComRetry(resp.fotos[i], `vistorias_fotos/${pasta}/${nomeArquivo}`);
+                                estadoAtualRonda.respostas[itemId].fotos[i] = url;
+                                houveMudanca = true;
+                            } catch (e) { console.error(e); }
+                        }
                     }
                 }
             }
-            
+
             if (houveMudanca) {
                 salvarProgresso(); // Salva a lousa leve no celular antes de mandar pro Firestore
             }
@@ -2930,40 +2965,55 @@
         }
 
         // ==========================================
-        // TAREFA 80.1.2: SUPER COMPRESSOR WEBP E TRAVA DE SUPORTE
+        // TAREFA 59.2.1: SUPER COMPRESSOR WEBP COM CARIMBO DIGITAL SGI
         // ==========================================
-        function comprimirImagemBase99(file, callback) {
+        // O que faz: Reduz a resolução para 600px e, se houver textos, funde uma faixa preta translúcida com dados da ronda direto nos pixels da foto antes de virar WebP.
+        // Por que fiz: Elimina a necessidade de aplicativos de terceiros. A prova fotográfica ganha o selo corporativo blindado e imutável.
+        function comprimirImagemBase99(file, callback, textoCarimbo1 = "", textoCarimbo2 = "") {
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = event => {
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
-                    // O que faz: Reduz resolução para 600px e converte para formato WebP, checando compatibilidade.
-                    // Por que fiz: O WebP com 600px gera um Base64 até 50% mais leve que o JPEG, e a checagem evita que navegadores antigos estoirem a memória com PNGs gigantes.
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; 
+                    const MAX_WIDTH = 600;
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
-                    
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    
-                    let base64Comprimida = canvas.toDataURL('image/webp', 0.8);
-                    
-                    if (!base64Comprimida.startsWith('data:image/webp')) {
-                       console.warn("Navegador não suporta WebP. Usando JPEG como segurança.");
-                       base64Comprimida = canvas.toDataURL('image/jpeg', 0.6);
+
+                    // MÁGICA: A Injeção do Carimbo no Canvas
+                    if (textoCarimbo1 !== "" || textoCarimbo2 !== "") {
+                        const rectHeight = 45; // Altura da faixa preta
+                        ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+                        ctx.fillRect(0, canvas.height - rectHeight, canvas.width, rectHeight);
+
+                        ctx.font = "bold 14px Arial";
+                        ctx.textAlign = "left";
+
+                        // Linha 1 (Data e Hora) na cor Branca
+                        ctx.fillStyle = "#FFFFFF";
+                        ctx.fillText(textoCarimbo1, 10, canvas.height - 24);
+
+                        // Linha 2 (Contexto) na cor Amarela SGI
+                        ctx.fillStyle = "#FFCC00";
+                        ctx.fillText(textoCarimbo2, 10, canvas.height - 8);
                     }
-                    
+
+                    let base64Comprimida = canvas.toDataURL('image/webp', 0.8);
+                    if (!base64Comprimida.startsWith('data:image/webp')) {
+                        console.warn("Navegador não suporta WebP. Usando JPEG como segurança.");
+                        base64Comprimida = canvas.toDataURL('image/jpeg', 0.6);
+                    }
                     callback(base64Comprimida);
                 }
             };
         }
 
         // ==========================================
-        // TAREFA 80.2.1: MURAL DE RONDAS COM FASES VISUAIS E RETRY
+        // TAREFA 59.2.2: FOTO COM CARIMBO NA RONDA ATUAL
         // ==========================================
         function processarImagemLote(input, itemId) {
             if (input.files && input.files.length > 0) {
@@ -2981,12 +3031,29 @@
                 const lblBotao = document.getElementById(`lbl-foto-${itemId}`);
                 let arquivosProcessados = 0;
 
+                // Extração de Dados para o Carimbo SGI
+                const agora = new Date();
+                const dataFormatada = ("0" + agora.getDate()).slice(-2) + "/" + ("0" + (agora.getMonth() + 1)).slice(-2) + "/" + agora.getFullYear();
+                const horaFormatada = ("0" + agora.getHours()).slice(-2) + ":" + ("0" + agora.getMinutes()).slice(-2) + ":" + ("0" + agora.getSeconds()).slice(-2);
+                const inspetorNome = estadoAtualRonda.inspetor || 'INSPETOR';
+                const textoCarimbo1 = `AL INDÚSTRIA - SESMT | Data: ${dataFormatada} ${horaFormatada}`;
+
+                let nomeCategoria = "RONDA GERAL";
+                if (typeof moldeAtual !== 'undefined') {
+                    for(let cat of moldeAtual) {
+                        if(cat.itens && cat.itens.find(i => i.idItem === itemId)) {
+                            nomeCategoria = cat.tituloCategoria.toUpperCase();
+                            break;
+                        }
+                    }
+                }
+                const textoCarimbo2 = `Resp: ${inspetorNome} | Categoria: ${nomeCategoria}`;
+
                 arquivosPermitidos.forEach((file) => {
-                    // O que faz: Aciona o Freio de Mão e avisa o usuário do início da compressão.
-                    // Por que fiz: Garante que o relatório não seja enviado incompleto e dá feedback real da lentidão do celular vs internet.
                     window.uploadsAtivos++; 
                     if (lblBotao) { lblBotao.innerText = "Fase 1: Comprimindo..."; lblBotao.parentElement.classList.add('animate-pulse', 'bg-yellow-500'); }
 
+                    // Passa os textos para a impressora virtual
                     comprimirImagemBase99(file, async (base64) => {
                         resposta.fotos.push(base64);
                         const indexDestaFoto = resposta.fotos.length - 1;
@@ -3003,8 +3070,6 @@
                             try {
                                 const urlLimpa = await uploadParaStorageComRetry(base64, `vistorias_fotos/${pasta}/${nomeArquivo}`);
                                 
-                                // O que faz: Troca o textão Base64 pela URL na memória assim que a Fase 3 é concluída.
-                                // Por que fiz: O Firebase Firestore tem limite de 1MB por documento. Substituir a foto pelo Link elimina esse risco totalmente.
                                 estadoAtualRonda.respostas[itemId].fotos[indexDestaFoto] = urlLimpa;
                                 salvarProgresso();
                                 atualizarMuralDOM(itemId); 
@@ -3021,7 +3086,7 @@
                             lblBotao.innerText = resposta.fotos.length + ' Foto(s)';
                             lblBotao.parentElement.classList.remove('animate-pulse', 'bg-yellow-500');
                         }
-                    });
+                    }, textoCarimbo1, textoCarimbo2); // <-- TEXTOS INJETADOS AQUI
                 });
                 input.value = "";
             }
@@ -3086,9 +3151,9 @@
         }
 
         // ==========================================
-        // TAREFA 85.3.4: A MÁQUINA DO TEMPO FOTOGRÁFICA
+        // TAREFA 59.2.3: A MÁQUINA DO TEMPO FOTOGRÁFICA (COM CARIMBO)
         // ==========================================
-        // O que faz: Tira uma foto hoje e envia a URL via Freio de Mão direto para o Prontuário do Histórico.
+        // O que faz: Tira uma foto hoje e envia a URL via Freio de Mão direto para o Prontuário do Histórico com selo.
         // Por que fiz: Garante a prova visual de que o problema reincidente continua na fábrica.
         function processarFotoPassado(input, itemId) {
             if (!input.files || input.files.length === 0) return;
@@ -3110,6 +3175,14 @@
 
             window.uploadsAtivos++;
             mostrarToast("Fase 1: Preparando a Máquina do Tempo...");
+
+            // Extração de Dados para o Carimbo de Passivo SGI
+            const agora = new Date();
+            const dataFormatada = ("0" + agora.getDate()).slice(-2) + "/" + ("0" + (agora.getMonth() + 1)).slice(-2) + "/" + agora.getFullYear();
+            const horaFormatada = ("0" + agora.getHours()).slice(-2) + ":" + ("0" + agora.getMinutes()).slice(-2) + ":" + ("0" + agora.getSeconds()).slice(-2);
+            const inspetorNome = estadoAtualRonda.inspetor || 'INSPETOR';
+            const textoCarimbo1 = `AL INDÚSTRIA - PASSIVO | Data: ${dataFormatada} ${horaFormatada}`;
+            const textoCarimbo2 = `Resp: ${inspetorNome} | ID do Problema: ${resp.ticketAntigo}`;
 
             comprimirImagemBase99(file, async (base64) => {
                 // Salva IMEDIATAMENTE offline para garantir
@@ -3135,7 +3208,8 @@
                     mostrarToast("Prova salva no Histórico (Modo Offline).");
                 }
                 window.uploadsAtivos--;
-            });
+            }, textoCarimbo1, textoCarimbo2); // <-- TEXTOS INJETADOS AQUI
+            
             input.value = "";
         }
 
@@ -3925,8 +3999,63 @@
             const statJp = document.getElementById('stat-jp');
             if (statJp) statJp.innerText = jps;
 
+            // ==========================================
+            // TAREFA 59.3: EXIBIÇÃO DINÂMICA DO BOTÃO DE SINCRONIZAÇÃO
+            // ==========================================
+            let fotosOfflineCount = 0;
+            Object.values(estadoAtualRonda.respostas).forEach(resp => {
+            if (resp.fotoBase64 && resp.fotoBase64.startsWith('data:image')) fotosOfflineCount++;
+            if (resp.fotos && resp.fotos.length > 0) {
+            resp.fotos.forEach(f => {
+            if (f.startsWith('data:image')) fotosOfflineCount++;
+            });
+            }
+            });
+
+            const containerSync = document.getElementById('container-sync-offline');
+            const countSpan = document.getElementById('count-fotos-offline');
+            if (containerSync && countSpan) {
+            if (fotosOfflineCount > 0) {
+            countSpan.innerText = fotosOfflineCount;
+            containerSync.classList.remove('hidden');
+            } else {
+            containerSync.classList.add('hidden');
+            }
+            }
+
             atualizarGraficos(); 
             atualizarDashboardExcecoes();
+        }
+
+        // ==========================================
+        // TAREFA 59.3: AÇÃO DE DISPARO DO BOTÃO PISCANTE
+        // ==========================================
+        async function sincronizarFotosOfflineDash() {
+        if (!navigator.onLine) {
+        alert("Você precisa estar conectado à internet para sincronizar as fotos.");
+        return;
+        }
+        if (typeof auth === 'undefined' || !auth.currentUser) {
+        alert("Faça login para sincronizar.");
+        return;
+        }
+
+        const btn = document.querySelector('#container-sync-offline button');
+        const conteudoOriginal = btn.innerHTML;
+        btn.innerHTML = '<span class="text-lg"><i class="fa-solid fa-spinner fa-spin"></i> Enviando para a nuvem...</span><span class="text-[10px] uppercase tracking-widest text-blue-200">Não feche o aplicativo</span>';
+        btn.classList.remove('animate-pulse');
+
+        await processarUploadsPendentes();
+
+        salvarProgresso();
+        calcularEstatisticas(); // Recalcula os números para esconder o botão magicamente
+        mostrarToast("✅ Sincronização Concluída!");
+
+        // Empurra também a Lousa Finalizada
+        if (typeof sincronizarComNuvem === 'function') sincronizarComNuvem(true);
+
+        btn.innerHTML = conteudoOriginal;
+        btn.classList.add('animate-pulse');
         }
 
         // NOVO: Função que cria/atualiza o painel focado apenas em Exceções (Ignora os OKs)
@@ -4221,17 +4350,32 @@
         ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
         const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0
         ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
+
+        // ==========================================
+        // TAREFA 59.4: MOLDURA PREMIUM DO CABEÇALHO (PDF / PRÉVIA)
+        // ==========================================
         let html = `
-        <div class="text-center mb-8 border-b-2 border-slate-800 dark:border-slate-500 pb-4">
-        <h1 class="text-3xl font-black text-slate-800 dark:text-slate-100">Relatório diario de rondas.</h1>
-        <p class="text-sm text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest mt-1">AL Indústria - SESMT</p>
+        <div class="mb-8 rounded-xl overflow-hidden border border-slate-300 dark:border-slate-600 shadow-sm page-break-inside-avoid">
+        <div class="bg-slate-800 dark:bg-slate-900 p-6 text-center border-b-4 border-amber-500">
+        <h1 class="text-3xl font-black text-white tracking-wide uppercase">📋 Relatório Executivo de Rondas</h1>
+        <p class="text-xs text-slate-300 font-bold uppercase tracking-[0.2em] mt-2">AL Indústria - Segurança do Trabalho</p>
         </div>
-        <!-- CABEÇALHO ATUALIZADO: Contraste de Cores e Negrito -->
-        <div class="mb-6 text-sm grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-900/50 p-4 rounded border border-slate-200 dark:border-slate-700">
-        <div><b class="text-slate-900 dark:text-white">Filiais Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${unidadesStr}</span></div>
-        <div><b class="text-slate-900 dark:text-white">Data:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${dataStr}</span></div>
-        <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Áreas Vistoriadas:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${areasStr}</span></div>
-        <div class="sm:col-span-2"><b class="text-slate-900 dark:text-white">Inspetor:</b> <span style="font-weight: normal !important; color: #475569 !important;" class="dark:text-slate-300">${inspetor}</span></div>
+        <div class="bg-slate-50 dark:bg-slate-800 p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Data Oficial da Ronda</p>
+        <p class="text-xl font-black text-slate-800 dark:text-white">${dataStr}</p>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Inspetor Responsável</p>
+        <p class="text-xl font-black text-slate-800 dark:text-white">${inspetor}</p>
+        </div>
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 rounded-lg shadow-sm md:col-span-2">
+        <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1">Filiais & Áreas Vistoriadas</p>
+        <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 leading-relaxed"><b>Unidades:</b> ${unidadesStr}<br><b>Setores:</b> ${areasStr}</p>
+        </div>
+        </div>
+        </div>
         </div>
         `;
         if (estadoAtualRonda.focoCritico) {
@@ -4389,23 +4533,12 @@
         </div>`;
         });
         html += `</div></div>`;
-        // 3. REINCIDÊNCIAS (Borda Roxa)
-        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-purple-600 dark:text-purple-400 border-b-2 border-purple-200 dark:border-purple-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-clock-rotate-left"></i> REINCIDÊNCIAS DESSA RONDA</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
-        if (arrReincidentes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma reincidência cobrada nesta ronda.</p>';
-        arrReincidentes.forEach((obj, idx) => {
-        html += `
-        <div class="mb-3 p-4 bg-purple-50 dark:bg-slate-900 border border-purple-200 dark:border-purple-800/50 border-l-4 border-l-purple-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
-        <div class="flex justify-between items-start mb-1">
-        <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
-        ${obj.resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${obj.resp.ticketAntigo}</span>` : ''}
-        </div>
-        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
-        ${gerarTagsSetoresPdf(obj.resp.setores)}
-        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Anotação de Cobrança:</b> ${obj.resp.observacao}</div>` : ''}
-        </div>`;
-        });
-        html += `</div></div>`;
-        // 4. ITENS PONTUADOS (Borda Vermelha)
+        
+        // ==========================================
+        // TAREFA 90.2: INVERSÃO DE HIERARQUIA NO PDF (PONTUADOS ANTES DOS REINCIDENTES)
+        // ==========================================
+
+        // 3. ITENS PONTUADOS (Borda Vermelha)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-red-600 dark:text-red-400 border-b-2 border-red-200 dark:border-red-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-triangle-exclamation"></i> ITENS PONTUADOS (Aguardando Ação)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrPontuados.length === 0 && arrObsAreas.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item pontuado nesta ronda.</p>';
         let contVermelhas = 0;
@@ -4434,6 +4567,45 @@
         </div>`;
         });
         html += `</div></div>`;
+
+        // 4. REINCIDÊNCIAS (Borda Roxa)
+        html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-purple-600 dark:text-purple-400 border-b-2 border-purple-200 dark:border-purple-800 mb-3 flex items-center gap-2 pb-1"><i class="fa-solid fa-clock-rotate-left"></i> REINCIDÊNCIAS DESSA RONDA</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
+        if (arrReincidentes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhuma reincidência cobrada nesta ronda.</p>';
+        arrReincidentes.forEach((obj, idx) => {
+
+        // MÁGICA DO DOSSIÊ NO PDF: Busca os dados originais no Histórico
+        let objCompleto = { ...obj.resp };
+        if (obj.resp.ticketAntigo) {
+            const histAntigo = historicoPendencias.find(p => p.ticket === obj.resp.ticketAntigo);
+            if (histAntigo) {
+                if (!objCompleto.acoes || objCompleto.acoes.length === 0) objCompleto.acoes = histAntigo.acoes;
+                if (!objCompleto.responsavel) objCompleto.responsavel = histAntigo.responsavelTratativa;
+                if (!objCompleto.solucao) objCompleto.solucao = histAntigo.solucao;
+                if (!objCompleto.fotos || objCompleto.fotos.length === 0) {
+                    if (histAntigo.fotoHistorico) {
+                        objCompleto.fotos = [histAntigo.fotoHistorico];
+                    }
+                }
+            }
+        }
+
+        html += `
+        <div class="mb-3 p-4 bg-purple-50 dark:bg-slate-900 border border-purple-200 dark:border-purple-800/50 border-l-4 border-l-purple-500 rounded-lg shadow-sm break-inside-avoid page-break-inside-avoid">
+        <div class="flex justify-between items-start mb-1">
+        <p class="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-widest">${obj.secao.tituloCategoria}</p>
+        ${obj.resp.ticketAntigo ? `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded text-[9px] font-bold shadow-sm border border-purple-300 dark:border-purple-800"><i class="fa-solid fa-tag"></i> ${obj.resp.ticketAntigo}</span>` : ''}
+        </div>
+        <p class="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-1">${idx + 1}. ${obj.item.descricao}</p>
+        ${gerarTagsSetoresPdf(obj.resp.setores)}
+        ${obj.resp.observacao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Nova Cobrança:</b> ${obj.resp.observacao}</div>` : ''}
+        ${objCompleto.solucao ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Tratativa Passada:</b> ${objCompleto.solucao}</div>` : ''}
+        ${gerarTimelineAcoesPdf(objCompleto)}
+        ${objCompleto.responsavel ? `<div class="text-sm text-slate-600 dark:text-slate-400 mb-1"><b>Responsáveis / OS:</b> ${objCompleto.responsavel}</div>` : ''}
+        ${gerarMuralFotosPdf(objCompleto)}
+        </div>`;
+        });
+        html += `</div></div>`;
+
         // 5. ITENS CONFORMES (Borda Verde)
         html += `<div class="mb-5"><h2 style="page-break-after: avoid; break-after: avoid; break-inside: avoid; page-break-inside: avoid;" class="text-lg font-bold text-slate-600 dark:text-slate-400 border-b-2 border-slate-200 dark:border-slate-700 mb-3 flex items-center gap-2 pb-1 pt-2"><i class="fa-solid fa-check-circle"></i> ITENS CONFORMES / AVALIADOS (Auditoria de Área)</h2><div class="pl-2 border-l-2 border-slate-200 dark:border-slate-700">`;
         if (arrConformes.length === 0) html += '<p class="text-sm text-slate-600 dark:text-slate-400 italic py-2">Nenhum item avaliado como conforme.</p>';
@@ -4797,22 +4969,26 @@
                 if(typeof sincronizarComNuvem === 'function') sincronizarComNuvem();
 
                 // ==========================================
-                // TAREFA 82.1: ARQUIVO MORTO COM DATA DO RELATÓRIO
+                // TAREFA 110.1: ARQUIVO MORTO COM DATA OFICIAL (CORREÇÃO DE MEMÓRIA)
                 // ==========================================
-                // O que faz: Extrai a data oficial do relatório (dataRonda) e usa como chave e dataArquivo no Firestore, ignorando o relógio do sistema.
-                // Por que fiz: Garante que relatórios finalizados com atraso (ex: no dia seguinte) fiquem arquivados na pasta correspondente ao dia real da vistoria.
+                // O que faz: Extrai a data oficial do relatório a partir da fotografia tirada antes do sistema limpar a lousa.
+                // Por que fiz: O sistema rodava o bootApp() antes de salvar na nuvem, o que reiniciava a data do app para "hoje". Agora, ele lê a data intocável da fotografia congelada.
                 if (typeof auth !== 'undefined' && auth.currentUser) {
                     const emailUsuario = auth.currentUser.email;
-                    // Puxa a data do cabeçalho do relatório. Se falhar, usa a data atual com correção de fuso BR.
+
+                    // Puxa a data da Fotografia (antes do bootApp limpar a tela). Aplica fuso BR para evitar virada de dia à noite.
                     let dataIsoString = "";
-                    if (estadoAtualRonda.dataRonda) {
-                        dataIsoString = estadoAtualRonda.dataRonda.split('T')[0];
+                    if (fotografiaDoDia && fotografiaDoDia.dataRonda) {
+                        const dOriginal = new Date(fotografiaDoDia.dataRonda);
+                        const tzOffset = dOriginal.getTimezoneOffset() * 60000;
+                        const dLocal = new Date(dOriginal.getTime() - tzOffset);
+                        dataIsoString = dLocal.toISOString().split('T')[0];
                     } else {
                         const tzOffset = hoje.getTimezoneOffset() * 60000;
                         const dataLocal = new Date(hoje - tzOffset);
                         dataIsoString = dataLocal.toISOString().split('T')[0];
                     }
-                    
+
                     db.collection('historico_arquivado').doc(`${emailUsuario}_${dataIsoString}`).set({
                         dono: emailUsuario,
                         dataArquivo: dataIsoString,
@@ -4829,19 +5005,20 @@
         }
 
         // ==========================================
-        // TAREFA 69 - MÓDULO WHATSAPP (Inteligência Espelhada do PDF)
+        // TAREFA 89.1: O DOSSIÊ DO WHATSAPP (REINCIDÊNCIAS + CONFORMES)
         // ==========================================
+        // O que faz: Atualiza a formatação do texto para WhatsApp. O sistema agora cruza a cobrança atual ("já pontuado") com os dados ricos do banco de dados (histórico de ações, responsáveis, etc) para gerar o cartão completo.
+        // Por que fiz: Garante que os gestores recebam o panorama total de uma reincidência, sem parecer um aviso vago.
         function gerarResumoEmail() {
         const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
         const dataObj = estadoAtualRonda.dataRonda ? new Date(estadoAtualRonda.dataRonda) : new Date();
         const dataStr = `${("0"+dataObj.getDate()).slice(-2)}/${("0"+(dataObj.getMonth()+1)).slice(-2)}/${dataObj.getFullYear()}`;
         const unidadesStr = estadoAtualRonda.unidadesSelecionadas && estadoAtualRonda.unidadesSelecionadas.length > 0 ? estadoAtualRonda.unidadesSelecionadas.join(", ") : "Não informadas";
         const areasStr = estadoAtualRonda.areasSelecionadas && estadoAtualRonda.areasSelecionadas.length > 0 ? estadoAtualRonda.areasSelecionadas.join(", ") : "Não informadas";
-
         let texto = `RESUMO DAS RONDAS DO DIA ${dataStr}\nFiliais Vistoriadas: ${unidadesStr}\nÁreas Vistoriadas: ${areasStr}\nInspetor: ${inspetor}\n\n`;
 
         if(estadoAtualRonda.focoCritico) {
-            texto += `🎯 FOCO DO DIA: ${estadoAtualRonda.focoCritico}\n\n`;
+        texto += `🎯 FOCO DO DIA: ${estadoAtualRonda.focoCritico}\n\n`;
         }
 
         // 1. O SISTEMA DE GAVETAS
@@ -4854,105 +5031,131 @@
         // 2. A MÁGICA: Promoção de Itens do Histórico
         const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
         historicoNaoResolvido.forEach(pend => {
-            const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
-            const respLousa = estadoAtualRonda.respostas[pend.idItem];
-            const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
-            
-            if (teveAcaoHoje && !estaNaLousa) {
-                arrEmAndamento.push({
-                    cat: { tituloCategoria: pend.categoria },
-                    item: { descricao: pend.descricao },
-                    resp: {
-                        status: 'em_andamento',
-                        ticket: pend.ticket,
-                        observacao: pend.ultimaAnotacao,
-                        acoes: pend.acoes,
-                        promovidoDoHistorico: true
-                    }
-                });
-            }
+        const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
+        const respLousa = estadoAtualRonda.respostas[pend.idItem];
+        const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+
+        if (teveAcaoHoje && !estaNaLousa) {
+        arrEmAndamento.push({
+        cat: { tituloCategoria: pend.categoria },
+        item: { descricao: pend.descricao },
+        resp: {
+        status: 'em_andamento',
+        ticket: pend.ticket,
+        observacao: pend.ultimaAnotacao,
+        acoes: pend.acoes,
+        promovidoDoHistorico: true
+        }
+        });
+        }
         });
 
         // 3. Colhe os Itens Normais da Ronda Atual
         moldeAtual.forEach(cat => {
-            cat.itens.forEach(item => {
-                const resp = estadoAtualRonda.respostas[item.idItem];
-                if (!resp) return;
-                const obj = { cat, item, resp };
-                
-                if (resp.status === 'resolvido') arrResolvidos.push(obj);
-                else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
-                else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
-                else if (resp.status === 'pontuado') arrPontuados.push(obj);
-                else if (resp.status === 'ok') arrConformes.push(obj);
-            });
+        cat.itens.forEach(item => {
+        const resp = estadoAtualRonda.respostas[item.idItem];
+        if (!resp) return;
 
-            // Anexação das Observações Gerais
-            const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
-            if (obsArea && obsArea.trim() !== "") {
-                arrPontuados.push({
-                    cat, 
-                    item: { descricao: "Observação Geral da Área" }, 
-                    resp: { status: 'pontuado', observacao: obsArea, isObsArea: true }
-                });
-            }
+        const obj = { cat, item, resp };
+        if (resp.status === 'resolvido') arrResolvidos.push(obj);
+        else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
+        else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
+        else if (resp.status === 'pontuado') arrPontuados.push(obj);
+        else if (resp.status === 'ok') arrConformes.push(obj);
+        });
+
+        // Anexação das Observações Gerais
+        const obsArea = estadoAtualRonda.obsAreas[cat.idCategoria];
+        if (obsArea && obsArea.trim() !== "") {
+        arrPontuados.push({
+        cat,
+        item: { descricao: "Observação Geral da Área" },
+        resp: { status: 'pontuado', observacao: obsArea, isObsArea: true }
+        });
+        }
         });
 
         // 4. Ordenação Inteligente "Em Andamento" (Ação Hoje = Topo)
         arrEmAndamento.sort((a, b) => {
-            const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
-            const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
-            return temAcaoB - temAcaoA;
+        const temAcaoA = (a.resp.acoes && a.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        const temAcaoB = (b.resp.acoes && b.resp.acoes.some(ac => ac.data === dataStr)) ? 1 : 0;
+        return temAcaoB - temAcaoA;
         });
 
         // 5. CONSTRUÇÃO DO TEXTO DINÂMICO
-        // ==========================================
-        // TAREFA 86.1.1: INJEÇÃO DE SETORES NO WHATSAPP
-        // ==========================================
         let itensResolvidos = "";
         arrResolvidos.forEach((obj, idx) => {
-            const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
-            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
-            let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
-            itensResolvidos += `✅ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Desvio: ${obj.resp.observacao || 'Não relatado'}\n   ↳ Solução: ${obj.resp.solucao || 'Não relatada'}${acoesTexto}\n\n\n`;
+        const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+        const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
+        let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
+
+        itensResolvidos += `✅ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Desvio: ${obj.resp.observacao || 'Não relatado'}\n   ↳ Solução: ${obj.resp.solucao || 'Não relatada'}${acoesTexto}\n\n\n`;
         });
 
         let itensEmAndamento = "";
         arrEmAndamento.forEach((obj, idx) => {
-            const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
-            const tagHoje = obj.resp.promovidoDoHistorico ? ' [⚡ AÇÃO HOJE]' : '';
-            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
-            let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
-            itensEmAndamento += `⏳ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagHoje}${tagSetores} ${obj.item.descricao}\n   ↳ Tratativa: ${obj.resp.observacao || 'Em andamento'}${acoesTexto}\n\n\n`;
+        const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+        const tagHoje = obj.resp.promovidoDoHistorico ? ' [⚡ AÇÃO HOJE]' : '';
+        const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
+        let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
+
+        itensEmAndamento += `⏳ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagHoje}${tagSetores} ${obj.item.descricao}\n   ↳ Tratativa: ${obj.resp.observacao || 'Em andamento'}${acoesTexto}\n\n\n`;
         });
 
+        // O SEGREDO DO DOSSIÊ NO WHATSAPP (Mergulho no Histórico)
         let itensReincidentes = "";
         arrReincidentes.forEach((obj, idx) => {
-            const tkt = obj.resp.ticketAntigo ? ` [🎫 ${obj.resp.ticketAntigo}]` : '';
-            const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
-            const linhaCobranca = (obj.resp.observacao && obj.resp.observacao.trim() !== '') ? `\n   ↳ Cobrança: ${obj.resp.observacao}` : '';
-            itensReincidentes += `🔄 ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}${linhaCobranca}\n\n\n`;
+        const tkt = obj.resp.ticketAntigo ? ` [🎫 ${obj.resp.ticketAntigo}]` : '';
+        const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
+        const linhaCobranca = (obj.resp.observacao && obj.resp.observacao.trim() !== '') ? `\n   ↳ Nova Cobrança: ${obj.resp.observacao}` : '';
+
+        let acoesTexto = (obj.resp.acoes && obj.resp.acoes.length > 0) ? '\n   ↳ Linha do Tempo:\n' + obj.resp.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n') : '';
+        let respTexto = (obj.resp.responsavel && obj.resp.responsavel.trim() !== '') ? `\n   ↳ Responsáveis/OS: ${obj.resp.responsavel}` : '';
+        let solucaoTexto = (obj.resp.solucao && obj.resp.solucao.trim() !== '') ? `\n   ↳ Tratativa Passada: ${obj.resp.solucao}` : '';
+
+        // Busca profunda no arquivo morto caso o cartão da lousa ainda não tenha recebido os dados da nuvem
+        if (obj.resp.ticketAntigo && (!acoesTexto || !respTexto || !solucaoTexto)) {
+            const histAntigo = historicoPendencias.find(p => p.ticket === obj.resp.ticketAntigo);
+            if (histAntigo) {
+                if (!acoesTexto && histAntigo.acoes && histAntigo.acoes.length > 0) {
+                    acoesTexto = '\n   ↳ Linha do Tempo:\n' + histAntigo.acoes.map(a => `      [${a.data}] ${a.texto}`).join('\n');
+                }
+                if (!respTexto && histAntigo.responsavelTratativa) {
+                    respTexto = `\n   ↳ Responsáveis/OS: ${histAntigo.responsavelTratativa}`;
+                }
+                if (!solucaoTexto && histAntigo.solucao) {
+                    solucaoTexto = `\n   ↳ Tratativa Passada: ${histAntigo.solucao}`;
+                }
+            }
+        }
+
+        itensReincidentes += `🔄 ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}${linhaCobranca}${solucaoTexto}${respTexto}${acoesTexto}\n\n\n`;
         });
 
         let itensPontuados = "";
         arrPontuados.forEach((obj, idx) => {
-            if (obj.resp.isObsArea) {
-                itensPontuados += `📝 ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}:\n   ↳ ${obj.resp.observacao}\n\n\n`;
-            } else {
-                const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
-                const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
-                itensPontuados += `❌ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Obs: ${obj.resp.observacao || 'Sem anotações'}\n\n\n`;
-            }
+        if (obj.resp.isObsArea) {
+        itensPontuados += `📝 ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}:\n   ↳ ${obj.resp.observacao}\n\n\n`;
+        } else {
+        const tkt = obj.resp.ticket ? ` [🎫 ${obj.resp.ticket}]` : '';
+        const tagSetores = (obj.resp.setores && obj.resp.setores.length > 0) ? ` [📍 Setores: ${obj.resp.setores.join(', ')}]` : '';
+        itensPontuados += `❌ ${idx + 1}. [${obj.cat.tituloCategoria}]${tkt}${tagSetores} ${obj.item.descricao}\n   ↳ Obs: ${obj.resp.observacao || 'Sem anotações'}\n\n\n`;
+        }
         });
 
         let itensConformes = "";
         arrConformes.forEach((obj, idx) => {
-            itensConformes += `✔️ ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}\n   ↳ Status: Inspecionado e validado.\n\n\n`;
+        itensConformes += `✔️ ${idx + 1}. [${obj.cat.tituloCategoria}] ${obj.item.descricao}\n   ↳ Status: Inspecionado e validado (Conforme).\n\n\n`;
         });
 
         // 6. IMPRESSÃO FINAL (SEGUINDO A HIERARQUIA DO PDF)
-        texto += `✅ SITUAÇÕES RESOLVIDAS:\n\n`;
-        if (itensResolvidos === "") { texto += `Nenhuma.\n\n\n`; } else { texto += `${itensResolvidos}`; }
+        // ==========================================
+        // TAREFA 96.3: MARKETING DE RESOLUÇÕES NO WHATSAPP
+        // ==========================================
+        // O que faz: Altera o título da lista de resoluções no resumo de texto gerado para a área de transferência.
+        // Por que fiz: Padroniza o marketing do SESMT em todos os canais de comunicação, reforçando o valor do trabalho na fábrica.
+        texto += `🏆 RESOLVIDOS HOJE (Ações Imediatas de Melhoria):\n\n`;
+        if (itensResolvidos === "") { texto += `Nenhum problema resolvido no ato.\n\n\n`; } else { texto += `${itensResolvidos}`; }
 
         texto += `⏳ EM ANDAMENTO:\n\n`;
         if (itensEmAndamento === "") { texto += `Nenhum item em andamento.\n\n\n`; } else { texto += `${itensEmAndamento}`; }
@@ -4967,10 +5170,10 @@
         if (itensConformes === "") { texto += `Nenhum item marcado como conforme.\n\n\n`; } else { texto += `${itensConformes}`; }
 
         if (estadoAtualRonda.anexos && estadoAtualRonda.anexos.length > 0) {
-            texto += `\n📎 ANEXOS DOCUMENTAIS VINCULADOS:\n\n`;
-            estadoAtualRonda.anexos.forEach(anexo => {
-                texto += `   ↳ Categoria: ${anexo.categoria} - Arquivo: ${anexo.nomeArquivo}\n`;
-            });
+        texto += `\n📎 ANEXOS DOCUMENTAIS VINCULADOS:\n\n`;
+        estadoAtualRonda.anexos.forEach(anexo => {
+        texto += `   ↳ Categoria: ${anexo.categoria} - Arquivo: ${anexo.nomeArquivo}\n`;
+        });
         }
 
         // 7. DESPACHO PARA ÁREA DE TRANSFERÊNCIA
@@ -4980,6 +5183,7 @@
         el.select();
         document.execCommand('copy');
         document.body.removeChild(el);
+
         mostrarToast("Texto Inteligente copiado para colar no WhatsApp!");
         }
 
@@ -5116,7 +5320,7 @@
         }
 
         // ==========================================
-        // TAREFA 86.4: MOTOR DO E-MAIL (TRIAGEM E LAYOUT)
+        // TAREFA 89.3: O NOVO E-MAIL EXECUTIVO (DOSSIÊ, CONFORMES E BACKLOG)
         // ==========================================
         function gerarEmailExecutivo() {
         const inspetor = estadoAtualRonda.inspetor || "Inspetor SESMT";
@@ -5127,8 +5331,10 @@
         let arrEmAndamento = [];
         let arrReincidentes = [];
         let arrPontuados = [];
+        let arrConformes = [];
 
         const historicoNaoResolvido = historicoPendencias.filter(p => p.statusHistorico !== "Resolvido");
+
         historicoNaoResolvido.forEach(pend => {
         const teveAcaoHoje = pend.acoes && pend.acoes.some(ac => ac.data === dataStr);
         const respLousa = estadoAtualRonda.respostas[pend.idItem];
@@ -5156,12 +5362,13 @@
         cat.itens.forEach(item => {
         const resp = estadoAtualRonda.respostas[item.idItem];
         if (!resp) return;
-        const obj = { cat, item, resp };
 
+        const obj = { cat, item, resp };
         if (resp.status === 'resolvido') arrResolvidos.push(obj);
         else if (resp.status === 'em_andamento') arrEmAndamento.push(obj);
         else if (resp.status === 'ja_pontuado') arrReincidentes.push(obj);
         else if (resp.status === 'pontuado') arrPontuados.push(obj);
+        else if (resp.status === 'ok') arrConformes.push(obj);
         });
         });
 
@@ -5171,39 +5378,152 @@
         return temAcaoB - temAcaoA;
         });
 
-        let emailHtml = `<div style="max-width: 680px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">`;
+        // ==========================================
+        // TAREFA 91.1: DASHBOARD EMBUTIDO NO E-MAIL EXECUTIVO
+        // ==========================================
+        // ==========================================
+        // TAREFA 96.1: O DESMEMBRAMENTO DOS INDICADORES (MARKETING)
+        // ==========================================
+        // O que faz: Separa o total de Resolvidos Hoje do total de Conformes para dar visibilidade às ações imediatas no e-mail.
+        // Por que fiz: Valoriza o trabalho braçal da equipe do SESMT, destacando em cor exclusiva os problemas que foram aniquilados na própria ronda.
+        const totalConformes = arrConformes.length;
+        const totalResolvidos = arrResolvidos.length;
+        const totalPendentes = arrEmAndamento.length + arrReincidentes.length + arrPontuados.length;
+        const totalGeral = totalConformes + totalResolvidos + totalPendentes;
 
+        // Captura Física Instantânea (Base64 direto dos Canvases)
+        const imgGeral = typeof chartGeralInstance !== 'undefined' && chartGeralInstance ? chartGeralInstance.toBase64Image() : '';
+        const imgSetores = typeof chartSetoresInstance !== 'undefined' && chartSetoresInstance ? chartSetoresInstance.toBase64Image() : '';
+
+        // ==========================================
+        // TAREFA 59.4.3: AJUSTE FINO DE FONTES DO CABEÇALHO (OUTLOOK)
+        // ==========================================
+        let emailHtml = `<div style="max-width: 680px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">`;
         emailHtml += `
-        <div style="background-color: #003366; padding: 20px; border-radius: 8px 8px 0 0; text-align: center; color: white;">
-        <h1 style="margin: 0; font-size: 20px; text-transform: uppercase; letter-spacing: 1px;">SGI - Relatório de Vistoria e Ações</h1>
-        <p style="margin: 5px 0 0 0; font-size: 12px; color: #93c5fd;">AL INDÚSTRIA - SEGURANÇA DO TRABALHO</p>
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #1e293b; border-radius: 12px 12px 0 0; border-bottom: 4px solid #f59e0b;">
+        <tr>
+        <td align="center" style="padding: 25px 20px 5px 20px;">
+        <h1 style="margin: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; color: #f8fafc;">📋 Relatório Executivo de Rondas</h1>
+        <p style="margin: 5px 0 0 0; font-size: 18px; color: #94a3b8; font-weight: bold; letter-spacing: 2px; text-transform: uppercase;">AL Indústria - Segurança do Trabalho</p>
+        </td>
+        </tr>
+        <tr>
+        <td align="right" style="padding: 0 20px 10px 20px;">
+        <span style="font-size: 6px; color: #64748b; letter-spacing: 1px;">Gestão: Wellington Silva - TST - Registro MTE N°0131888/SP</span>
+        </td>
+        </tr>
+        </table>
+        <table width="100%" cellpadding="20" cellspacing="0" border="0" style="background-color: #f1f5f9; border-left: 1px solid #cbd5e1; border-right: 1px solid #cbd5e1;">
+        <tr>
+        <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" border="0">
+        <tr>
+        <td width="48%" valign="top">
+        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+        <p style="margin: 0 0 5px 0; color: #64748b; font-size: 10px; text-transform: uppercase; font-weight: bold;">Data Oficial da Ronda</p>
+        <p style="margin: 0; font-size: 16px; font-weight: 900; color: #0f172a;">${dataStr}</p>
         </div>
-        <div style="background-color: #f1f5f9; padding: 15px; border-bottom: 2px solid #cbd5e1; font-size: 13px; color: #475569;">
-        <p style="margin: 3px 0;"><b>Data da Ronda:</b> ${dataStr}</p>
-        <p style="margin: 3px 0;"><b>Inspetor Responsável:</b> ${inspetor}</p>
-        ${estadoAtualRonda.focoCritico ? `<p style="margin: 10px 0 0 0; padding: 10px; background-color: #fef3c7; border-left: 4px solid #f59e0b; color: #92400e; font-size: 12px;"><b>Foco do Dia:</b> ${estadoAtualRonda.focoCritico}</p>` : ''}
+        </td>
+        <td width="4%"></td>
+        <td width="48%" valign="top">
+        <div style="background-color: #ffffff; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; text-align: left; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+        <p style="margin: 0 0 5px 0; color: #64748b; font-size: 10px; text-transform: uppercase; font-weight: bold;">Inspetor Responsável</p>
+        <p style="margin: 0; font-size: 16px; font-weight: 900; color: #0f172a;">${inspetor}</p>
         </div>
-        <div style="padding: 20px; border: 1px solid #e2e8f0; border-top: none; border-radius: 0 0 8px 8px; background-color: #ffffff;">
+        </td>
+        </tr>
+        </table>
+        ${estadoAtualRonda.focoCritico ? `<div style="margin-top: 15px; padding: 12px; background-color: #fffbeb; border-left: 4px solid #f59e0b; border-radius: 4px; color: #92400e; font-size: 13px; text-align: left;"><b style="display: block; margin-bottom: 4px; color: #b45309; text-transform: uppercase; font-size: 10px;">🎯 Foco Crítico do Dia:</b> ${estadoAtualRonda.focoCritico}</div>` : ''}
+        </td>
+        </tr>
+        </table>
+        <div style="padding: 25px; border: 1px solid #cbd5e1; border-top: none; border-radius: 0 0 12px 12px; background-color: #ffffff;">
+
+        <!-- PAINEL DE INDICADORES (TABELAS BLINDADAS PARA OUTLOOK) -->
+        <table width="100%" cellpadding="10" cellspacing="0" border="0" style="margin-bottom: 20px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; font-family: Arial, sans-serif;">
+        <tr>
+        <td align="center" width="25%" valign="middle">
+        <p style="font-size: 10px; color: #64748b; margin: 0; text-transform: uppercase;">Inspecionados</p>
+        <p style="font-size: 24px; color: #0f172a; margin: 5px 0 0 0; font-weight: bold;">${totalGeral}</p>
+        </td>
+        <td align="center" width="25%" valign="middle" style="border-left: 1px solid #cbd5e1;">
+        <p style="font-size: 10px; color: #16a34a; margin: 0; text-transform: uppercase;">Conformes</p>
+        <p style="font-size: 24px; color: #16a34a; margin: 5px 0 0 0; font-weight: bold;">${totalConformes}</p>
+        </td>
+        <td align="center" width="25%" valign="middle" style="border-left: 1px solid #cbd5e1; background-color: #eff6ff;">
+        <p style="font-size: 10px; color: #2563eb; margin: 0; text-transform: uppercase;">🏆 Resolvidos Hoje</p>
+        <p style="font-size: 24px; color: #2563eb; margin: 5px 0 0 0; font-weight: bold;">${totalResolvidos}</p>
+        </td>
+        <td align="center" width="25%" valign="middle" style="border-left: 1px solid #cbd5e1;">
+        <p style="font-size: 10px; color: #dc2626; margin: 0; text-transform: uppercase;">Pendências</p>
+        <p style="font-size: 24px; color: #dc2626; margin: 5px 0 0 0; font-weight: bold;">${totalPendentes}</p>
+        </td>
+        </tr>
+        </table>
+
+        <!-- GRÁFICOS GERENCIAIS (TABELAS BLINDADAS PARA OUTLOOK) -->
+        ${imgGeral || imgSetores ? `
+        <table width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-bottom: 30px; font-family: Arial, sans-serif;">
+        <tr>
+        ${imgGeral ? `<td width="50%" align="center" valign="top" style="padding-right: 10px;">
+        <p style="font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 10px; text-transform: uppercase;">Status Global</p>
+        <img src="${imgGeral}" width="280" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 4px; display: block;">
+        </td>` : ''}
+        ${imgSetores ? `<td width="50%" align="center" valign="top" style="padding-left: 10px;">
+        <p style="font-size: 12px; font-weight: bold; color: #334155; margin-bottom: 10px; text-transform: uppercase;">Desempenho por Assunto</p>
+        <img src="${imgSetores}" width="280" style="max-width: 100%; height: auto; border: 1px solid #e2e8f0; border-radius: 4px; display: block;">
+        </td>` : ''}
+        </tr>
+        </table>
+        <hr style="border: 0; border-top: 1px solid #e2e8f0; margin-bottom: 25px;">
+        ` : ''}
         `;
 
+        // ==========================================
+        // TAREFA 96.2: A VITRINE NO CORPO DO E-MAIL
+        // ==========================================
+        // O que faz: Renomeia o bloco de pendências resolvidas para reforçar o marketing da segurança.
+        // Por que fiz: Reforça visualmente que a equipe não apenas inspecionou, mas consertou o problema ativamente no mesmo dia.
         if (arrResolvidos.length > 0) {
-        emailHtml += `<h3 style="color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 5px; margin-top: 0;">✅ RESOLVIDAS NESTA RONDA (${arrResolvidos.length})</h3>`;
+        emailHtml += `<h3 style="color: #0284c7; border-bottom: 2px solid #bae6fd; padding-bottom: 5px; margin-top: 0;">🏆 RESOLVIDOS HOJE (Ações Imediatas de Melhoria) (${arrResolvidos.length})</h3>`;
         arrResolvidos.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#3b82f6'); });
         }
 
+        // ==========================================
+        // TAREFA 90.1: INVERSÃO DE HIERARQUIA (PONTUADOS ANTES DOS REINCIDENTES)
+        // ==========================================
         if (arrEmAndamento.length > 0) {
         emailHtml += `<h3 style="color: #d97706; border-bottom: 2px solid #fde68a; padding-bottom: 5px; margin-top: 25px;">⏳ EM ANDAMENTO (${arrEmAndamento.length})</h3>`;
         arrEmAndamento.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#f59e0b'); });
         }
 
-        if (arrReincidentes.length > 0) {
-        emailHtml += `<h3 style="color: #7c3aed; border-bottom: 2px solid #e9d5ff; padding-bottom: 5px; margin-top: 25px;">🔄 REINCIDÊNCIAS COBRADAS (${arrReincidentes.length})</h3>`;
-        arrReincidentes.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#a855f7'); });
-        }
-
         if (arrPontuados.length > 0) {
         emailHtml += `<h3 style="color: #dc2626; border-bottom: 2px solid #fecaca; padding-bottom: 5px; margin-top: 25px;">🚨 PONTUADOS E PENDENTES (${arrPontuados.length})</h3>`;
         arrPontuados.forEach((obj, idx) => { emailHtml += gerarCartaoEmailItem(obj, idx + 1, '#ef4444'); });
+        }
+
+        if (arrReincidentes.length > 0) {
+        emailHtml += `<h3 style="color: #7c3aed; border-bottom: 2px solid #e9d5ff; padding-bottom: 5px; margin-top: 25px;">🔄 REINCIDÊNCIAS (${arrReincidentes.length})</h3>`;
+        arrReincidentes.forEach((obj, idx) => {
+            // INTELIGÊNCIA DO DOSSIÊ NO E-MAIL
+            let objCompleto = { ...obj };
+            objCompleto.resp = { ...obj.resp };
+            if (obj.resp.ticketAntigo) {
+                const histAntigo = historicoPendencias.find(p => p.ticket === obj.resp.ticketAntigo);
+                if (histAntigo) {
+                    if (!objCompleto.resp.acoes || objCompleto.resp.acoes.length === 0) objCompleto.resp.acoes = histAntigo.acoes;
+                    if (!objCompleto.resp.responsavel) objCompleto.resp.responsavel = histAntigo.responsavelTratativa;
+                    if (!objCompleto.resp.solucao) objCompleto.resp.solucao = histAntigo.solucao;
+                    if (!objCompleto.resp.observacao) objCompleto.resp.observacao = `Cobrança de pendência antiga. Ticket: ${histAntigo.ticket}`;
+                    if (!objCompleto.resp.fotos || objCompleto.resp.fotos.length === 0) {
+                        if (histAntigo.fotoHistorico) {
+                            objCompleto.resp.fotos = [histAntigo.fotoHistorico];
+                        }
+                    }
+                }
+            }
+            emailHtml += gerarCartaoEmailItem(objCompleto, idx + 1, '#a855f7'); 
+        });
         }
 
         if (arrResolvidos.length === 0 && arrEmAndamento.length === 0 && arrReincidentes.length === 0 && arrPontuados.length === 0) {
@@ -5214,10 +5534,66 @@
         </div>`;
         }
 
+        if (arrConformes.length > 0) {
+        emailHtml += `<h3 style="color: #16a34a; border-bottom: 2px solid #bbf7d0; padding-bottom: 5px; margin-top: 25px;">✔️ ITENS CONFORMES / AVALIADOS (${arrConformes.length})</h3>`;
+        arrConformes.forEach((obj, idx) => {
+            let objOk = { ...obj };
+            objOk.resp = { ...obj.resp };
+            objOk.resp.observacao = "Item inspecionado e validado (Conforme).";
+            emailHtml += gerarCartaoEmailItem(objOk, idx + 1, '#22c55e'); 
+        });
+        }
+
+        // O BLOCO DE ASSINATURA EXECUTIVA
         emailHtml += `
+        <div style="margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid #e2e8f0; break-inside: avoid;">
+        <p style="margin: 0; font-weight: bold; color: #0f172a; font-size: 16px;">${inspetor}</p>
+        <p style="margin: 4px 0 0 0; color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">SESMT - AL Indústria</p>
         </div>
+        `;
+
+        // O EXTRATO DE FÁBRICA (BACKLOG)
+        const passivoParaExibir = historicoNaoResolvido.filter(p => {
+            const teveAcaoHoje = p.acoes && p.acoes.some(ac => ac.data === dataStr);
+            const respLousa = estadoAtualRonda.respostas[p.idItem];
+            const estaNaLousa = respLousa && (respLousa.status === 'em_andamento' || respLousa.status === 'resolvido' || respLousa.status === 'pontuado' || respLousa.status === 'ja_pontuado');
+            return !(teveAcaoHoje && !estaNaLousa) && !estaNaLousa;
+        });
+
+        if (passivoParaExibir.length > 0) {
+            const passivoAndamento = passivoParaExibir.filter(p => p.statusHistorico === "Em Andamento");
+            const passivoPendente = passivoParaExibir.filter(p => p.statusHistorico !== "Em Andamento");
+
+            emailHtml += `
+            <div style="margin-top: 40px; padding: 20px; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px;">
+            <h3 style="color: #334155; font-size: 16px; text-transform: uppercase; margin-top: 0; border-bottom: 2px solid #94a3b8; padding-bottom: 5px;">📁 EXTRATO DA FÁBRICA (Passivo de Auditoria)</h3>
+            <p style="font-size: 11px; color: #64748b; margin-bottom: 15px;">Itens pendentes no histórico global que não foram pauta da ronda atual.</p>
+            `;
+
+            if (passivoAndamento.length > 0) {
+                emailHtml += `<h4 style="color: #d97706; font-size: 13px; margin: 15px 0 10px 0;">⏳ EM ANDAMENTO (Tratativas Iniciadas)</h4>`;
+                emailHtml += `<ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #475569;">`;
+                passivoAndamento.forEach(p => {
+                    emailHtml += `<li style="margin-bottom: 8px;"><b>[${p.ticket}]</b> ${p.descricao} <br><span style="font-size: 10px; color: #64748b;">(Aberto há ${p.diasAberto} dias - Setores: ${(p.setores || []).join(', ') || 'N/A'})</span></li>`;
+                });
+                emailHtml += `</ul>`;
+            }
+
+            if (passivoPendente.length > 0) {
+                emailHtml += `<h4 style="color: #dc2626; font-size: 13px; margin: 15px 0 10px 0;">🚨 ITENS PONTUADOS (Aguardando Ação)</h4>`;
+                emailHtml += `<ul style="margin: 0; padding-left: 20px; font-size: 12px; color: #475569;">`;
+                passivoPendente.forEach(p => {
+                    emailHtml += `<li style="margin-bottom: 8px;"><b>[${p.ticket}]</b> ${p.descricao} <br><span style="font-size: 10px; color: #64748b;">(Aberto há ${p.diasAberto} dias - Setores: ${(p.setores || []).join(', ') || 'N/A'})</span></li>`;
+                });
+                emailHtml += `</ul>`;
+            }
+
+            emailHtml += `</div>`;
+        }
+
+        emailHtml += `
         <p style="text-align: center; font-size: 10px; color: #94a3b8; margin-top: 20px; text-transform: uppercase; letter-spacing: 1px;">Documento gerado automaticamente pelo SGI Vistoria App</p>
-        </div>`;
+        </div></div>`;
 
         copiarParaAreaTransferenciaRichText(emailHtml);
         }
